@@ -1,7 +1,5 @@
--- File SQL per le migrazioni per la creazione delle tabelle 
-
--- Crea la tabella Utenti
-CREATE TABLE "Utenti" (
+--- Crea la tabella Utenti
+CREATE TABLE IF NOT EXISTS "Utenti" (
   "id" SERIAL PRIMARY KEY,
   "nome" VARCHAR(50) NOT NULL,
   "ruolo" ENUM('operatore', 'automobilista', 'varco') NOT NULL,
@@ -11,7 +9,7 @@ CREATE TABLE "Utenti" (
 );
 
 -- Crea la tabella Parcheggio
-CREATE TABLE "Parcheggio" (
+CREATE TABLE IF NOT EXISTS "Parcheggio" (
   "id" SERIAL PRIMARY KEY,
   "nome" VARCHAR(100) NOT NULL,
   "capacita" INTEGER NOT NULL,
@@ -20,7 +18,7 @@ CREATE TABLE "Parcheggio" (
 );
 
 -- Crea la tabella Tipo_Veicolo
-CREATE TABLE "Tipo_Veicolo" (
+CREATE TABLE IF NOT EXISTS "Tipo_Veicolo" (
   "id" SERIAL PRIMARY KEY,
   "nome" VARCHAR(50) NOT NULL UNIQUE,
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -28,7 +26,7 @@ CREATE TABLE "Tipo_Veicolo" (
 );
 
 -- Crea la tabella Veicoli
-CREATE TABLE "Veicoli" (
+CREATE TABLE IF NOT EXISTS "Veicoli" (
   "id" SERIAL PRIMARY KEY,
   "targa" VARCHAR(20) NOT NULL UNIQUE,
   "id_tipo_veicolo" INTEGER NOT NULL,
@@ -40,7 +38,7 @@ CREATE TABLE "Veicoli" (
 );
 
 -- Crea la tabella Varco
-CREATE TABLE "Varco" (
+CREATE TABLE IF NOT EXISTS "Varco" (
   "id" SERIAL PRIMARY KEY,
   "tipo" ENUM('INGRESSO', 'USCITA') NOT NULL,
   "bidirezionale" BOOLEAN NOT NULL DEFAULT FALSE,
@@ -51,7 +49,7 @@ CREATE TABLE "Varco" (
 );
 
 -- Crea la tabella Tariffe
-CREATE TABLE "Tariffe" (
+CREATE TABLE IF NOT EXISTS "Tariffe" (
   "id" SERIAL PRIMARY KEY,
   "id_tipo_veicolo" INTEGER NOT NULL,
   "importo" FLOAT NOT NULL,
@@ -67,7 +65,7 @@ CREATE TABLE "Tariffe" (
 );
 
 -- Crea la tabella Transiti
-CREATE TABLE "Transiti" (
+CREATE TABLE IF NOT EXISTS "Transiti" (
   "id" SERIAL PRIMARY KEY,
   "ingresso" TIMESTAMP WITH TIME ZONE NOT NULL,
   "uscita" TIMESTAMP WITH TIME ZONE,
@@ -86,7 +84,7 @@ CREATE TABLE "Transiti" (
 );
 
 -- Crea la tabella Fatture
-CREATE TABLE "Fatture" (
+CREATE TABLE IF NOT EXISTS "Fatture" (
   "id" SERIAL PRIMARY KEY,
   "data" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "importo_totale" FLOAT NOT NULL,
