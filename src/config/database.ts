@@ -20,7 +20,7 @@ const dbPort = Number(process.env.DB_PORT) || 5432;
  * @description TODO
  */
 class DatabaseConnection {
-  private static instance: DatabaseConnection;
+  private static instance: DatabaseConnection | null = null;
 
   private connection: Sequelize;
 
@@ -33,14 +33,14 @@ class DatabaseConnection {
       host: dbHost,
       port: dbPort,
       dialect: 'postgres',
-      logging: false, // Disabilita i log delle query SQL
+      logging: true,
     });
   }
 
   /**
    * @function getInstance
-   * @description Ritorna l'istanza singleton della connessione al database.
-   * @returns {Sequelize} L'istanza Sequelize della connessione al database.
+   * @description TODO
+   * @returns {Sequelize} TODO
    */
   public static getInstance(): Sequelize {
     if (!DatabaseConnection.instance) {
