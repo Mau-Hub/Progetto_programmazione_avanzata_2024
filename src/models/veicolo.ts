@@ -5,7 +5,7 @@ import TipoVeicolo from './tipoVeicolo'; // Importa il modello Tipo_Veicolo per 
 
 const sequelize = Database.getInstance();
 
-// Definizione degli attributi del modello Veicolo
+// Definizione degli attributi del model Veicolo
 interface VeicoloAttributes {
   id: number;
   targa: string;
