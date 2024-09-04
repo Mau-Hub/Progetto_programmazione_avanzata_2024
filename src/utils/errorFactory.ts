@@ -1,4 +1,4 @@
-// Classe errore personalizzata
+// src/utils/errorFactory.ts
 class AppError extends Error {
   public readonly statusCode: number;
 
@@ -17,7 +17,6 @@ class AppError extends Error {
   }
 }
 
-// Factory function per creare errori
 const errorFactory = {
   // Errore per risorsa non trovata
   notFound: (message: string) => new AppError(message, 404),
