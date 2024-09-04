@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+/*import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
 const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
@@ -16,4 +16,5 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export default authMiddleware;
+export default authMiddleware; 
+*/

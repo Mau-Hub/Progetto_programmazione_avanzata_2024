@@ -1,4 +1,4 @@
-import express from 'express';
+/* import express from 'express';
 import Parcheggio from '../models/parcheggio';
 import Varco from '../models/varco';
 import authMiddleware from '../middleware/authentication';
@@ -112,3 +112,4 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 });
 
 export default router;
+*/
