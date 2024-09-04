@@ -1,5 +1,5 @@
 import { DataTypes, Model, Optional } from 'sequelize';
-import Database from '../config/database';
+import Database from '../db/database';
 import Veicolo from './veicolo'; // Importa il modello Veicolo per la relazione
 import Varco from './varco'; // Importa il modello Varco per la relazione
 import Tariffa from './tariffa'; // Importa il modello Tariffa per la relazione

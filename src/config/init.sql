@@ -1,8 +1,21 @@
---- Crea la tabella Utenti
+-- Definisci il tipo ENUM per la colonna "ruolo" nella tabella "Utenti"
+CREATE TYPE ruolo_enum AS ENUM ('operatore', 'automobilista', 'varco');
+
+-- Definisci il tipo ENUM per la colonna "tipo" nella tabella "Varco"
+CREATE TYPE tipo_enum AS ENUM ('INGRESSO', 'USCITA');
+
+-- Definisci il tipo ENUM per la colonna "fascia_oraria" nella tabella "Tariffe"
+CREATE TYPE fascia_oraria_enum AS ENUM ('DIURNA', 'NOTTURNA');
+
+-- Definisci il tipo ENUM per la colonna "giorno_settimana" nella tabella "Tariffe"
+CREATE TYPE giorno_settimana_enum AS ENUM ('LUNEDI', 'MARTEDI', 'MERCOLEDI', 'GIOVEDI', 'VENERDI', 'SABATO', 'DOMENICA', 'FERIALE', 'FESTIVO');
+
+
+-- Crea la tabella Utenti
 CREATE TABLE IF NOT EXISTS "Utenti" (
   "id" SERIAL PRIMARY KEY,
   "nome" VARCHAR(50) NOT NULL,
-  "ruolo" ENUM('operatore', 'automobilista', 'varco') NOT NULL,
+  "ruolo" ruolo_enum NOT NULL,  
   "jwt_token" TEXT NOT NULL,
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL,
   "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL
@@ -40,7 +53,7 @@ CREATE TABLE IF NOT EXISTS "Veicoli" (
 -- Crea la tabella Varco
 CREATE TABLE IF NOT EXISTS "Varco" (
   "id" SERIAL PRIMARY KEY,
-  "tipo" ENUM('INGRESSO', 'USCITA') NOT NULL,
+  "tipo" tipo_enum NOT NULL,
   "bidirezionale" BOOLEAN NOT NULL DEFAULT FALSE,
   "id_parcheggio" INTEGER NOT NULL,
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -53,8 +66,8 @@ CREATE TABLE IF NOT EXISTS "Tariffe" (
   "id" SERIAL PRIMARY KEY,
   "id_tipo_veicolo" INTEGER NOT NULL,
   "importo" FLOAT NOT NULL,
-  "fascia_oraria" ENUM('DIURNA', 'NOTTURNA') NOT NULL,
-  "giorno_settimana" ENUM('LUNEDI', 'MARTEDI', 'MERCOLEDI', 'GIOVEDI', 'VENERDI', 'SABATO', 'DOMENICA', 'FERIALE', 'FESTIVO') NOT NULL,
+  "fascia_oraria" fascia_oraria_enum NOT NULL,  
+  "giorno_settimana" giorno_settimana_enum NOT NULL,  
   "id_parcheggio" INTEGER NOT NULL,
   "id_utente" INTEGER NOT NULL,
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL,
