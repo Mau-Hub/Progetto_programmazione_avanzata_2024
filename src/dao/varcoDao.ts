@@ -14,7 +14,7 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
   /**
    * Recupera tutti i varchi.
    *
-   * @returns {Promise<Varco[]>} Promise che risolve un array di varchi.
+   * @returns {Promise<Varco[]>} Promise che restituice un array di varchi.
    */
   public async findAll(): Promise<Varco[]> {
     try {
@@ -22,7 +22,7 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
     } catch (error) {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
-        'Problema nel recupero dei varchi'
+        'Si è verificato un errore nel recupero dei varchi'
       );
     }
   }
@@ -31,7 +31,7 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
    * Recupero del varco per ID.
    *
    * @param {number} id del varco.
-   * @returns {Promise<Varco | null>} Promise che risolve un varco o restituisce null se non esistente.
+   * @returns {Promise<Varco | null>} Promise che restituisce un varco o restituisce null se non esistente.
    */
   public async findById(id: number): Promise<Varco | null> {
     try {
@@ -39,14 +39,14 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
       if (!varco) {
         throw ErrorGenerator.generateError(
           ApplicationErrorTypes.RESOURCE_NOT_FOUND,
-          `Varco con id ${id} inesistente`
+          `Il varco con l'id ${id} inesistente`
         );
       }
       return varco;
     } catch (error) {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
-        `Errore nel recupero del varco con id ${id}`
+        `Si è verificato un errore nel recupero del varco con id ${id}`
       );
     }
   }
@@ -55,7 +55,7 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
    * Crea un nuovo varco.
    *
    * @param {VarcoAttributes} item dati per generare il varco.
-   * @returns {Promise<Varco>} Promise che risolve il varco appena creato.
+   * @returns {Promise<Varco>} Promise che restituisce il varco appena creato.
    */
   public async create(item: VarcoAttributes): Promise<Varco> {
     try {
@@ -63,7 +63,7 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
     } catch (error) {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
-        'Si è verificato un problema nella creazione del varco'
+        'Si è verificato un errore nella creazione del varco'
       );
     }
   }
@@ -73,7 +73,7 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
    *
    * @param {number} id id attribuito al varco.
    * @param {VarcoAttributes} item dati necessari per l'aggiornamento del varco
-   * @returns {Promise<boolean>} Promise che risolve con true se l'aggiornamento è avvenuto, false in caso contrario.
+   * @returns {Promise<boolean>} Promise che restituisce true se l'aggiornamento è avvenuto, false in caso contrario.
    */
   public async update(id: number, item: VarcoAttributes): Promise<boolean> {
     try {
@@ -94,7 +94,7 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
    * Cancella un varco per ID.
    *
    * @param {number} id id del varco.
-   * @returns {Promise<boolean>} Promise che risolve true se la cancellazione è avvenuta, false in caso contrario.
+   * @returns {Promise<boolean>} Promise che restituisce true se la cancellazione è avvenuta, false in caso contrario.
    */
   public async delete(id: number): Promise<boolean> {
     try {
@@ -103,7 +103,7 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
     } catch (error) {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
-        `Errore nella cancellazione del varco con id ${id}`
+        `Si è verificato un errore nella cancellazione del varco con id ${id}`
       );
     }
   }
@@ -112,7 +112,7 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
    * Recupera tutti i varchi di un parcheggio specifico.
    *
    * @param {number} idParcheggio ID del parcheggio.
-   * @returns {Promise<Varco[]>} Promise che risolve un array di varchi del parcheggio specificato.
+   * @returns {Promise<Varco[]>} Promise che restituisce un array di varchi del parcheggio specificato.
    */
   public async findByParcheggio(idParcheggio: number): Promise<Varco[]> {
     try {
@@ -122,7 +122,7 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
     } catch (error) {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
-        `Problema nel recupero dei varchi per il parcheggio con id ${idParcheggio}`
+        `Si è verificato un errore nel recupero dei varchi per il parcheggio con id ${idParcheggio}`
       );
     }
   }
@@ -130,7 +130,7 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
   /**
    * Recupera tutti i varchi bidirezionali.
    *
-   * @returns {Promise<Varco[]>} Promise che risolve un array di varchi bidirezionali.
+   * @returns {Promise<Varco[]>} Promise che restituisce un array di varchi bidirezionali.
    */
   public async findBidirezionali(): Promise<Varco[]> {
     try {
@@ -140,7 +140,7 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
     } catch (error) {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
-        'Problema nel recupero dei varchi bidirezionali'
+        'Si è verificato un errore nel recupero dei varchi bidirezionali'
       );
     }
   }
@@ -149,7 +149,7 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
    * Recupera tutti i varchi di un tipo specifico (INGRESSO o USCITA).
    *
    * @param {('INGRESSO' | 'USCITA')} tipo Tipo del varco.
-   * @returns {Promise<Varco[]>} Promise che risolve un array di varchi del tipo specificato.
+   * @returns {Promise<Varco[]>} Promise che restituisce un array di varchi del tipo specificato.
    */
   public async findByTipo(tipo: 'INGRESSO' | 'USCITA'): Promise<Varco[]> {
     try {
@@ -159,7 +159,7 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
     } catch (error) {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
-        `Problema nel recupero dei varchi di tipo ${tipo}`
+        `Si è verificato un errore nel recupero dei varchi di tipo ${tipo}`
       );
     }
   }
