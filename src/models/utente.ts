@@ -3,7 +3,7 @@ import Database from '../db/database';
 
 const sequelize = Database.getInstance();
 
-// Definizione degli attributi del modello Utente
+// Definizione degli attributi del model Utente
 interface UtenteAttributes {
   id: number;
   nome: string;
