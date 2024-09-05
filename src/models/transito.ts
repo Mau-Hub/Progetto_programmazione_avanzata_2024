@@ -1,3 +1,4 @@
+// In models/transito.ts
 import { DataTypes, Model, Optional } from 'sequelize';
 import Database from '../db/database';
 import Veicolo from './veicolo'; // Importa il modello Veicolo per la relazione
@@ -8,7 +9,7 @@ import Posto from './posto'; // Importa il modello Posto per la relazione
 const sequelize = Database.getInstance();
 
 // Definizione degli attributi del model Transito
-interface TransitoAttributes {
+export interface TransitoAttributes {
   id: number;
   ingresso: Date;
   uscita: Date | null;
@@ -21,7 +22,7 @@ interface TransitoAttributes {
 }
 
 // Definizione dei campi opzionali per la creazione
-interface TransitoCreationAttributes
+export interface TransitoCreationAttributes
   extends Optional<
     TransitoAttributes,
     'id' | 'uscita' | 'id_varco_uscita' | 'importo'
@@ -49,8 +50,6 @@ class Transito
   public id_posto!: number;
 
   public importo!: number | null;
-
-  // I campi timestamp (createdAt, updatedAt) vengono aggiunti automaticamente da Sequelize
 }
 
 // Inizializzazione del model Transito

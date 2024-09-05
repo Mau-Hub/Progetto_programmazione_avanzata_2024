@@ -26,8 +26,6 @@ class Utente
   public ruolo!: 'operatore' | 'automobilista' | 'varco';
 
   public jwt_token!: string;
-
-  // I campi timestamp (createdAt, updatedAt) vengono aggiunti automaticamente da Sequelize
 }
 
 // Inizializzazione del model Utente

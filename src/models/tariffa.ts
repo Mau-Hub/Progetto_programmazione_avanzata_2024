@@ -1,13 +1,13 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import Database from '../db/database';
-import TipoVeicolo from './tipoVeicolo'; // Importa il modello TipoVeicolo per la relazione
-import Parcheggio from './parcheggio'; // Importa il modello Parcheggio per la relazione
-import Utente from './utente'; // Importa il modello Utente per la relazione (gestito dall'operatore)
+import TipoVeicolo from './tipoVeicolo';
+import Parcheggio from './parcheggio';
+import Utente from './utente';
 
 const sequelize = Database.getInstance();
 
 // Definizione degli attributi del modello Tariffa
-interface TariffaAttributes {
+export interface TariffaAttributes {
   id: number;
   id_tipo_veicolo: number;
   importo: number;
@@ -22,12 +22,13 @@ interface TariffaAttributes {
     | 'DOMENICA'
     | 'FERIALE'
     | 'FESTIVO';
-  id_parcheggio: number; // Associata a un parcheggio specifico
-  id_utente: number; // Identificatore dell'utente che gestisce la tariffa (operatore)
+  id_parcheggio: number;
+  id_utente: number;
 }
 
 // Definizione dei campi opzionali per la creazione
-interface TariffaCreationAttributes extends Optional<TariffaAttributes, 'id'> {}
+export interface TariffaCreationAttributes
+  extends Optional<TariffaAttributes, 'id'> {}
 
 // Definizione del modello Tariffa
 class Tariffa
@@ -56,8 +57,6 @@ class Tariffa
   public id_parcheggio!: number;
 
   public id_utente!: number;
-
-  // I campi timestamp (createdAt, updatedAt) vengono aggiunti automaticamente da Sequelize
 }
 
 // Inizializzazione del model Tariffa
@@ -83,7 +82,7 @@ Tariffa.init(
       allowNull: false,
     },
     fascia_oraria: {
-      type: DataTypes.ENUM('DIURNA', 'NOTTURNA'), // Enum per distinguere le due fasce orarie
+      type: DataTypes.ENUM('DIURNA', 'NOTTURNA'),
       allowNull: false,
     },
     giorno_settimana: {
@@ -117,7 +116,7 @@ Tariffa.init(
         model: Utente,
         key: 'id',
       },
-      onDelete: 'CASCADE', // Cascata per eliminare le tariffe gestite dall'utente se l'utente è rimosso
+      onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
     },
   },
