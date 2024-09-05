@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS "Utenti" (
   "id" SERIAL PRIMARY KEY,
   "nome" VARCHAR(50) NOT NULL,
   "ruolo" ruolo_enum NOT NULL,  
-  "jwt_token" TEXT NOT NULL,
+  "username" VARCHAR(100) UNIQUE NOT NULL,
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL,
   "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL
 );
@@ -113,10 +113,10 @@ CREATE TABLE IF NOT EXISTS "Fatture" (
 -- Dati di esempio per l'inserimento dei dati iniziali
 
 -- Inserisci utenti di esempio
-INSERT INTO "Utenti" ("nome", "ruolo", "jwt_token", "createdAt", "updatedAt") VALUES
-('Admin', 'operatore', 'admin_token', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('John Doe', 'automobilista', 'john_token', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Varco1', 'varco', 'varco1_token', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO "Utenti" ("nome", "ruolo", "username", "createdAt", "updatedAt") VALUES
+('Admin', 'operatore', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('John Doe', 'automobilista', 'john', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Varco1', 'varco', 'varco1', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- Inserisci parcheggi di esempio
 INSERT INTO "Parcheggio" ("nome", "capacita", "createdAt", "updatedAt") VALUES

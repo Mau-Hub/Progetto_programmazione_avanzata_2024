@@ -8,7 +8,7 @@ interface UtenteAttributes {
   id: number;
   nome: string;
   ruolo: 'operatore' | 'automobilista' | 'varco';
-  jwt_token: string;
+  username: string;
 }
 
 // Definizione dei campi opzionali per la creazione
@@ -25,9 +25,7 @@ class Utente
 
   public ruolo!: 'operatore' | 'automobilista' | 'varco';
 
-  public jwt_token!: string;
-
-  // I campi timestamp (createdAt, updatedAt) vengono aggiunti automaticamente da Sequelize
+  public username!: string;
 }
 
 // Inizializzazione del model Utente
@@ -43,18 +41,19 @@ Utente.init(
       allowNull: false,
     },
     ruolo: {
-      type: DataTypes.ENUM('operatore', 'automobilista', 'varco'), // Definizione dei ruoli possibili
+      type: DataTypes.ENUM('operatore', 'automobilista', 'varco'), 
       allowNull: false,
     },
-    jwt_token: {
-      type: DataTypes.STRING,
+    username: {  
+      type: DataTypes.STRING(100), 
       allowNull: false,
+      unique: true, 
     },
   },
   {
-    tableName: 'Utenti', // Nome della tabella nel database
-    sequelize, // Usa l'istanza singleton di Sequelize
-    timestamps: true, // Abilita i campi timestamp (createdAt, updatedAt)
+    tableName: 'Utenti', 
+    sequelize, 
+    timestamps: true, 
   }
 );
 

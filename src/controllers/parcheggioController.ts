@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import { Request, Response, NextFunction } from 'express';
 import ParcheggioRepository from '../repositories/parcheggioRepository';
-import { AppError, errorFactory } from '../utils/errorFactory';
+import { AppError, errorFactory } from '../ext/errorFactory';
 
 class ParcheggioController {
   // Creazione di un parcheggio con varchi

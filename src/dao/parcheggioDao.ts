@@ -1,10 +1,11 @@
-import Parcheggio from '../models/parcheggio';
+
 import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
 import { DaoI } from './DaoI';
 import {
+  Parcheggio,
   ParcheggioAttributes,
   ParcheggioCreationAttributes,
-} from '../models/parcheggio';
+} from '../models/Parcheggio';
 import { Transaction } from 'sequelize';
 
 // Classe ParcheggioDao che implementa l'interfaccia DaoI per Parcheggio

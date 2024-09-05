@@ -1,6 +1,6 @@
 import { Model, DataTypes, Optional } from 'sequelize';
 import Database from '../db/database';
-import Parcheggio from './parcheggio'; // Assicurati che il modello Parcheggio sia correttamente importato
+import Parcheggio from './parcheggio'; 
 
 const sequelize = Database.getInstance();
 

@@ -6,7 +6,7 @@ import Transito from './transito'; // Importa il modello Transito per la relazio
 const sequelize = Database.getInstance();
 
 // Definizione degli attributi del modello Fattura
-interface FatturaAttributes {
+export interface FatturaAttributes {
   id: number;
   data: Date;
   importo_totale: number;
@@ -15,10 +15,11 @@ interface FatturaAttributes {
 }
 
 // Definizione dei campi opzionali per la creazione
-interface FatturaCreationAttributes extends Optional<FatturaAttributes, 'id'> {}
+export interface FatturaCreationAttributes
+  extends Optional<FatturaAttributes, 'id'> {}
 
 // Definizione del model Fattura
-class Fattura
+export class Fattura
   extends Model<FatturaAttributes, FatturaCreationAttributes>
   implements FatturaAttributes
 {
