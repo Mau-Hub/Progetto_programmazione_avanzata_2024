@@ -1,4 +1,4 @@
-import { DaoI } from '../dao/DaoI'; // Assumiamo che DaoI sia nella cartella `dao`
+import { DaoI } from '../dao/DaoI';
 import Parcheggio from '../models/parcheggio';
 import Varco from '../models/varco';
 

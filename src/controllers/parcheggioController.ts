@@ -1,7 +1,6 @@
-/* eslint-disable class-methods-use-this */
 import { Request, Response, NextFunction } from 'express';
 import ParcheggioRepository from '../repositories/parcheggioRepository';
-import { AppError, errorFactory } from '../utils/errorFactory';
+import { ApplicationErrorTypes, ErrorGenerator } from '../ext/errorFactory';
 
 class ParcheggioController {
   // Creazione di un parcheggio con varchi
@@ -27,13 +26,11 @@ class ParcheggioController {
   // Lettura di un singolo parcheggio con varchi associati
   async getParcheggioById(req: Request, res: Response, next: NextFunction) {
     try {
-      const parcheggio = await ParcheggioRepository.findById(
-        Number(req.params.id)
-      );
+      const parcheggio = await ParcheggioRepository.findById(Number(req.params.id));
       if (!parcheggio) {
-        return next(errorFactory.notFound('Parcheggio non trovato'));
+        return next(ErrorGenerator.generateError(ApplicationErrorTypes.RESOURCE_NOT_FOUND, "Parcheggio non trovato"));
       }
-      return res.status(200).json(parcheggio);
+      res.status(200).json(parcheggio);
     } catch (error) {
       next(error);
     }
@@ -42,19 +39,16 @@ class ParcheggioController {
   // Aggiornamento di un parcheggio e dei suoi varchi
   async updateParcheggio(req: Request, res: Response, next: NextFunction) {
     try {
-      const success = await ParcheggioRepository.update(
-        Number(req.params.id),
-        req.body
-      );
+      const success = await ParcheggioRepository.update(Number(req.params.id), req.body);
       if (success) {
-        const parcheggioAggiornato = await ParcheggioRepository.findById(
-          Number(req.params.id)
-        );
-        res.status(200).json(parcheggioAggiornato);
+        const parcheggioAggiornato = await ParcheggioRepository.findById(Number(req.params.id));
+        return res.status(200).json(parcheggioAggiornato);
+      } else {
+        return next(ErrorGenerator.generateError(ApplicationErrorTypes.RESOURCE_NOT_FOUND, "Parcheggio non trovato"));
       }
     } catch (error) {
-      if (error.message === 'Parcheggio non trovato') {
-        return next(errorFactory.notFound(error.message));
+      if ((error as Error).message === 'Parcheggio non trovato') {
+        return next(ErrorGenerator.generateError(ApplicationErrorTypes.RESOURCE_NOT_FOUND, "Parcheggio non trovato"));
       }
       next(error);
     }
@@ -65,11 +59,13 @@ class ParcheggioController {
     try {
       const success = await ParcheggioRepository.delete(Number(req.params.id));
       if (success) {
-        res.status(204).send();
+        return res.status(204).send();
+      } else {
+        return next(ErrorGenerator.generateError(ApplicationErrorTypes.RESOURCE_NOT_FOUND, "Parcheggio non trovato"));
       }
     } catch (error) {
-      if (error.message === 'Parcheggio non trovato') {
-        return next(errorFactory.notFound(error.message));
+      if ((error as Error).message === 'Parcheggio non trovato') {
+        return next(ErrorGenerator.generateError(ApplicationErrorTypes.RESOURCE_NOT_FOUND, "Parcheggio non trovato"));
       }
       next(error);
     }
@@ -77,3 +73,4 @@ class ParcheggioController {
 }
 
 export default new ParcheggioController();
+
