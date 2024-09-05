@@ -1,6 +1,3 @@
-// /src/utils/errorFactory.ts
-
-// eslint-disable-next-line max-classes-per-file
 import { StatusCodes } from 'http-status-codes';
 
 /**

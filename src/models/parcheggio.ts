@@ -51,5 +51,3 @@ Parcheggio.init(
     timestamps: true, // Abilita i campi timestamp (createdAt, updatedAt)
   }
 );
-
-export default Parcheggio;
