@@ -4,18 +4,18 @@ import Database from '../db/database';
 const sequelize = Database.getInstance();
 
 // Definizione degli attributi del modello Parcheggio
-interface ParcheggioAttributes {
+export interface ParcheggioAttributes {
   id: number;
   nome: string;
   capacita: number;
 }
 
 // Definizione dei campi opzionali per la creazione
-interface ParcheggioCreationAttributes
+export interface ParcheggioCreationAttributes
   extends Optional<ParcheggioAttributes, 'id'> {}
 
 // Definizione del modello Parcheggio
-class Parcheggio
+export class Parcheggio
   extends Model<ParcheggioAttributes, ParcheggioCreationAttributes>
   implements ParcheggioAttributes
 {
@@ -51,3 +51,6 @@ Parcheggio.init(
     timestamps: true, // Abilita i campi timestamp (createdAt, updatedAt)
   }
 );
+
+// Esporta il modello e le interfacce
+export default Parcheggio;
