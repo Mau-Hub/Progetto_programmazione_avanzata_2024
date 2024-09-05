@@ -5,16 +5,17 @@ import TipoVeicolo from './tipoVeicolo'; // Importa il modello Tipo_Veicolo per 
 
 const sequelize = Database.getInstance();
 
-// Definizione degli attributi del model Veicolo
-interface VeicoloAttributes {
+// Esporta gli attributi del modello Veicolo
+export interface VeicoloAttributes {
   id: number;
   targa: string;
-  id_tipo_veicolo: number; // Chiave esterna che fa riferimento a Tipo_Veicolo
-  id_utente: number; // Chiave esterna che fa riferimento a Utente
+  id_tipo_veicolo: number;
+  id_utente: number;
 }
 
-// Definizione dei campi opzionali per la creazione
-interface VeicoloCreationAttributes extends Optional<VeicoloAttributes, 'id'> {}
+// Esporta i campi opzionali per la creazione
+export interface VeicoloCreationAttributes
+  extends Optional<VeicoloAttributes, 'id'> {}
 
 // Definizione del modello Veicolo
 class Veicolo
@@ -28,8 +29,6 @@ class Veicolo
   public id_tipo_veicolo!: number;
 
   public id_utente!: number;
-
-  // I campi timestamp (createdAt, updatedAt) vengono aggiunti automaticamente da Sequelize
 }
 
 // Inizializzazione del model Veicolo
@@ -43,7 +42,7 @@ Veicolo.init(
     targa: {
       type: DataTypes.STRING(20),
       allowNull: false,
-      unique: true, // La targa deve essere unica
+      unique: true,
     },
     id_tipo_veicolo: {
       type: DataTypes.INTEGER.UNSIGNED,
@@ -52,7 +51,7 @@ Veicolo.init(
         model: TipoVeicolo,
         key: 'id',
       },
-      onDelete: 'CASCADE', // Cancella i veicoli associati se il tipo di veicolo viene eliminato
+      onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
     },
     id_utente: {
@@ -62,7 +61,7 @@ Veicolo.init(
         model: Utente,
         key: 'id',
       },
-      onDelete: 'CASCADE', // Cancella i veicoli associati se l'utente viene eliminato
+      onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
     },
   },

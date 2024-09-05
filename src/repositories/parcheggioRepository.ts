@@ -1,6 +1,6 @@
-import { DaoI } from '../dao/DaoI'; // Assumiamo che DaoI sia nella cartella `dao`
-import Parcheggio from '../models/Parcheggio';
-import Varco from '../models/Varco';
+import { DaoI } from '../dao/DaoI';
+import Parcheggio from '../models/parcheggio';
+import Varco from '../models/varco';
 
 interface ParcheggioData {
   nome: string;

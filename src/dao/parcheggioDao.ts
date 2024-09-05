@@ -1,19 +1,14 @@
 
 import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
 import { DaoI } from './DaoI';
-import {
-  Parcheggio,
-  ParcheggioAttributes,
-  ParcheggioCreationAttributes,
-} from '../models/Parcheggio';
-import { Transaction } from 'sequelize';
+import { ParcheggioAttributes } from '../models/parcheggio';
 
 // Classe ParcheggioDao che implementa l'interfaccia DaoI per Parcheggio
 class ParcheggioDao implements DaoI<ParcheggioAttributes, number> {
   /**
    * Recupera tutti i parcheggi.
    *
-   * @returns {Promise<Parcheggio[]>} Promise che risolve un array di parcheggi.
+   * @returns {Promise<Parcheggio[]>} Promise che restituisce un array di parcheggi.
    */
   public async findAll(): Promise<Parcheggio[]> {
     try {
@@ -21,7 +16,7 @@ class ParcheggioDao implements DaoI<ParcheggioAttributes, number> {
     } catch (error) {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
-        'Problema nel recupero dei parcheggi'
+        'Si è verificato un problema nel recupero dei parcheggi'
       );
     }
   }
@@ -30,7 +25,7 @@ class ParcheggioDao implements DaoI<ParcheggioAttributes, number> {
    * Recupero del parcheggio per ID.
    *
    * @param {number} id del parcheggio.
-   * @returns {Promise<Parcheggio | null>} Promise che risolve un parcheggio o restituisce null se non esistente.
+   * @returns {Promise<Parcheggio | null>} Promise che restituisce un parcheggio o restituisce null se non esistente.
    */
 
   public async findById(id: number): Promise<Parcheggio | null> {
@@ -39,14 +34,14 @@ class ParcheggioDao implements DaoI<ParcheggioAttributes, number> {
       if (!parcheggio) {
         throw ErrorGenerator.generateError(
           ApplicationErrorTypes.RESOURCE_NOT_FOUND,
-          `Parcheggio con id ${id} inesistente`
+          `Il parcheggio con id ${id} è inesistente`
         );
       }
       return parcheggio;
     } catch (error) {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
-        `Errore nel recupero del parcheggio con id ${id}`
+        `SI è verificato un errore nel recupero del parcheggio con id ${id}`
       );
     }
   }
@@ -55,7 +50,7 @@ class ParcheggioDao implements DaoI<ParcheggioAttributes, number> {
    * Crea un nuovo parcheggio.
    *
    * @param {ParcheggioAttributes} item dati per generare il parcheggio.
-   * @returns {Promise<Parcheggio>} Promise che risolve il parcheggio appena creato.
+   * @returns {Promise<Parcheggio>} Promise che restituisce il parcheggio appena creato.
    */
 
   public async create(item: ParcheggioAttributes): Promise<Parcheggio> {
@@ -64,7 +59,7 @@ class ParcheggioDao implements DaoI<ParcheggioAttributes, number> {
     } catch (error) {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
-        'Si è verificato un problema nella creazione del parcheggio'
+        'Si è verificato un errore nella creazione del parcheggio'
       );
     }
   }
@@ -74,7 +69,7 @@ class ParcheggioDao implements DaoI<ParcheggioAttributes, number> {
    *
    * @param {number} id id attribuito al parcheggio.
    * @param {ParcheggioAttributes} item dati necessari per l’aggiornamento del parcheggio
-   * @returns {Promise<boolean>} “Promise che risolve con true se l’aggiornamento è avvenuto, false in caso contrario.
+   * @returns {Promise<boolean>} “Promise che restituisce true se l’aggiornamento è avvenuto, false in caso contrario.
    */
 
   public async update(
@@ -99,7 +94,7 @@ class ParcheggioDao implements DaoI<ParcheggioAttributes, number> {
    * Cancella un parcheggio per ID.
    *
    * @param {number} id id del parcheggio.
-   * @returns {Promise<boolean>} Promise che risolve true se la cancellazione è avvenuta, false in caso contrario.
+   * @returns {Promise<boolean>} Promise che resitutisce true se la cancellazione è avvenuta, false in caso contrario.
    */
 
   public async delete(id: number): Promise<boolean> {
@@ -109,7 +104,7 @@ class ParcheggioDao implements DaoI<ParcheggioAttributes, number> {
     } catch (error) {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
-        `Errore nella cancellazione del parcheggio con id ${id}`
+        `Si è verificato un errore nella cancellazione del parcheggio con id ${id}`
       );
     }
   }

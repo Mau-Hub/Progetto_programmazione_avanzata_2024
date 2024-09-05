@@ -27,8 +27,6 @@ class Varco
   public bidirezionale!: boolean;
 
   public id_parcheggio!: number;
-
-  // I campi timestamp (createdAt, updatedAt) vengono aggiunti automaticamente da Sequelize
 }
 
 // Inizializzazione del model Varco
@@ -40,29 +38,29 @@ Varco.init(
       primaryKey: true,
     },
     tipo: {
-      type: DataTypes.ENUM('INGRESSO', 'USCITA'), // Definisce il tipo come ENUM
+      type: DataTypes.ENUM('INGRESSO', 'USCITA'),
       allowNull: false,
     },
     bidirezionale: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: false, // Di default il varco non è bidirezionale
+      defaultValue: false,
     },
     id_parcheggio: {
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
       references: {
-        model: Parcheggio, // Relazione con il modello Parcheggio
+        model: Parcheggio,
         key: 'id',
       },
-      onDelete: 'CASCADE', // Cancella i varchi associati se il parcheggio viene eliminato
+      onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
     },
   },
   {
     tableName: 'Varco',
-    sequelize, // Usa l'istanza singleton di Sequelize
-    timestamps: true, // Abilita i campi timestamp (createdAt, updatedAt)
+    sequelize,
+    timestamps: true,
   }
 );
 

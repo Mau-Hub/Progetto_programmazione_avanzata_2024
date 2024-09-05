@@ -10,7 +10,7 @@ export interface FatturaAttributes {
   id: number;
   data: Date;
   importo_totale: number;
-  id_utente: number; // Questo può essere un operatore o un automobilista
+  id_utente: number; // Può essere un operatore o un automobilista
   id_transito: number;
 }
 

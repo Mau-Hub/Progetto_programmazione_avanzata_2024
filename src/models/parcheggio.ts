@@ -24,8 +24,6 @@ export class Parcheggio
   public nome!: string;
 
   public capacita!: number;
-
-  // I campi timestamp (createdAt, updatedAt) vengono aggiunti automaticamente da Sequelize
 }
 
 // Inizializzazione del model Parcheggio
@@ -47,8 +45,8 @@ Parcheggio.init(
   },
   {
     tableName: 'Parcheggio',
-    sequelize, // Usa l'istanza singleton di Sequelize
-    timestamps: true, // Abilita i campi timestamp (createdAt, updatedAt)
+    sequelize,
+    timestamps: true,
   }
 );
 
