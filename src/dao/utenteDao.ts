@@ -7,7 +7,7 @@ interface UtenteAttributes {
   id?: number;
   nome: string;
   ruolo: 'operatore' | 'automobilista' | 'varco';
-  jwt_token: string;
+  username: string;
 }
 
 class UtenteDao implements DaoI<UtenteAttributes, number> {
@@ -145,18 +145,18 @@ class UtenteDao implements DaoI<UtenteAttributes, number> {
   }
 
   /**
-   * Recupera un utente per token JWT.
+   * Recupera un utente per username.
    *
-   * @param {string} jwt_token Token JWT dell'utente.
+   * @param {string} username username dell'utente.
    * @returns {Promise<Utente | null>} Promise che restituisce un utente o null se non trovato.
    */
-  public async findByJwtToken(jwt_token: string): Promise<Utente | null> {
+  public async findByUsername(username: string): Promise<Utente | null> {
     try {
-      return await Utente.findOne({ where: { jwt_token } });
+      return await Utente.findOne({ where: { username } });
     } catch (error) {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
-        "Si è verificato un errore nel recupero dell'utente tramite token JWT"
+        "Si è verificato un errore nel recupero dell'utente tramite username"
       );
     }
   }

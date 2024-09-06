@@ -1,7 +1,7 @@
-
 import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
 import { DaoI } from './DaoI';
 import { ParcheggioAttributes } from '../models/parcheggio';
+import { Parcheggio } from '../models/parcheggio';
 
 // Classe ParcheggioDao che implementa l'interfaccia DaoI per Parcheggio
 class ParcheggioDao implements DaoI<ParcheggioAttributes, number> {
