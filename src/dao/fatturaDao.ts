@@ -1,4 +1,4 @@
-import {
+/*import {
   Fattura,
   FatturaAttributes,
   FatturaCreationAttributes,
@@ -11,3 +11,4 @@ export interface parcheggioDao<Fattura, FatturaAttributes.id> {
     update(id: FatturaAttributes.id, item: Fattura): Promise<boolean>;
     delete(id: FatturaAttributes.id): Promise<boolean>;
   }
+  */
