@@ -14,6 +14,8 @@ const validationRequest = (req: Request, res: Response, next: NextFunction) => {
   // Estrae eventuali errori di validazione dalla richiesta
   const validationErrors = validationResult(req);
 
+
+
   // Se sono presenti errori di validazione, li raccoglie e genera un errore personalizzato
   if (!validationErrors.isEmpty()) {
     const errorMessages = validationErrors.array().map((error: ValidationError) => error.msg).join(', ');

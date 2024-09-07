@@ -1,6 +1,8 @@
 import express, { Request, Response, NextFunction } from 'express';
+import authenticationRoute from './routes/authenticationRoute';
 import parcheggioRoutes from './routes/parcheggioRoutes';
 import { errorHandler } from './middleware/errorHandler';
+import { authenticationMiddleware } from './middleware/authenticationMiddleware';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -16,13 +18,29 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Hello World!');
 });
 
+// Route di autenticazione (non protette)
+app.use('/api', authenticationRoute);
+
+// Applica il middleware di autenticazione a tutte le altre route /api
+app.use('/api', authenticationMiddleware);
+// Collegamento delle route del parcheggio (ora protette dall'autenticazione)
+app.use('/api', parcheggioRoutes);
+
+// Middleware per la gestione degli errori
+app.use(errorHandler);
+
+// Gestione delle route non trovate
+app.use((req: Request, res: Response, next: NextFunction) => {
+  res.status(404).send('Not Found');
+});
+
 // Collegamento delle route del parcheggio
 app.use('/api', parcheggioRoutes);
 
 // Middleware per la gestione degli errori
 app.use(errorHandler);
 
-// TODO:dbbiamo usare in nostro errorHandler
+// TODO: MODIFICARE
 app.use((req: Request, res: Response, next: NextFunction) => {
   res.status(404).send('Not Found');
 });
