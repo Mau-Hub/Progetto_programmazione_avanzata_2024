@@ -33,7 +33,7 @@ class DatabaseConnection {
       host: dbHost,
       port: dbPort,
       dialect: 'postgres',
-      logging: true,
+      logging: (msg) => console.log(msg),
     });
   }
 
