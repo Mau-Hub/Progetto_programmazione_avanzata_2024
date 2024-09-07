@@ -11,8 +11,11 @@ interface ParcheggioData {
 class ParcheggioRepository implements DaoI<Parcheggio, number> {
   async create(data: ParcheggioData): Promise<Parcheggio> {
     const { nome, capacita, varchi } = data;
+  
+    // Crea il nuovo parcheggio
     const nuovoParcheggio = await Parcheggio.create({ nome, capacita });
-
+  
+    // Se ci sono varchi, creali e associarli al parcheggio
     if (varchi && varchi.length > 0) {
       await Promise.all(
         varchi.map((varco) =>
@@ -24,9 +27,20 @@ class ParcheggioRepository implements DaoI<Parcheggio, number> {
         )
       );
     }
-
-    return nuovoParcheggio;
+  
+    // Aggiunge al parcheggio i varchi e  lo restituisce
+    const parcheggioConVarchi = await Parcheggio.findByPk(nuovoParcheggio.id, {
+      include: [{ model: Varco, as: 'varchi' }],
+    });
+  
+    // Gestione nel caso in cui il parcheggio non venga trovato
+    if (!parcheggioConVarchi) {
+      throw new Error('Parcheggio non trovato');
+    }
+  
+    return parcheggioConVarchi;
   }
+  
 
   async findById(id: number): Promise<Parcheggio | null> {
     return await Parcheggio.findByPk(id, {

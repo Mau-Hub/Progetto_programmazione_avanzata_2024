@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import authenticationRoute from './routes/authenticationRoute';
 import parcheggioRoutes from './routes/parcheggioRoutes';
+import varcoRoutes from './routes/varcoRoutes';
 import { errorHandler } from './middleware/errorHandler';
 import { authenticationMiddleware } from './middleware/authenticationMiddleware';
 
@@ -25,6 +26,7 @@ app.use('/api', authenticationRoute);
 app.use('/api', authenticationMiddleware);
 // Collegamento delle route del parcheggio (ora protette dall'autenticazione)
 app.use('/api', parcheggioRoutes);
+app.use('/api', varcoRoutes);
 
 // Middleware per la gestione degli errori
 app.use(errorHandler);
