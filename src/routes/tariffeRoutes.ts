@@ -2,6 +2,8 @@ import { Router } from 'express';
 import TariffaController from '../controllers/tariffaController';
 import { authenticationMiddleware } from '../middleware/authenticationMiddleware';
 import { errorHandler } from '../middleware/errorHandler';
+import { authorizeRoles } from '../middleware/authenticationMiddleware'; 
+
 
 const router = Router();
 
@@ -9,11 +11,11 @@ const router = Router();
 router.use(authenticationMiddleware);
 
 // CRUD per la gestione delle tariffe
-router.post('/tariffa', TariffaController.createTariffa); // Creazione di una tariffa
-router.get('/tariffe', TariffaController.getAllTariffe); // Acquisizione di tutte le tariffe
-router.get('/tariffa/:id', TariffaController.getTariffaById); // Acquisizone di una tariffa per ID
-router.put('/tariffa/:id', TariffaController.updateTariffa); // Aggiornamento di una tariffa
-router.delete('/tariffa/:id', TariffaController.deleteTariffa); // Eliminazione di una tariffa
+router.post('/tariffa', authorizeRoles(['operatore']), TariffaController.createTariffa);
+router.get('/tariffe', authorizeRoles(['operatore']), TariffaController.getAllTariffe);
+router.get('/tariffa/:id', authorizeRoles(['operatore']), TariffaController.getTariffaById);
+router.put('/tariffa/:id', authorizeRoles(['operatore']), TariffaController.updateTariffa);
+router.delete('/tariffa/:id', authorizeRoles(['operatore']), TariffaController.deleteTariffa);
 
 // Gestione degli errori
 router.use(errorHandler);
