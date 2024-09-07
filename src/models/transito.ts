@@ -1,4 +1,3 @@
-// In models/transito.ts
 import { DataTypes, Model, Optional } from 'sequelize';
 import Database from '../db/database';
 import Veicolo from './veicolo'; // Importa il modello Veicolo per la relazione
@@ -56,7 +55,7 @@ class Transito
 Transito.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
@@ -69,7 +68,7 @@ Transito.init(
       allowNull: true,
     },
     id_veicolo: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: Veicolo,
@@ -79,7 +78,7 @@ Transito.init(
       onUpdate: 'CASCADE',
     },
     id_varco_ingresso: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: Varco,
@@ -89,7 +88,7 @@ Transito.init(
       onUpdate: 'CASCADE',
     },
     id_varco_uscita: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: true,
       references: {
         model: Varco,
@@ -99,7 +98,7 @@ Transito.init(
       onUpdate: 'CASCADE',
     },
     id_tariffa: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: Tariffa,
@@ -109,7 +108,7 @@ Transito.init(
       onUpdate: 'CASCADE',
     },
     id_posto: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: Posto,
