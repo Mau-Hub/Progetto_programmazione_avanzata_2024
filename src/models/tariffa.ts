@@ -63,12 +63,12 @@ class Tariffa
 Tariffa.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
     id_tipo_veicolo: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: TipoVeicolo,
@@ -100,7 +100,7 @@ Tariffa.init(
       allowNull: false,
     },
     id_parcheggio: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: Parcheggio,
@@ -110,7 +110,7 @@ Tariffa.init(
       onUpdate: 'CASCADE',
     },
     id_utente: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: Utente,
