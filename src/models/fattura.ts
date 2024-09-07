@@ -40,7 +40,7 @@ export class Fattura
 Fattura.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
@@ -55,7 +55,7 @@ Fattura.init(
     },
     id_utente: {
       // Utilizziamo id_utente invece di id_operatore e id_automobilista
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: Utente,
@@ -65,7 +65,7 @@ Fattura.init(
       onUpdate: 'CASCADE',
     },
     id_transito: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: Transito,

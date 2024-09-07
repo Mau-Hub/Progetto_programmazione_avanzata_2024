@@ -15,6 +15,10 @@ services:
       - '${PORT}:3000'
     depends_on:
       - postgres
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules # Serve per evitare problemi con i moduli npm nel container
+    command: npm run dev # Serve per usare nodemon per lo sviluppo
     networks:
       - my_network
 

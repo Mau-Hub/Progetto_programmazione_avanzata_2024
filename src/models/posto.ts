@@ -33,7 +33,7 @@ class Posto
 Posto.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
@@ -46,7 +46,7 @@ Posto.init(
       allowNull: false,
     },
     id_parcheggio: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: Parcheggio,

@@ -30,7 +30,7 @@ export class Parcheggio
 Parcheggio.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
@@ -39,7 +39,7 @@ Parcheggio.init(
       allowNull: false,
     },
     capacita: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
   },
