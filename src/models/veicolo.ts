@@ -35,7 +35,7 @@ class Veicolo
 Veicolo.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
@@ -45,7 +45,7 @@ Veicolo.init(
       unique: true,
     },
     id_tipo_veicolo: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: TipoVeicolo,
@@ -55,7 +55,7 @@ Veicolo.init(
       onUpdate: 'CASCADE',
     },
     id_utente: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: Utente,

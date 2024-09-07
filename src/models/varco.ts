@@ -1,11 +1,11 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import Database from '../db/database';
-import Parcheggio from './parcheggio'; // Importa il modello Parcheggio per la relazione
+import Parcheggio from './parcheggio'; 
 
 const sequelize = Database.getInstance();
 
-// Definizione degli attributi del modello Varco
-interface VarcoAttributes {
+// Esporta le interfacce
+export interface VarcoAttributes {
   id: number;
   tipo: 'INGRESSO' | 'USCITA';
   bidirezionale: boolean;
@@ -13,7 +13,7 @@ interface VarcoAttributes {
 }
 
 // Definizione dei campi opzionali per la creazione
-interface VarcoCreationAttributes extends Optional<VarcoAttributes, 'id'> {}
+export interface VarcoCreationAttributes extends Optional<VarcoAttributes, 'id'> {}
 
 // Definizione del modello Varco
 class Varco
@@ -21,11 +21,8 @@ class Varco
   implements VarcoAttributes
 {
   public id!: number;
-
   public tipo!: 'INGRESSO' | 'USCITA';
-
   public bidirezionale!: boolean;
-
   public id_parcheggio!: number;
 }
 
@@ -33,7 +30,7 @@ class Varco
 Varco.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
@@ -47,7 +44,7 @@ Varco.init(
       defaultValue: false,
     },
     id_parcheggio: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: Parcheggio,
