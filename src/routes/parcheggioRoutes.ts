@@ -5,7 +5,7 @@ import { authenticationMiddleware } from '../middleware/authenticationMiddleware
 //import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
 import { errorHandler } from '../middleware/errorHandler';
 import { authorizeRoles } from '../middleware/authenticationMiddleware'; // Middleware per il controllo dei ruoli
-import validateParcheggio from '../middleware/validationParcheggio';
+import validationMiddleware from '../middleware/validationMiddleware';
 
 
 const router = Router();
@@ -13,10 +13,10 @@ const router = Router();
 // Serve per applicare il middleware di autenticazione a tutte le rotte
 router.use(authenticationMiddleware);
 
-router.post('/parcheggio', authorizeRoles(['operatore']), validateParcheggio, ParcheggioController.createParcheggio); // POST http://localhost:3000/parcheggio {"id" : 1 , "nome" : "ciao"....}
+router.post('/parcheggio', authorizeRoles(['operatore']), validationMiddleware.validateParcheggio, ParcheggioController.createParcheggio); // POST http://localhost:3000/parcheggio {"id" : 1 , "nome" : "ciao"....}
 router.get('/parcheggi', authorizeRoles(['operatore']), ParcheggioController.getAllParcheggi);
 router.get('/parcheggio/:id', authorizeRoles(['operatore']), ParcheggioController.getParcheggioById);
-router.put('/parcheggio/:id', authorizeRoles(['operatore']), validateParcheggio, ParcheggioController.updateParcheggio);
+router.put('/parcheggio/:id', authorizeRoles(['operatore']), validationMiddleware.validateParcheggio, ParcheggioController.updateParcheggio);
 router.delete('/parcheggio/:id', authorizeRoles(['operatore']), ParcheggioController.deleteParcheggio);
 
 // Gestione degli errori

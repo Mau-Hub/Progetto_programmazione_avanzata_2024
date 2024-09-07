@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { login } from '../controllers/authenticationController';
-import { validateUsername } from '../middleware/validationMiddleware';
+import { validateUsername } from '../middleware/validationUsername';
 
 const router = Router();
 
