@@ -1,34 +1,37 @@
 import { Request, Response, NextFunction } from 'express';
 
-const validateParcheggio = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const validateParcheggio = (req: Request, res: Response, next: NextFunction) => {
   const { nome, capacita, varchi } = req.body;
 
-  if (!nome || typeof capacita !== 'number' || capacita <= 0) {
-    return res.status(400).json({ error: 'Nome e capacità sono obbligatori' });
+  // Verifica che 'nome' sia presente e sia una stringa
+  if (!nome || typeof nome !== 'string' || nome.trim() === '') {
+    return res.status(400).json({ error: 'Nome è obbligatorio e deve essere una stringa valida' });
   }
 
+  // Verifica che 'capacita' sia un numero intero positivo
+  if (typeof capacita !== 'number' || !Number.isInteger(capacita) || capacita <= 0) {
+    return res.status(400).json({ error: 'Capacità è obbligatoria e deve essere un numero intero positivo' });
+  }
+
+  // Verifica che 'varchi' sia un array (se fornito)
   if (varchi && !Array.isArray(varchi)) {
     return res.status(400).json({ error: 'I varchi devono essere un array' });
   }
 
+  // Verifica la validità di ciascun 'varco'
   if (varchi) {
     for (const varco of varchi) {
-      if (
-        !['INGRESSO', 'USCITA'].includes(varco.tipo) ||
-        typeof varco.bidirezionale !== 'boolean'
-      ) {
+      // Controlla che il tipo sia 'INGRESSO' o 'USCITA' e che bidirezionale sia booleano
+      if (!['INGRESSO', 'USCITA'].includes(varco.tipo) || typeof varco.bidirezionale !== 'boolean') {
         return res.status(400).json({
           error:
-            'Ogni varco deve avere un tipo valido e un valore bidirezionale booleano',
+            'Ogni varco deve avere un tipo valido ("INGRESSO" o "USCITA") e un valore bidirezionale booleano',
         });
       }
     }
   }
 
+  // Se tutti i controlli sono passati, passa al prossimo middleware
   next();
 };
 
