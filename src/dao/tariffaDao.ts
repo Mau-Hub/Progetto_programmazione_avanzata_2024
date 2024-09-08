@@ -10,6 +10,7 @@ class TariffaDao {
     importo: number;
     fascia_oraria: 'DIURNA' | 'NOTTURNA';
     giorno_settimana: TariffaAttributes['giorno_settimana'];
+    feriale_festivo: 'FERIALE' | 'FESTIVO';
     id_parcheggio: number;
     id_utente: number;
   }): Promise<Tariffa> {
@@ -67,6 +68,7 @@ class TariffaDao {
       importo: number;
       fascia_oraria: 'DIURNA' | 'NOTTURNA';
       giorno_settimana: TariffaAttributes['giorno_settimana'];
+      feriale_festivo: 'FERIALE' | 'FESTIVO';
       id_parcheggio: number;
       id_utente: number;
     }>

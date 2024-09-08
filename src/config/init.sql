@@ -1,15 +1,17 @@
--- Definisci il tipo ENUM per la colonna "ruolo" nella tabella "Utenti"
+-- Definisce il tipo ENUM per la colonna "ruolo" nella tabella "Utenti"
 CREATE TYPE ruolo_enum AS ENUM ('operatore', 'automobilista', 'varco');
 
--- Definisci il tipo ENUM per la colonna "tipo" nella tabella "Varco"
+-- Definisce il tipo ENUM per la colonna "tipo" nella tabella "Varco"
 CREATE TYPE tipo_enum AS ENUM ('INGRESSO', 'USCITA');
 
--- Definisci il tipo ENUM per la colonna "fascia_oraria" nella tabella "Tariffe"
+-- Definisce il tipo ENUM per la colonna "fascia_oraria" nella tabella "Tariffe"
 CREATE TYPE fascia_oraria_enum AS ENUM ('DIURNA', 'NOTTURNA');
 
--- Definisci il tipo ENUM per la colonna "giorno_settimana" nella tabella "Tariffe"
-CREATE TYPE giorno_settimana_enum AS ENUM ('LUNEDI', 'MARTEDI', 'MERCOLEDI', 'GIOVEDI', 'VENERDI', 'SABATO', 'DOMENICA', 'FERIALE', 'FESTIVO');
+-- Definisce il tipo ENUM per la colonna "giorno_settimana" nella tabella "Tariffe"
+CREATE TYPE giorno_settimana_enum AS ENUM ('LUNEDI', 'MARTEDI', 'MERCOLEDI', 'GIOVEDI', 'VENERDI', 'SABATO', 'DOMENICA');
 
+-- Definisce il tipo ENUM per la colonna "feriale_festivo" nella tabella "Tariffe"
+CREATE TYPE feriale_festivo_enum AS ENUM ('FERIALE', 'FESTIVO');
 
 -- Crea la tabella Utenti
 CREATE TABLE IF NOT EXISTS "Utenti" (
@@ -67,7 +69,8 @@ CREATE TABLE IF NOT EXISTS "Tariffe" (
   "id_tipo_veicolo" INTEGER NOT NULL,
   "importo" FLOAT NOT NULL,
   "fascia_oraria" fascia_oraria_enum NOT NULL,  
-  "giorno_settimana" giorno_settimana_enum NOT NULL,  
+  "giorno_settimana" giorno_settimana_enum NOT NULL, 
+  "feriale_festivo" feriale_festivo_enum NOT NULL, 
   "id_parcheggio" INTEGER NOT NULL,
   "id_utente" INTEGER NOT NULL,
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -110,47 +113,48 @@ CREATE TABLE IF NOT EXISTS "Fatture" (
 );
 
 
--- Dati di esempio per l'inserimento dei dati iniziali
+-- Inserimento dei dati iniziali
 
--- Inserisci utenti di esempio
+-- Utenti di esempio
 INSERT INTO "Utenti" ("nome", "ruolo", "username", "createdAt", "updatedAt") VALUES
 ('Admin', 'operatore', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('John Doe', 'automobilista', 'john', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('Varco1', 'varco', 'varco1', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
--- Inserisci parcheggi di esempio
+-- Parcheggi di esempio
 INSERT INTO "Parcheggio" ("nome", "capacita", "createdAt", "updatedAt") VALUES
 ('Parcheggio Centro', 100, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('Parcheggio Stazione', 50, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
--- Inserisci tipi di veicolo
+-- Tipi di veicolo
 INSERT INTO "Tipo_Veicolo" ("nome", "createdAt", "updatedAt") VALUES
-('Auto', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Moto', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Furgone', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+('CityCar', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Berlina', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('SUV', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
--- Inserisci veicoli di esempio
+-- Veicoli di esempio
 INSERT INTO "Veicoli" ("targa", "id_tipo_veicolo", "id_utente", "createdAt", "updatedAt") VALUES
 ('AB123CD', 1, 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('XY789ZW', 2, 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
--- Inserisci varchi di esempio
+-- Varchi di esempio
 INSERT INTO "Varco" ("tipo", "bidirezionale", "id_parcheggio", "createdAt", "updatedAt") VALUES
 ('INGRESSO', FALSE, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('USCITA', FALSE, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('INGRESSO', TRUE, 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
--- Inserisci tariffe di esempio
-INSERT INTO "Tariffe" ("id_tipo_veicolo", "importo", "fascia_oraria", "giorno_settimana", "id_parcheggio", "id_utente", "createdAt", "updatedAt") VALUES
-(1, 2.5, 'DIURNA', 'FERIALE', 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(2, 1.5, 'DIURNA', 'FERIALE', 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(1, 3.0, 'NOTTURNA', 'FERIALE', 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+-- Tariffe di esempio
+INSERT INTO "Tariffe" ("id_tipo_veicolo", "importo", "fascia_oraria", "giorno_settimana", "feriale_festivo", "id_parcheggio", "id_utente", "createdAt", "updatedAt") VALUES
+(1, 2.5, 'DIURNA', 'LUNEDI', 'FERIALE', 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, 1.5, 'DIURNA', 'LUNEDI', 'FERIALE', 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(1, 3.0, 'NOTTURNA', 'VENERDI', 'FERIALE', 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
--- Inserisci transiti di esempio
+
+-- Transiti di esempio
 INSERT INTO "Transiti" ("ingresso", "uscita", "id_veicolo", "id_varco_ingresso", "id_varco_uscita", "id_tariffa", "id_posto", "importo", "createdAt", "updatedAt") VALUES
 (CURRENT_TIMESTAMP - INTERVAL '2 HOURS', CURRENT_TIMESTAMP - INTERVAL '1 HOUR', 1, 1, 2, 1, 1, 2.5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (CURRENT_TIMESTAMP - INTERVAL '1 HOUR', NULL, 2, 1, NULL, 2, 2, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
--- -- Inserisci fatture di esempio
+-- -- Fatture di esempio
 INSERT INTO "Fatture" ("data", "importo_totale", "id_utente", "id_transito", "createdAt", "updatedAt") VALUES
 (CURRENT_TIMESTAMP - INTERVAL '1 HOUR', 2.5, 2, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
