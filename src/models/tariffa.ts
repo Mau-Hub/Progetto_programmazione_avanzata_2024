@@ -19,11 +19,10 @@ export interface TariffaAttributes {
     | 'GIOVEDI'
     | 'VENERDI'
     | 'SABATO'
-    | 'DOMENICA'
-    | 'FERIALE'
-    | 'FESTIVO';
+    | 'DOMENICA';
   id_parcheggio: number;
   id_utente: number;
+  feriale_festivo: 'FERIALE' | 'FESTIVO';
 }
 
 // Definizione dei campi opzionali per la creazione
@@ -50,9 +49,9 @@ class Tariffa
     | 'GIOVEDI'
     | 'VENERDI'
     | 'SABATO'
-    | 'DOMENICA'
-    | 'FERIALE'
-    | 'FESTIVO';
+    | 'DOMENICA';
+
+  public feriale_festivo!: 'FERIALE' | 'FESTIVO'; 
 
   public id_parcheggio!: number;
 
@@ -93,10 +92,12 @@ Tariffa.init(
         'GIOVEDI',
         'VENERDI',
         'SABATO',
-        'DOMENICA',
-        'FERIALE',
-        'FESTIVO'
+        'DOMENICA'
       ),
+      allowNull: false,
+    },
+    feriale_festivo: {
+      type: DataTypes.ENUM('FERIALE', 'FESTIVO'),
       allowNull: false,
     },
     id_parcheggio: {

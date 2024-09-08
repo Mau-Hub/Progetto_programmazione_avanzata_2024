@@ -3,7 +3,7 @@ import TariffaController from '../controllers/tariffaController';
 import { authenticationMiddleware } from '../middleware/authenticationMiddleware';
 import { errorHandler } from '../middleware/errorHandler';
 import { authorizeRoles } from '../middleware/authenticationMiddleware'; 
-
+import validationMiddleware from '../middleware/validationMiddleware';
 
 const router = Router();
 
@@ -11,10 +11,10 @@ const router = Router();
 router.use(authenticationMiddleware);
 
 // CRUD per la gestione delle tariffe
-router.post('/tariffa', authorizeRoles(['operatore']), TariffaController.createTariffa);
+router.post('/tariffa', authorizeRoles(['operatore']), validationMiddleware.validateTariffa, TariffaController.createTariffa);
 router.get('/tariffe', authorizeRoles(['operatore']), TariffaController.getAllTariffe);
 router.get('/tariffa/:id', authorizeRoles(['operatore']), TariffaController.getTariffaById);
-router.put('/tariffa/:id', authorizeRoles(['operatore']), TariffaController.updateTariffa);
+router.put('/tariffa/:id', authorizeRoles(['operatore']), validationMiddleware.validateTariffa, TariffaController.updateTariffa);
 router.delete('/tariffa/:id', authorizeRoles(['operatore']), TariffaController.deleteTariffa);
 
 // Gestione degli errori
