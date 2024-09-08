@@ -44,7 +44,7 @@ class TariffaRepository {
       const [numUpdated] = await Tariffa.update(tariffaData, {
         where: { id },
       });
-      return numUpdated === 1; // True se è stata aggiornata
+      return numUpdated === 1;
     } catch (error) {
       throw new Error("Errore nell'aggiornamento della tariffa");
     }
