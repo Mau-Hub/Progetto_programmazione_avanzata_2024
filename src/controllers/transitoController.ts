@@ -70,6 +70,24 @@ class TransitoController {
       next(error);
     }
   }
+
+  // Gestione dell'uscita del veicolo
+  async exitTransito(req: Request, res: Response, next: NextFunction) {
+    try {
+      const transitoId = Number(req.params.id);
+      const dataOraUscita = new Date(); // Usa l'ora corrente come ora di uscita
+
+      const transitoAggiornato = await TransitoRepository.aggiornaTransitoConImporto(transitoId, dataOraUscita);
+
+      if (!transitoAggiornato) {
+        return res.status(404).json({ message: 'Transito non trovato' });
+      }
+
+      res.status(200).json(transitoAggiornato);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default new TransitoController();
