@@ -21,8 +21,6 @@ export const authenticationMiddleware = (req: Request, res: Response, next: Next
     const token = authHeader.replace('Bearer ', '');
     const decodedPayload = verifyToken(token);
 
-    console.log('Payload decodificato:', decodedPayload); // Verifica se contiene il campo "role"
-
     if (!decodedPayload) {
       // Token non valido o errore nella verifica
       return next(ErrorGenerator.generateError(

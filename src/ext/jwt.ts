@@ -41,6 +41,12 @@ export const verifyToken = (token: string): JwtPayload | null => {
         'Il token è scaduto'
       );
     } else if (error instanceof jwt.JsonWebTokenError) {
+      // Qui cattura il caso di un token completamente non valido, come "pippo"
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.INVALID_AUTH_TOKEN,
+        'Token JWT non valido'
+      );
+    } else if (error instanceof jwt.JsonWebTokenError) {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.JWT_ERROR,
         'Token JWT non valido'
