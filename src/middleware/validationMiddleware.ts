@@ -145,8 +145,28 @@ const validateTariffa = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
+/**
+ * Middleware per la validazione dell'ID nei parametri delle rotte.
+ */
+const validateIdParam = (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params;
+
+  // Verifica che l'ID sia presente e sia un numero intero positivo
+  if (!id || isNaN(Number(id)) || !Number.isInteger(Number(id)) || Number(id) <= 0) {
+    return next(
+      ErrorGenerator.generateError(
+        ApplicationErrorTypes.MALFORMED_ID,
+        'L\'ID fornito non è valido. Deve essere un numero intero positivo.'
+      )
+    );
+  }
+
+  next();
+};
+
 export default {
   validateParcheggio,
   validateVarco,
   validateTariffa,
+  validateIdParam,
 };

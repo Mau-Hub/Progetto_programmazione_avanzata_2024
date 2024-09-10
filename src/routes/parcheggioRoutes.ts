@@ -15,9 +15,9 @@ router.use(authenticationMiddleware);
 
 router.post('/parcheggio', authorizeRoles(['operatore']), validationMiddleware.validateParcheggio, ParcheggioController.createParcheggio); // POST http://localhost:3000/parcheggio {"id" : 1 , "nome" : "ciao"....}
 router.get('/parcheggi', authorizeRoles(['operatore']), ParcheggioController.getAllParcheggi);
-router.get('/parcheggio/:id', authorizeRoles(['operatore']), ParcheggioController.getParcheggioById);
-router.put('/parcheggio/:id', authorizeRoles(['operatore']), validationMiddleware.validateParcheggio, ParcheggioController.updateParcheggio);
-router.delete('/parcheggio/:id', authorizeRoles(['operatore']), ParcheggioController.deleteParcheggio);
+router.get('/parcheggio/:id', authorizeRoles(['operatore']), validationMiddleware.validateIdParam, ParcheggioController.getParcheggioById);
+router.put('/parcheggio/:id', authorizeRoles(['operatore']), validationMiddleware.validateIdParam, validationMiddleware.validateParcheggio, ParcheggioController.updateParcheggio);
+router.delete('/parcheggio/:id', authorizeRoles(['operatore']), validationMiddleware.validateIdParam, ParcheggioController.deleteParcheggio);
 
 // Gestione degli errori
 router.use(errorHandler);
