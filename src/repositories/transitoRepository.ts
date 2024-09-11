@@ -1,6 +1,7 @@
 import Transito, { TransitoAttributes, TransitoCreationAttributes } from '../models/transito';
 import Tariffa from '../models/tariffa';
 import Parcheggio from '../models/parcheggio';
+import { getGiornoSettimanaString } from '../ext/dateUtils';
 import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
 
 class TransitoRepository {
@@ -165,6 +166,7 @@ class TransitoRepository {
 
       // Determina se è feriale o festivo
       const giornoSettimana = transito.ingresso.getDay();
+      const giornoSettimanaString = getGiornoSettimanaString(giornoSettimana);
       const giornoFestivo = giornoSettimana === 0 || giornoSettimana === 6; // Considera domenica (0) e sabato (6) come festivi
 
       // Determina se la durata è diurna o notturna
@@ -172,7 +174,7 @@ class TransitoRepository {
       const fasciaOraria = oraIngresso >= 8 && oraIngresso < 20 ? 'DIURNA' : 'NOTTURNA';
 
       // Recupera l'importo dalla tariffa basata sulla fascia oraria e giorno festivo/feriale
-      const importoOrario = (tariffa.fascia_oraria === fasciaOraria && tariffa.giorno_settimana.getDay() === giornoFestivo)
+      const importoOrario = (tariffa.fascia_oraria === fasciaOraria && tariffa.giorno_settimana === giornoSettimanaString)
         ? tariffa.importo
         : 0;
 
