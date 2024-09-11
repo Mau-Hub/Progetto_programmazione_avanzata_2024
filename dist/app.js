@@ -10,6 +10,7 @@ const varcoRoutes_1 = __importDefault(require("./routes/varcoRoutes"));
 const errorHandler_1 = require("./middleware/errorHandler");
 const authenticationMiddleware_1 = require("./middleware/authenticationMiddleware");
 const tariffeRoutes_1 = __importDefault(require("./routes/tariffeRoutes"));
+const transitoRoutes_1 = __importDefault(require("./routes/transitoRoutes"));
 const app = (0, express_1.default)();
 const port = process.env.PORT || 3000;
 // Middleware per il parsing del JSON
@@ -28,6 +29,7 @@ app.use('/api', authenticationMiddleware_1.authenticationMiddleware);
 app.use('/api', parcheggioRoutes_1.default);
 app.use('/api', varcoRoutes_1.default);
 app.use('/api', tariffeRoutes_1.default);
+app.use('/api', transitoRoutes_1.default);
 // Middleware per la gestione degli errori
 app.use(errorHandler_1.errorHandler);
 // Gestione delle route non trovate

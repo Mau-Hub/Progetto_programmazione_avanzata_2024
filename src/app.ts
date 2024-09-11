@@ -5,6 +5,7 @@ import varcoRoutes from './routes/varcoRoutes';
 import { errorHandler } from './middleware/errorHandler';
 import { authenticationMiddleware } from './middleware/authenticationMiddleware';
 import tariffaRoutes from './routes/tariffeRoutes';
+import transitoRoutes from './routes/transitoRoutes';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -28,7 +29,8 @@ app.use('/api', authenticationMiddleware);
 // Collegamento delle route del parcheggio (ora protette dall'autenticazione)
 app.use('/api', parcheggioRoutes);
 app.use('/api', varcoRoutes);
-app.use('/api', tariffaRoutes)
+app.use('/api', tariffaRoutes);
+app.use('/api', transitoRoutes);
 
 // Middleware per la gestione degli errori
 app.use(errorHandler);

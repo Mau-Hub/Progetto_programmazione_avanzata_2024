@@ -15,7 +15,7 @@ class ParcheggioRepository implements DaoI<Parcheggio, number> {
     // Crea il nuovo parcheggio
     const nuovoParcheggio = await Parcheggio.create({ nome, capacita });
   
-    // Se ci sono varchi, creali e associarli al parcheggio
+    // Se ci sono varchi, li crea e li associa al parcheggio
     if (varchi && varchi.length > 0) {
       await Promise.all(
         varchi.map((varco) =>
