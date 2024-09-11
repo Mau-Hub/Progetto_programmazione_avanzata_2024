@@ -145,6 +145,52 @@ const validateTariffa = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
+const validateTransito = (req: Request, res: Response, next: NextFunction) => {
+  const { id_veicolo, ingresso, uscita, id_parcheggio, id_utente } = req.body;
+
+  // Verifica che 'id_veicolo' sia un numero intero positivo
+  if (!id_veicolo || typeof id_veicolo !== 'number' || !Number.isInteger(id_veicolo) || id_veicolo <= 0) {
+    return next(ErrorGenerator.generateError(
+      ApplicationErrorTypes.MALFORMED_ID,
+      "'id_veicolo' è obbligatorio e deve essere un numero intero positivo"
+    ));
+  }
+
+  // Verifica che 'ingresso' sia una data valida
+  if (!ingresso || isNaN(Date.parse(ingresso))) {
+    return next(ErrorGenerator.generateError(
+      ApplicationErrorTypes.INVALID_INPUT,
+      "'ingresso' è obbligatorio e deve essere una data valida"
+    ));
+  }
+
+  // Verifica che 'uscita', se presente, sia una data valida
+  if (uscita && isNaN(Date.parse(uscita))) {
+    return next(ErrorGenerator.generateError(
+      ApplicationErrorTypes.INVALID_INPUT,
+      "'uscita', se fornita, deve essere una data valida"
+    ));
+  }
+
+  // Verifica che 'id_parcheggio' sia un numero intero positivo
+  if (!id_parcheggio || typeof id_parcheggio !== 'number' || !Number.isInteger(id_parcheggio) || id_parcheggio <= 0) {
+    return next(ErrorGenerator.generateError(
+      ApplicationErrorTypes.MALFORMED_ID,
+      "'id_parcheggio' è obbligatorio e deve essere un numero intero positivo"
+    ));
+  }
+
+  // Verifica che 'id_utente' sia un numero intero positivo
+  if (!id_utente || typeof id_utente !== 'number' || !Number.isInteger(id_utente) || id_utente <= 0) {
+    return next(ErrorGenerator.generateError(
+      ApplicationErrorTypes.MALFORMED_ID,
+      "'id_utente' è obbligatorio e deve essere un numero intero positivo"
+    ));
+  }
+
+  next();
+};
+
 /**
  * Middleware per la validazione dell'ID nei parametri delle rotte.
  */
@@ -168,5 +214,6 @@ export default {
   validateParcheggio,
   validateVarco,
   validateTariffa,
+  validateTransito,
   validateIdParam,
 };
