@@ -9,7 +9,11 @@ class TransitoController {
       const nuovoTransito = await TransitoRepository.create(req.body);
       res.status(201).json(nuovoTransito);
     } catch (error) {
-      next(error);
+      if (error instanceof Error) {
+        next(ErrorGenerator.generateError(ApplicationErrorTypes.INVALID_INPUT, error.message));
+      } else {
+        next(ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore sconosciuto durante la creazione del transito'));
+      }
     }
   }
 
@@ -19,7 +23,7 @@ class TransitoController {
       const transiti = await TransitoRepository.findAll();
       res.status(200).json(transiti);
     } catch (error) {
-      next(error);
+      next(ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero dei transiti'));
     }
   }
 
@@ -34,7 +38,7 @@ class TransitoController {
       }
       res.status(200).json(transito);
     } catch (error) {
-      next(error);
+      next(ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero del transito'));
     }
   }
 
@@ -51,7 +55,11 @@ class TransitoController {
         );
       }
     } catch (error) {
-      next(error);
+      if (error instanceof Error) {
+        next(ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, `Errore nell'aggiornamento del transito: ${error.message}`));
+      } else {
+        next(ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore sconosciuto durante l\'aggiornamento del transito'));
+      }
     }
   }
 
@@ -67,7 +75,7 @@ class TransitoController {
         );
       }
     } catch (error) {
-      next(error);
+      next(ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore durante l\'eliminazione del transito'));
     }
   }
 
@@ -75,17 +83,21 @@ class TransitoController {
   async exitTransito(req: Request, res: Response, next: NextFunction) {
     try {
       const transitoId = Number(req.params.id);
-      const dataOraUscita = new Date(); // Usa l'ora corrente come ora di uscita
+      const dataOraUscita = new Date();
 
       const transitoAggiornato = await TransitoRepository.aggiornaTransitoConImporto(transitoId, dataOraUscita);
 
       if (!transitoAggiornato) {
-        return res.status(404).json({ message: 'Transito non trovato' });
+        return next(ErrorGenerator.generateError(ApplicationErrorTypes.RESOURCE_NOT_FOUND, 'Transito non trovato'));
       }
 
       res.status(200).json(transitoAggiornato);
     } catch (error) {
-      next(error);
+      if (error instanceof Error) {
+        next(ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, `Errore durante l'uscita del veicolo: ${error.message}`));
+      } else {
+        next(ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore sconosciuto durante l\'uscita del veicolo'));
+      }
     }
   }
 }
