@@ -1,5 +1,6 @@
 import { DaoI } from '../dao/DaoI';
 import Parcheggio from '../models/parcheggio';
+import Posto from '../models/posto';
 import Varco from '../models/varco';
 
 interface ParcheggioData {
@@ -28,7 +29,7 @@ class ParcheggioRepository implements DaoI<Parcheggio, number> {
       );
     }
   
-    // Aggiunge al parcheggio i varchi e  lo restituisce
+    // Aggiunge al parcheggio i varchi e lo restituisce
     const parcheggioConVarchi = await Parcheggio.findByPk(nuovoParcheggio.id, {
       include: [{ model: Varco, as: 'varchi' }],
     });
@@ -41,7 +42,6 @@ class ParcheggioRepository implements DaoI<Parcheggio, number> {
     return parcheggioConVarchi;
   }
   
-
   async findById(id: number): Promise<Parcheggio | null> {
     return await Parcheggio.findByPk(id, {
       include: [{ model: Varco, as: 'varchi' }],
@@ -91,6 +91,16 @@ class ParcheggioRepository implements DaoI<Parcheggio, number> {
 
     return true;
   }
+  async checkPostiDisponibili(parcheggioId: number): Promise<boolean> { // aggiunto il controllo posto
+    const postiLiberi = await Posto.count({
+      where: {
+        id_parcheggio: parcheggioId,
+        stato: 'libero'
+      }
+    });
+    return postiLiberi > 0;
+  }
+  
 }
 
 export default new ParcheggioRepository();
