@@ -1,166 +1,135 @@
 import Varco from '../models/varco';
 import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
+import { VarcoAttributes, VarcoCreationAttributes } from '../models/varco';
 import { DaoI } from './DaoI';
 
-// Definizione dell'interfaccia VarcoAttributes
-interface VarcoAttributes {
-  id?: number;
-  tipo: 'INGRESSO' | 'USCITA';
-  bidirezionale: boolean;
-  id_parcheggio: number;
-}
-
 class VarcoDao implements DaoI<VarcoAttributes, number> {
+  
   /**
-   * Recupera tutti i varchi.
+   * Creazione di un nuovo varco.
    *
-   * @returns {Promise<Varco[]>} Promise che restituice un array di varchi.
+   * @param {VarcoCreationAttributes} varcoData Dati per la creazione del nuovo varco.
+   * @returns {Promise<Varco>} Promise che restituisce il varco appena creato.
    */
-  public async findAll(): Promise<Varco[]> {
+  async create(varcoData: VarcoCreationAttributes): Promise<Varco> {
     try {
-      return await Varco.findAll();
+      const nuovoVarco = await Varco.create(varcoData);
+      return nuovoVarco;
     } catch (error) {
-      throw ErrorGenerator.generateError(
-        ApplicationErrorTypes.SERVER_ERROR,
-        'Si è verificato un errore nel recupero dei varchi'
-      );
+      throw ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore nella creazione del varco');
     }
   }
 
   /**
-   * Recupero del varco per ID.
+   * Ottenere tutti i varchi.
    *
-   * @param {number} id del varco.
-   * @returns {Promise<Varco | null>} Promise che restituisce un varco o restituisce null se non esistente.
+   * @returns {Promise<Varco[]>} Promise che restituisce un array di varchi.
    */
-  public async findById(id: number): Promise<Varco | null> {
+  async findAll(): Promise<Varco[]> {
+    try {
+      const varchi = await Varco.findAll();
+      return varchi;
+    } catch (error) {
+      throw ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero dei varchi');
+    }
+  }
+
+  /**
+   * Ottenere un varco specifico per ID.
+   *
+   * @param {number} id ID del varco.
+   * @returns {Promise<Varco | null>} Promise che restituisce un varco o null se non esistente.
+   */
+  async findById(id: number): Promise<Varco | null> {
     try {
       const varco = await Varco.findByPk(id);
       if (!varco) {
-        throw ErrorGenerator.generateError(
-          ApplicationErrorTypes.RESOURCE_NOT_FOUND,
-          `Il varco con l'id ${id} inesistente`
-        );
+        throw ErrorGenerator.generateError(ApplicationErrorTypes.RESOURCE_NOT_FOUND, `Varco con ID ${id} non trovato`);
       }
       return varco;
     } catch (error) {
-      throw ErrorGenerator.generateError(
-        ApplicationErrorTypes.SERVER_ERROR,
-        `Si è verificato un errore nel recupero del varco con id ${id}`
-      );
+      throw ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero del varco');
     }
   }
 
   /**
-   * Crea un nuovo varco.
+   * Aggiornare un varco.
    *
-   * @param {VarcoAttributes} item dati per generare il varco.
-   * @returns {Promise<Varco>} Promise che restituisce il varco appena creato.
+   * @param {number} id ID del varco da aggiornare.
+   * @param {Partial<VarcoAttributes>} varcoData Dati parziali per aggiornare il varco.
+   * @returns {Promise<boolean>} Promise che restituisce true se l'aggiornamento è avvenuto con successo, false altrimenti.
    */
-  public async create(item: VarcoAttributes): Promise<Varco> {
+  async update(id: number, varcoData: Partial<VarcoAttributes>): Promise<boolean> {
     try {
-      return await Varco.create(item);
+      const [numUpdated] = await Varco.update(varcoData, { where: { id } });
+      if (numUpdated === 0) {
+        throw ErrorGenerator.generateError(ApplicationErrorTypes.RESOURCE_NOT_FOUND, `Varco con ID ${id} non trovato`);
+      }
+      return numUpdated === 1;
     } catch (error) {
-      throw ErrorGenerator.generateError(
-        ApplicationErrorTypes.SERVER_ERROR,
-        'Si è verificato un errore nella creazione del varco'
-      );
+      throw ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore nell\'aggiornamento del varco');
     }
   }
 
   /**
-   * Aggiorna un varco esistente.
+   * Eliminare un varco.
    *
-   * @param {number} id id attribuito al varco.
-   * @param {VarcoAttributes} item dati necessari per l'aggiornamento del varco
-   * @returns {Promise<boolean>} Promise che restituisce true se l'aggiornamento è avvenuto, false in caso contrario.
+   * @param {number} id ID del varco da eliminare.
+   * @returns {Promise<boolean>} Promise che restituisce true se la cancellazione è avvenuta con successo, false altrimenti.
    */
-  public async update(id: number, item: VarcoAttributes): Promise<boolean> {
+  async delete(id: number): Promise<boolean> {
     try {
-      const [affectedCount] = await Varco.update(item, {
-        where: { id },
-        returning: true,
-      });
-      return affectedCount > 0;
+      const numDeleted = await Varco.destroy({ where: { id } });
+      if (numDeleted === 0) {
+        throw ErrorGenerator.generateError(ApplicationErrorTypes.RESOURCE_NOT_FOUND, `Varco con ID ${id} non trovato`);
+      }
+      return numDeleted === 1;
     } catch (error) {
-      throw ErrorGenerator.generateError(
-        ApplicationErrorTypes.SERVER_ERROR,
-        `Si è verificato un errore nell'aggiornamento del varco con id ${id}`
-      );
+      throw ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore nell\'eliminazione del varco');
     }
   }
 
   /**
-   * Cancella un varco per ID.
-   *
-   * @param {number} id id del varco.
-   * @returns {Promise<boolean>} Promise che restituisce true se la cancellazione è avvenuta, false in caso contrario.
-   */
-  public async delete(id: number): Promise<boolean> {
-    try {
-      const result = await Varco.destroy({ where: { id } });
-      return result > 0;
-    } catch (error) {
-      throw ErrorGenerator.generateError(
-        ApplicationErrorTypes.SERVER_ERROR,
-        `Si è verificato un errore nella cancellazione del varco con id ${id}`
-      );
-    }
-  }
-
-  /**
-   * Recupera tutti i varchi di un parcheggio specifico.
+   * Ottenere tutti i varchi di un parcheggio specifico.
    *
    * @param {number} idParcheggio ID del parcheggio.
-   * @returns {Promise<Varco[]>} Promise che restituisce un array di varchi del parcheggio specificato.
+   * @returns {Promise<Varco[]>} Promise che restituisce un array di varchi per il parcheggio specificato.
    */
-  public async findByParcheggio(idParcheggio: number): Promise<Varco[]> {
+  async findByParcheggio(idParcheggio: number): Promise<Varco[]> {
     try {
-      return await Varco.findAll({
-        where: { id_parcheggio: idParcheggio },
-      });
+      const varchi = await Varco.findAll({ where: { id_parcheggio: idParcheggio } });
+      return varchi;
     } catch (error) {
-      throw ErrorGenerator.generateError(
-        ApplicationErrorTypes.SERVER_ERROR,
-        `Si è verificato un errore nel recupero dei varchi per il parcheggio con id ${idParcheggio}`
-      );
+      throw ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero dei varchi per il parcheggio specificato');
     }
   }
 
   /**
-   * Recupera tutti i varchi bidirezionali.
+   * Ottenere tutti i varchi bidirezionali.
    *
    * @returns {Promise<Varco[]>} Promise che restituisce un array di varchi bidirezionali.
    */
-  public async findBidirezionali(): Promise<Varco[]> {
+  async findBidirezionali(): Promise<Varco[]> {
     try {
-      return await Varco.findAll({
-        where: { bidirezionale: true },
-      });
+      const varchi = await Varco.findAll({ where: { bidirezionale: true } });
+      return varchi;
     } catch (error) {
-      throw ErrorGenerator.generateError(
-        ApplicationErrorTypes.SERVER_ERROR,
-        'Si è verificato un errore nel recupero dei varchi bidirezionali'
-      );
+      throw ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero dei varchi bidirezionali');
     }
   }
 
   /**
-   * Recupera tutti i varchi di un tipo specifico (INGRESSO o USCITA).
+   * Ottenere tutti i varchi di un tipo specifico.
    *
-   * @param {('INGRESSO' | 'USCITA')} tipo Tipo del varco.
+   * @param {('INGRESSO' | 'USCITA')} tipo Tipo del varco da cercare.
    * @returns {Promise<Varco[]>} Promise che restituisce un array di varchi del tipo specificato.
    */
-  public async findByTipo(tipo: 'INGRESSO' | 'USCITA'): Promise<Varco[]> {
+  async findByTipo(tipo: 'INGRESSO' | 'USCITA'): Promise<Varco[]> {
     try {
-      return await Varco.findAll({
-        where: { tipo },
-      });
+      const varchi = await Varco.findAll({ where: { tipo } });
+      return varchi;
     } catch (error) {
-      throw ErrorGenerator.generateError(
-        ApplicationErrorTypes.SERVER_ERROR,
-        `Si è verificato un errore nel recupero dei varchi di tipo ${tipo}`
-      );
+      throw ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero dei varchi per il tipo specificato');
     }
   }
 }

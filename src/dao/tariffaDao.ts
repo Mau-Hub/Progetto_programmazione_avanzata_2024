@@ -1,10 +1,12 @@
+import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
 import Tariffa, { TariffaAttributes } from '../models/tariffa';
 import TipoVeicolo from '../models/tipoVeicolo';
 import Parcheggio from '../models/parcheggio';
 import Utente from '../models/utente';
 
+// Creazione tariffa
 class TariffaDao {
-  // Metodo per creare una nuova tariffa
+
   public async createTariffa(data: {
     id_tipo_veicolo: number;
     importo: number;
@@ -18,13 +20,16 @@ class TariffaDao {
       const tariffa = await Tariffa.create(data);
       return tariffa;
     } catch (error) {
-      throw new Error(
-        `Errore durante la creazione della tariffa: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        `Errore durante la creazione della tariffa: ${
+          error instanceof Error ? error.message : 'Errore sconosciuto'
+        }`
       );
     }
   }
 
-  // Metodo per trovare una tariffa per ID
+  // Trovare una tariffa per ID
   public async getTariffaById(id: number): Promise<Tariffa | null> {
     try {
       const tariffa = await Tariffa.findByPk(id, {
@@ -34,15 +39,26 @@ class TariffaDao {
           { model: Utente, as: 'utente' },
         ],
       });
+
+      if (!tariffa) {
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+          `La tariffa con ID ${id} non è stata trovata`
+        );
+      }
+
       return tariffa;
     } catch (error) {
-      throw new Error(
-        `Errore durante il recupero della tariffa con ID ${id}: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        `Errore durante il recupero della tariffa con ID ${id}: ${
+          error instanceof Error ? error.message : 'Errore sconosciuto'
+        }`
       );
     }
   }
 
-  // Metodo per ottenere tutte le tariffe
+  // Ottenere tutte le tariffe
   public async getAllTariffe(): Promise<Tariffa[]> {
     try {
       const tariffe = await Tariffa.findAll({
@@ -54,13 +70,16 @@ class TariffaDao {
       });
       return tariffe;
     } catch (error) {
-      throw new Error(
-        `Errore durante il recupero di tutte le tariffe: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        `Errore durante il recupero di tutte le tariffe: ${
+          error instanceof Error ? error.message : 'Errore sconosciuto'
+        }`
       );
     }
   }
 
-  // Metodo per aggiornare una tariffa
+  // Aggiornare una tariffa
   public async updateTariffa(
     id: number,
     data: Partial<{
@@ -78,24 +97,46 @@ class TariffaDao {
         where: { id },
         returning: true,
       });
+
+      if (result[0] === 0) {
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+          `La tariffa con ID ${id} non esiste`
+        );
+      }
+
       return result;
     } catch (error) {
-      throw new Error(
-        `Errore durante l'aggiornamento della tariffa con ID ${id}: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        `Errore durante l'aggiornamento della tariffa con ID ${id}: ${
+          error instanceof Error ? error.message : 'Errore sconosciuto'
+        }`
       );
     }
   }
 
-  // Metodo per eliminare una tariffa
+  // Eliminare una tariffa
   public async deleteTariffa(id: number): Promise<number> {
     try {
       const result = await Tariffa.destroy({
         where: { id },
       });
+
+      if (result === 0) {
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+          `La tariffa con ID ${id} non è stata trovata`
+        );
+      }
+
       return result;
     } catch (error) {
-      throw new Error(
-        `Errore durante l'eliminazione della tariffa con ID ${id}: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        `Errore durante l'eliminazione della tariffa con ID ${id}: ${
+          error instanceof Error ? error.message : 'Errore sconosciuto'
+        }`
       );
     }
   }

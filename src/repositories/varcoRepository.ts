@@ -1,59 +1,93 @@
-import Varco from '../models/varco'; 
+import VarcoDao from '../dao/varcoDao';
 import { VarcoAttributes, VarcoCreationAttributes } from '../models/varco';
+import Varco from '../models/varco';
 
 class VarcoRepository {
-  // Creazione di un nuovo varco
+  /**
+   * Creazione di un nuovo varco
+   *
+   * @param {VarcoCreationAttributes} varcoData
+   * @returns {Promise<Varco>}
+   */
   async create(varcoData: VarcoCreationAttributes): Promise<Varco> {
-    try {
-      const nuovoVarco = await Varco.create(varcoData);
-      return nuovoVarco;
-    } catch (error) {
-      throw new Error('Errore nella creazione del varco');
-    }
+    // Chiama il metodo del DAO per creare un nuovo varco
+    return VarcoDao.create(varcoData);
   }
 
-  // Ottenere tutti i varchi
+  /**
+   * Ottenere tutti i varchi
+   *
+   * @returns {Promise<Varco[]>}
+   */
   async findAll(): Promise<Varco[]> {
-    try {
-      const varchi = await Varco.findAll();
-      return varchi;
-    } catch (error) {
-      throw new Error('Errore nel recupero dei varchi');
-    }
+    // Chiama il metodo del DAO per ottenere tutti i varchi
+    return VarcoDao.findAll();
   }
 
-  // Ottenere un varco specifico per ID
+  /**
+   * Ottenere un varco specifico per ID
+   *
+   * @param {number} id
+   * @returns {Promise<Varco | null>}
+   */
   async findById(id: number): Promise<Varco | null> {
-    try {
-      const varco = await Varco.findByPk(id);
-      return varco;
-    } catch (error) {
-      throw new Error('Errore nel recupero del varco');
-    }
+    // Chiama il metodo del DAO per ottenere il varco con un ID specifico
+    return VarcoDao.findById(id);
   }
 
-  // Aggiornare un varco
+  /**
+   * Aggiornare un varco
+   *
+   * @param {number} id
+   * @param {Partial<VarcoAttributes>} varcoData
+   * @returns {Promise<boolean>}
+   */
   async update(id: number, varcoData: Partial<VarcoAttributes>): Promise<boolean> {
-    try {
-      const [numUpdated] = await Varco.update(varcoData, {
-        where: { id },
-      });
-      return numUpdated === 1; // True se è stato aggiornato
-    } catch (error) {
-      throw new Error('Errore nell\'aggiornamento del varco');
-    }
+    // Chiama il metodo del DAO per aggiornare un varco
+    return VarcoDao.update(id, varcoData);
   }
 
-  // Eliminare un varco
+  /**
+   * Eliminare un varco
+   *
+   * @param {number} id
+   * @returns {Promise<boolean>}
+   */
   async delete(id: number): Promise<boolean> {
-    try {
-      const numDeleted = await Varco.destroy({
-        where: { id },
-      });
-      return numDeleted === 1; // True se è stato eliminato
-    } catch (error) {
-      throw new Error('Errore nell\'eliminazione del varco');
-    }
+    // Chiama il metodo del DAO per eliminare un varco
+    return VarcoDao.delete(id);
+  }
+
+  /**
+   * Ottenere tutti i varchi di un parcheggio specifico
+   *
+   * @param {number} idParcheggio
+   * @returns {Promise<Varco[]>}
+   */
+  async findByParcheggio(idParcheggio: number): Promise<Varco[]> {
+    // Chiama il metodo del DAO per ottenere tutti i varchi di un parcheggio specifico
+    return VarcoDao.findByParcheggio(idParcheggio);
+  }
+
+  /**
+   * Ottenere tutti i varchi bidirezionali
+   *
+   * @returns {Promise<Varco[]>}
+   */
+  async findBidirezionali(): Promise<Varco[]> {
+    // Chiama il metodo del DAO per ottenere tutti i varchi bidirezionali
+    return VarcoDao.findBidirezionali();
+  }
+
+  /**
+   * Ottenere tutti i varchi di un tipo specifico
+   *
+   * @param {('INGRESSO' | 'USCITA')} tipo
+   * @returns {Promise<Varco[]>}
+   */
+  async findByTipo(tipo: 'INGRESSO' | 'USCITA'): Promise<Varco[]> {
+    // Chiama il metodo del DAO per ottenere tutti i varchi di un tipo specifico
+    return VarcoDao.findByTipo(tipo);
   }
 }
 
