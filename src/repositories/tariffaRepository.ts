@@ -1,5 +1,5 @@
-import Tariffa from '../models/tariffa';
-import {
+import TariffaDao from '../dao/tariffaDao';
+import Tariffa, {
   TariffaAttributes,
   TariffaCreationAttributes,
 } from '../models/tariffa';
@@ -7,32 +7,20 @@ import {
 class TariffaRepository {
   // Creazione di una nuova tariffa
   async create(tariffaData: TariffaCreationAttributes): Promise<Tariffa> {
-    try {
-      const nuovaTariffa = await Tariffa.create(tariffaData);
-      return nuovaTariffa;
-    } catch (error) {
-      throw new Error('Errore nella creazione della tariffa');
-    }
+    // Utilizza il metodo 'create' anziché 'createTariffa'
+    return await TariffaDao.create(tariffaData);
   }
 
   // Acquisizione di tutte le tariffe
   async findAll(): Promise<Tariffa[]> {
-    try {
-      const tariffe = await Tariffa.findAll();
-      return tariffe;
-    } catch (error) {
-      throw new Error('Errore nel recupero delle tariffe');
-    }
+    // Utilizza il metodo 'findAll' anziché 'getAllTariffe'
+    return await TariffaDao.findAll();
   }
 
   // Acquisizione di una tariffa specifica per ID
   async findById(id: number): Promise<Tariffa | null> {
-    try {
-      const tariffa = await Tariffa.findByPk(id);
-      return tariffa;
-    } catch (error) {
-      throw new Error('Errore nel recupero della tariffa');
-    }
+    // Utilizza il metodo 'findById' anziché 'getTariffaById'
+    return await TariffaDao.findById(id);
   }
 
   // Aggiornamento di una tariffa
@@ -40,26 +28,14 @@ class TariffaRepository {
     id: number,
     tariffaData: Partial<TariffaAttributes>
   ): Promise<boolean> {
-    try {
-      const [numUpdated] = await Tariffa.update(tariffaData, {
-        where: { id },
-      });
-      return numUpdated === 1;
-    } catch (error) {
-      throw new Error("Errore nell'aggiornamento della tariffa");
-    }
+    // Utilizza il metodo 'update' anziché 'updateTariffa'
+    return await TariffaDao.update(id, tariffaData);
   }
 
   // Eliminazione di una tariffa
   async delete(id: number): Promise<boolean> {
-    try {
-      const numDeleted = await Tariffa.destroy({
-        where: { id },
-      });
-      return numDeleted === 1;
-    } catch (error) {
-      throw new Error("Errore nell'eliminazione della tariffa");
-    }
+    // Utilizza il metodo 'delete' anziché 'deleteTariffa'
+    return await TariffaDao.delete(id);
   }
 }
 

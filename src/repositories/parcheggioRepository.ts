@@ -1,20 +1,21 @@
-import { DaoI } from '../dao/DaoI';
+import ParcheggioDao from '../dao/parcheggioDao';
 import Parcheggio from '../models/parcheggio';
 import Posto from '../models/posto';
 import Varco from '../models/varco';
 
+// Dato che l'id viene generato dal DB, non lo includiamo nell'input di creazione
 interface ParcheggioData {
   nome: string;
   capacita: number;
   varchi?: { tipo: 'INGRESSO' | 'USCITA'; bidirezionale: boolean }[];
 }
 
-class ParcheggioRepository implements DaoI<Parcheggio, number> {
+class ParcheggioRepository {
   async create(data: ParcheggioData): Promise<Parcheggio> {
     const { nome, capacita, varchi } = data;
   
-    // Crea il nuovo parcheggio
-    const nuovoParcheggio = await Parcheggio.create({ nome, capacita });
+    // Crea il nuovo parcheggio tramite DAO, id sarà generato automaticamente
+    const nuovoParcheggio = await ParcheggioDao.create({ nome, capacita });
   
     // Se ci sono varchi, li crea e li associa al parcheggio
     if (varchi && varchi.length > 0) {
@@ -23,55 +24,49 @@ class ParcheggioRepository implements DaoI<Parcheggio, number> {
           Varco.create({
             tipo: varco.tipo,
             bidirezionale: varco.bidirezionale,
-            id_parcheggio: nuovoParcheggio.id,
+            id_parcheggio: nuovoParcheggio.id, // Associa i varchi al parcheggio appena creato
           })
         )
       );
     }
-  
-    // Aggiunge al parcheggio i varchi e lo restituisce
-    const parcheggioConVarchi = await Parcheggio.findByPk(nuovoParcheggio.id, {
-      include: [{ model: Varco, as: 'varchi' }],
-    });
-  
-    // Gestione nel caso in cui il parcheggio non venga trovato
+
+    // Ritorna il parcheggio con i varchi associati
+    const parcheggioConVarchi = await ParcheggioDao.findById(nuovoParcheggio.id);
     if (!parcheggioConVarchi) {
       throw new Error('Parcheggio non trovato');
     }
-  
     return parcheggioConVarchi;
   }
-  
+
   async findById(id: number): Promise<Parcheggio | null> {
-    return await Parcheggio.findByPk(id, {
-      include: [{ model: Varco, as: 'varchi' }],
-    });
+    return await ParcheggioDao.findById(id);
   }
 
   async findAll(): Promise<Parcheggio[]> {
-    return await Parcheggio.findAll({
-      include: [{ model: Varco, as: 'varchi' }],
-    });
+    return await ParcheggioDao.findAll();
   }
 
   async update(id: number, data: ParcheggioData): Promise<boolean> {
-    const parcheggio = await Parcheggio.findByPk(id);
+    const parcheggio = await ParcheggioDao.findById(id);
     if (!parcheggio) {
       throw new Error('Parcheggio non trovato');
     }
 
     const { nome, capacita, varchi } = data;
-    await parcheggio.update({ nome, capacita });
+    await ParcheggioDao.update(id, { nome, capacita });
 
+    // Aggiorna anche i varchi
     if (varchi && varchi.length > 0) {
+      // Prima elimina tutti i varchi associati a questo parcheggio
       await Varco.destroy({ where: { id_parcheggio: id } });
 
+      // Poi ricrea i varchi con i nuovi dati
       await Promise.all(
         varchi.map((varco) =>
           Varco.create({
             tipo: varco.tipo,
             bidirezionale: varco.bidirezionale,
-            id_parcheggio: id,
+            id_parcheggio: id, // Associa i nuovi varchi al parcheggio esistente
           })
         )
       );
@@ -81,17 +76,19 @@ class ParcheggioRepository implements DaoI<Parcheggio, number> {
   }
 
   async delete(id: number): Promise<boolean> {
-    const parcheggio = await Parcheggio.findByPk(id);
+    const parcheggio = await ParcheggioDao.findById(id);
     if (!parcheggio) {
       throw new Error('Parcheggio non trovato');
     }
 
+    // Elimina prima tutti i varchi associati al parcheggio
     await Varco.destroy({ where: { id_parcheggio: id } });
-    await parcheggio.destroy();
-
-    return true;
+    
+    // Elimina il parcheggio
+    return await ParcheggioDao.delete(id);
   }
-  async checkPostiDisponibili(parcheggioId: number): Promise<boolean> { // aggiunto il controllo posto
+
+  async checkPostiDisponibili(parcheggioId: number): Promise<boolean> {
     const postiLiberi = await Posto.count({
       where: {
         id_parcheggio: parcheggioId,
@@ -100,7 +97,6 @@ class ParcheggioRepository implements DaoI<Parcheggio, number> {
     });
     return postiLiberi > 0;
   }
-  
 }
 
 export default new ParcheggioRepository();

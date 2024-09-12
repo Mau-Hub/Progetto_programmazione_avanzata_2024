@@ -1,110 +1,95 @@
 import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
-import { DaoI } from './DaoI';
-import { ParcheggioAttributes } from '../models/parcheggio';
+import { ParcheggioAttributes, ParcheggioCreationAttributes } from '../models/parcheggio';
 import { Parcheggio } from '../models/parcheggio';
+import { DaoI } from './DaoI';
 
-// Classe ParcheggioDao che implementa l'interfaccia DaoI per Parcheggio
 class ParcheggioDao implements DaoI<ParcheggioAttributes, number> {
-  /**
-   * Recupera tutti i parcheggi.
-   *
-   * @returns {Promise<Parcheggio[]>} Promise che restituisce un array di parcheggi.
-   */
+  // Metodo per ottenere tutti i parcheggi
   public async findAll(): Promise<Parcheggio[]> {
     try {
       return await Parcheggio.findAll();
     } catch (error) {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
-        'Si è verificato un problema nel recupero dei parcheggi'
+        'Errore durante il recupero di tutti i parcheggi'
       );
     }
   }
 
-  /**
-   * Recupero del parcheggio per ID.
-   *
-   * @param {number} id del parcheggio.
-   * @returns {Promise<Parcheggio | null>} Promise che restituisce un parcheggio o restituisce null se non esistente.
-   */
-
+  // Metodo per trovare un parcheggio per ID
   public async findById(id: number): Promise<Parcheggio | null> {
     try {
       const parcheggio = await Parcheggio.findByPk(id);
+
       if (!parcheggio) {
         throw ErrorGenerator.generateError(
           ApplicationErrorTypes.RESOURCE_NOT_FOUND,
-          `Il parcheggio con id ${id} è inesistente`
+          `Il parcheggio con ID ${id} non esiste`
         );
       }
+
       return parcheggio;
     } catch (error) {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
-        `SI è verificato un errore nel recupero del parcheggio con id ${id}`
+        `Errore durante il recupero del parcheggio con ID ${id}`
       );
     }
   }
 
-  /**
-   * Crea un nuovo parcheggio.
-   *
-   * @param {ParcheggioAttributes} item dati per generare il parcheggio.
-   * @returns {Promise<Parcheggio>} Promise che restituisce il parcheggio appena creato.
-   */
-
-  public async create(item: ParcheggioAttributes): Promise<Parcheggio> {
+  // Metodo per creare un nuovo parcheggio
+  public async create(item: ParcheggioCreationAttributes): Promise<Parcheggio> {
     try {
       return await Parcheggio.create(item);
     } catch (error) {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
-        'Si è verificato un errore nella creazione del parcheggio'
+        'Errore durante la creazione del parcheggio'
       );
     }
   }
 
-  /**
-   * Aggiorna un parcheggio esistente.
-   *
-   * @param {number} id id attribuito al parcheggio.
-   * @param {ParcheggioAttributes} item dati necessari per l’aggiornamento del parcheggio
-   * @returns {Promise<boolean>} “Promise che restituisce true se l’aggiornamento è avvenuto, false in caso contrario.
-   */
-
-  public async update(
-    id: number,
-    item: ParcheggioAttributes
-  ): Promise<boolean> {
+  // Metodo per aggiornare un parcheggio
+  public async update(id: number, item: ParcheggioCreationAttributes): Promise<boolean> {
     try {
       const [affectedCount] = await Parcheggio.update(item, {
         where: { id },
         returning: true,
       });
+
+      if (affectedCount === 0) {
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+          `Il parcheggio con ID ${id} non esiste`
+        );
+      }
+
       return affectedCount > 0;
     } catch (error) {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
-        `Si è verificato un errore nell'aggiornamento del parcheggio con id ${id}`
+        `Errore durante l'aggiornamento del parcheggio con ID ${id}`
       );
     }
   }
 
-  /**
-   * Cancella un parcheggio per ID.
-   *
-   * @param {number} id id del parcheggio.
-   * @returns {Promise<boolean>} Promise che resitutisce true se la cancellazione è avvenuta, false in caso contrario.
-   */
-
+  // Metodo per eliminare un parcheggio
   public async delete(id: number): Promise<boolean> {
     try {
       const result = await Parcheggio.destroy({ where: { id } });
+
+      if (result === 0) {
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+          `Il parcheggio con ID ${id} non è stato trovato`
+        );
+      }
+
       return result > 0;
     } catch (error) {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
-        `Si è verificato un errore nella cancellazione del parcheggio con id ${id}`
+        `Errore durante l'eliminazione del parcheggio con ID ${id}`
       );
     }
   }

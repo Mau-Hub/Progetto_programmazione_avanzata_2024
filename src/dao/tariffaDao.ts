@@ -1,20 +1,15 @@
 import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
-import Tariffa, { TariffaAttributes } from '../models/tariffa';
+import Tariffa, { TariffaAttributes, TariffaCreationAttributes } from '../models/tariffa';
 import TipoVeicolo from '../models/tipoVeicolo';
 import Parcheggio from '../models/parcheggio';
+import { DaoI } from './DaoI';
 
 // Creazione tariffa
-class TariffaDao {
+class TariffaDao implements DaoI<TariffaAttributes, number> {
 
-  public async createTariffa(data: {
-    id_tipo_veicolo: number;
-    importo: number;
-    fascia_oraria: 'DIURNA' | 'NOTTURNA';
-    feriale_festivo: 'FERIALE' | 'FESTIVO';
-    id_parcheggio: number;
-  }): Promise<Tariffa> {
+  public async create(item: TariffaCreationAttributes): Promise<Tariffa> {
     try {
-      const tariffa = await Tariffa.create(data);
+      const tariffa = await Tariffa.create(item);
       return tariffa;
     } catch (error) {
       throw ErrorGenerator.generateError(
@@ -27,7 +22,7 @@ class TariffaDao {
   }
 
   // Trovare una tariffa per ID
-  public async getTariffaById(id: number): Promise<Tariffa | null> {
+  public async findById(id: number): Promise<Tariffa | null> {
     try {
       const tariffa = await Tariffa.findByPk(id, {
         include: [
@@ -55,7 +50,7 @@ class TariffaDao {
   }
 
   // Ottenere tutte le tariffe
-  public async getAllTariffe(): Promise<Tariffa[]> {
+  public async findAll(): Promise<Tariffa[]> {
     try {
       const tariffe = await Tariffa.findAll({
         include: [
@@ -75,20 +70,10 @@ class TariffaDao {
   }
 
   // Aggiornare una tariffa
-  public async updateTariffa(
-    id: number,
-    data: Partial<{
-      id_tipo_veicolo: number;
-      importo: number;
-      fascia_oraria: 'DIURNA' | 'NOTTURNA';
-      feriale_festivo: 'FERIALE' | 'FESTIVO';
-      id_parcheggio: number;
-    }>
-  ): Promise<[number, Tariffa[]]> {
+  public async update(id: number, item: Partial<TariffaAttributes>): Promise<boolean> {
     try {
-      const result = await Tariffa.update(data, {
+      const result = await Tariffa.update(item, {
         where: { id },
-        returning: true,
       });
 
       if (result[0] === 0) {
@@ -98,7 +83,7 @@ class TariffaDao {
         );
       }
 
-      return result;
+      return result[0] > 0;
     } catch (error) {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
@@ -110,7 +95,7 @@ class TariffaDao {
   }
 
   // Eliminare una tariffa
-  public async deleteTariffa(id: number): Promise<number> {
+  public async delete(id: number): Promise<boolean> {
     try {
       const result = await Tariffa.destroy({
         where: { id },
@@ -123,7 +108,7 @@ class TariffaDao {
         );
       }
 
-      return result;
+      return result > 0;
     } catch (error) {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
