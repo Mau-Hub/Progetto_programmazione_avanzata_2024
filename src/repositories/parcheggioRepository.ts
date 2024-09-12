@@ -3,7 +3,7 @@ import Parcheggio from '../models/parcheggio';
 import Posto from '../models/posto';
 import Varco from '../models/varco';
 
-// Dato che l'id viene generato dal DB, non lo includiamo nell'input di creazione
+
 interface ParcheggioData {
   nome: string;
   capacita: number;
