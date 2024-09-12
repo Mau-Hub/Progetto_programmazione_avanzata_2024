@@ -36,8 +36,6 @@ app.use(errorHandler_1.errorHandler);
 app.use((req, res, next) => {
     res.status(404).send('Not Found');
 });
-// Collegamento delle route del parcheggio
-app.use('/api', parcheggioRoutes_1.default);
 // Middleware per la gestione degli errori
 app.use(errorHandler_1.errorHandler);
 // TODO: MODIFICARE

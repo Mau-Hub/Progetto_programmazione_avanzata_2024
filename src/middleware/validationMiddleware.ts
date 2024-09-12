@@ -146,7 +146,7 @@ const validateTariffa = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const validateTransito = (req: Request, res: Response, next: NextFunction) => {
-  const { id_veicolo, ingresso, uscita, id_parcheggio, id_utente } = req.body;
+  const { id_veicolo, id_varco_uscita, id_varco_ingresso} = req.body;
 
   // Verifica che 'id_veicolo' sia un numero intero positivo
   if (!id_veicolo || typeof id_veicolo !== 'number' || !Number.isInteger(id_veicolo) || id_veicolo <= 0) {
@@ -155,39 +155,21 @@ const validateTransito = (req: Request, res: Response, next: NextFunction) => {
       "'id_veicolo' è obbligatorio e deve essere un numero intero positivo"
     ));
   }
-
-  // Verifica che 'ingresso' sia una data valida
-  if (!ingresso || isNaN(Date.parse(ingresso))) {
-    return next(ErrorGenerator.generateError(
-      ApplicationErrorTypes.INVALID_INPUT,
-      "'ingresso' è obbligatorio e deve essere una data valida"
-    ));
-  }
-
   // Verifica che 'uscita', se presente, sia una data valida
-  if (uscita && isNaN(Date.parse(uscita))) {
+  if (id_varco_uscita && isNaN(Date.parse(id_varco_uscita))) {
     return next(ErrorGenerator.generateError(
       ApplicationErrorTypes.INVALID_INPUT,
-      "'uscita', se fornita, deve essere una data valida"
+      "'id_varco_uscita', se fornita, deve essere un varco valido"
     ));
   }
 
-  // Verifica che 'id_parcheggio' sia un numero intero positivo
-  if (!id_parcheggio || typeof id_parcheggio !== 'number' || !Number.isInteger(id_parcheggio) || id_parcheggio <= 0) {
+  // Verifica che 'id_varco_ingresso' sia un numero intero positivo
+  if (!id_varco_ingresso || typeof id_varco_ingresso !== 'number' || !Number.isInteger(id_varco_ingresso) || id_varco_ingresso <= 0) {
     return next(ErrorGenerator.generateError(
       ApplicationErrorTypes.MALFORMED_ID,
-      "'id_parcheggio' è obbligatorio e deve essere un numero intero positivo"
+      "'id_varco_ingresso' è obbligatorio e deve essere un numero intero positivo"
     ));
   }
-
-  // Verifica che 'id_utente' sia un numero intero positivo
-  if (!id_utente || typeof id_utente !== 'number' || !Number.isInteger(id_utente) || id_utente <= 0) {
-    return next(ErrorGenerator.generateError(
-      ApplicationErrorTypes.MALFORMED_ID,
-      "'id_utente' è obbligatorio e deve essere un numero intero positivo"
-    ));
-  }
-
   next();
 };
 

@@ -61,6 +61,7 @@ Transito.init(
     },
     ingresso: {
       type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
       allowNull: false,
     },
     uscita: {

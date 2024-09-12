@@ -23,7 +23,12 @@ class TransitoController {
                 res.status(201).json(nuovoTransito);
             }
             catch (error) {
-                next(error);
+                if (error instanceof Error) {
+                    next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, error.message));
+                }
+                else {
+                    next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore sconosciuto durante la creazione del transito'));
+                }
             }
         });
     }
@@ -35,7 +40,7 @@ class TransitoController {
                 res.status(200).json(transiti);
             }
             catch (error) {
-                next(error);
+                next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero dei transiti'));
             }
         });
     }
@@ -50,7 +55,7 @@ class TransitoController {
                 res.status(200).json(transito);
             }
             catch (error) {
-                next(error);
+                next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero del transito'));
             }
         });
     }
@@ -68,7 +73,12 @@ class TransitoController {
                 }
             }
             catch (error) {
-                next(error);
+                if (error instanceof Error) {
+                    next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore nell'aggiornamento del transito: ${error.message}`));
+                }
+                else {
+                    next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore sconosciuto durante l\'aggiornamento del transito'));
+                }
             }
         });
     }
@@ -85,7 +95,29 @@ class TransitoController {
                 }
             }
             catch (error) {
-                next(error);
+                next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore durante l\'eliminazione del transito'));
+            }
+        });
+    }
+    // Gestione dell'uscita del veicolo
+    exitTransito(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const transitoId = Number(req.params.id);
+                const dataOraUscita = new Date();
+                const transitoAggiornato = yield transitoRepository_1.default.aggiornaTransitoConImporto(transitoId, dataOraUscita);
+                if (!transitoAggiornato) {
+                    return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, 'Transito non trovato'));
+                }
+                res.status(200).json(transitoAggiornato);
+            }
+            catch (error) {
+                if (error instanceof Error) {
+                    next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore durante l'uscita del veicolo: ${error.message}`));
+                }
+                else {
+                    next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore sconosciuto durante l\'uscita del veicolo'));
+                }
             }
         });
     }

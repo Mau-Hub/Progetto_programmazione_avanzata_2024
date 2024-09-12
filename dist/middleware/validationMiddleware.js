@@ -75,6 +75,22 @@ const validateTariffa = (req, res, next) => {
     }
     next();
 };
+const validateTransito = (req, res, next) => {
+    const { id_veicolo, id_varco_uscita, id_varco_ingresso } = req.body;
+    // Verifica che 'id_veicolo' sia un numero intero positivo
+    if (!id_veicolo || typeof id_veicolo !== 'number' || !Number.isInteger(id_veicolo) || id_veicolo <= 0) {
+        return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.MALFORMED_ID, "'id_veicolo' è obbligatorio e deve essere un numero intero positivo"));
+    }
+    // Verifica che 'uscita', se presente, sia una data valida
+    if (id_varco_uscita && isNaN(Date.parse(id_varco_uscita))) {
+        return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, "'id_varco_uscita', se fornita, deve essere un varco valido"));
+    }
+    // Verifica che 'id_varco_ingresso' sia un numero intero positivo
+    if (!id_varco_ingresso || typeof id_varco_ingresso !== 'number' || !Number.isInteger(id_varco_ingresso) || id_varco_ingresso <= 0) {
+        return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.MALFORMED_ID, "'id_varco_ingresso' è obbligatorio e deve essere un numero intero positivo"));
+    }
+    next();
+};
 /**
  * Middleware per la validazione dell'ID nei parametri delle rotte.
  */
@@ -90,5 +106,6 @@ exports.default = {
     validateParcheggio,
     validateVarco,
     validateTariffa,
+    validateTransito,
     validateIdParam,
 };

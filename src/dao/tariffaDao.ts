@@ -2,7 +2,6 @@ import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
 import Tariffa, { TariffaAttributes } from '../models/tariffa';
 import TipoVeicolo from '../models/tipoVeicolo';
 import Parcheggio from '../models/parcheggio';
-import Utente from '../models/utente';
 
 // Creazione tariffa
 class TariffaDao {
@@ -11,10 +10,8 @@ class TariffaDao {
     id_tipo_veicolo: number;
     importo: number;
     fascia_oraria: 'DIURNA' | 'NOTTURNA';
-    giorno_settimana: TariffaAttributes['giorno_settimana'];
     feriale_festivo: 'FERIALE' | 'FESTIVO';
     id_parcheggio: number;
-    id_utente: number;
   }): Promise<Tariffa> {
     try {
       const tariffa = await Tariffa.create(data);
@@ -36,7 +33,6 @@ class TariffaDao {
         include: [
           { model: TipoVeicolo, as: 'tipoVeicolo' },
           { model: Parcheggio, as: 'parcheggio' },
-          { model: Utente, as: 'utente' },
         ],
       });
 
@@ -65,7 +61,6 @@ class TariffaDao {
         include: [
           { model: TipoVeicolo, as: 'tipoVeicolo' },
           { model: Parcheggio, as: 'parcheggio' },
-          { model: Utente, as: 'utente' },
         ],
       });
       return tariffe;
@@ -86,10 +81,8 @@ class TariffaDao {
       id_tipo_veicolo: number;
       importo: number;
       fascia_oraria: 'DIURNA' | 'NOTTURNA';
-      giorno_settimana: TariffaAttributes['giorno_settimana'];
       feriale_festivo: 'FERIALE' | 'FESTIVO';
       id_parcheggio: number;
-      id_utente: number;
     }>
   ): Promise<[number, Tariffa[]]> {
     try {

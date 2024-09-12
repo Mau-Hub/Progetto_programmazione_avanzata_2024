@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const parcheggio_1 = __importDefault(require("../models/parcheggio"));
+const posto_1 = __importDefault(require("../models/posto"));
 const varco_1 = __importDefault(require("../models/varco"));
 class ParcheggioRepository {
     create(data) {
@@ -20,7 +21,7 @@ class ParcheggioRepository {
             const { nome, capacita, varchi } = data;
             // Crea il nuovo parcheggio
             const nuovoParcheggio = yield parcheggio_1.default.create({ nome, capacita });
-            // Se ci sono varchi, creali e associarli al parcheggio
+            // Se ci sono varchi, li crea e li associa al parcheggio
             if (varchi && varchi.length > 0) {
                 yield Promise.all(varchi.map((varco) => varco_1.default.create({
                     tipo: varco.tipo,
@@ -28,7 +29,7 @@ class ParcheggioRepository {
                     id_parcheggio: nuovoParcheggio.id,
                 })));
             }
-            // Aggiunge al parcheggio i varchi e  lo restituisce
+            // Aggiunge al parcheggio i varchi e lo restituisce
             const parcheggioConVarchi = yield parcheggio_1.default.findByPk(nuovoParcheggio.id, {
                 include: [{ model: varco_1.default, as: 'varchi' }],
             });
@@ -81,6 +82,17 @@ class ParcheggioRepository {
             yield varco_1.default.destroy({ where: { id_parcheggio: id } });
             yield parcheggio.destroy();
             return true;
+        });
+    }
+    checkPostiDisponibili(parcheggioId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const postiLiberi = yield posto_1.default.count({
+                where: {
+                    id_parcheggio: parcheggioId,
+                    stato: 'libero'
+                }
+            });
+            return postiLiberi > 0;
         });
     }
 }

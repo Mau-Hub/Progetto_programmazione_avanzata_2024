@@ -22,6 +22,7 @@ Transito.init({
     },
     ingresso: {
         type: sequelize_1.DataTypes.DATE,
+        defaultValue: sequelize_1.DataTypes.NOW,
         allowNull: false,
     },
     uscita: {
