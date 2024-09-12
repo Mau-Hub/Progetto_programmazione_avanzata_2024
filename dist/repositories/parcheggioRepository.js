@@ -12,28 +12,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const parcheggio_1 = __importDefault(require("../models/parcheggio"));
+const parcheggioDao_1 = __importDefault(require("../dao/parcheggioDao"));
 const posto_1 = __importDefault(require("../models/posto"));
 const varco_1 = __importDefault(require("../models/varco"));
 class ParcheggioRepository {
     create(data) {
         return __awaiter(this, void 0, void 0, function* () {
             const { nome, capacita, varchi } = data;
-            // Crea il nuovo parcheggio
-            const nuovoParcheggio = yield parcheggio_1.default.create({ nome, capacita });
+            // Crea il nuovo parcheggio tramite DAO, id sarà generato automaticamente
+            const nuovoParcheggio = yield parcheggioDao_1.default.create({ nome, capacita });
             // Se ci sono varchi, li crea e li associa al parcheggio
             if (varchi && varchi.length > 0) {
                 yield Promise.all(varchi.map((varco) => varco_1.default.create({
                     tipo: varco.tipo,
                     bidirezionale: varco.bidirezionale,
-                    id_parcheggio: nuovoParcheggio.id,
+                    id_parcheggio: nuovoParcheggio.id, // Associa i varchi al parcheggio appena creato
                 })));
             }
-            // Aggiunge al parcheggio i varchi e lo restituisce
-            const parcheggioConVarchi = yield parcheggio_1.default.findByPk(nuovoParcheggio.id, {
-                include: [{ model: varco_1.default, as: 'varchi' }],
-            });
-            // Gestione nel caso in cui il parcheggio non venga trovato
+            // Ritorna il parcheggio con i varchi associati
+            const parcheggioConVarchi = yield parcheggioDao_1.default.findById(nuovoParcheggio.id);
             if (!parcheggioConVarchi) {
                 throw new Error('Parcheggio non trovato');
             }
@@ -42,32 +39,31 @@ class ParcheggioRepository {
     }
     findById(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield parcheggio_1.default.findByPk(id, {
-                include: [{ model: varco_1.default, as: 'varchi' }],
-            });
+            return yield parcheggioDao_1.default.findById(id);
         });
     }
     findAll() {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield parcheggio_1.default.findAll({
-                include: [{ model: varco_1.default, as: 'varchi' }],
-            });
+            return yield parcheggioDao_1.default.findAll();
         });
     }
     update(id, data) {
         return __awaiter(this, void 0, void 0, function* () {
-            const parcheggio = yield parcheggio_1.default.findByPk(id);
+            const parcheggio = yield parcheggioDao_1.default.findById(id);
             if (!parcheggio) {
                 throw new Error('Parcheggio non trovato');
             }
             const { nome, capacita, varchi } = data;
-            yield parcheggio.update({ nome, capacita });
+            yield parcheggioDao_1.default.update(id, { nome, capacita });
+            // Aggiorna anche i varchi
             if (varchi && varchi.length > 0) {
+                // Prima elimina tutti i varchi associati a questo parcheggio
                 yield varco_1.default.destroy({ where: { id_parcheggio: id } });
+                // Poi ricrea i varchi con i nuovi dati
                 yield Promise.all(varchi.map((varco) => varco_1.default.create({
                     tipo: varco.tipo,
                     bidirezionale: varco.bidirezionale,
-                    id_parcheggio: id,
+                    id_parcheggio: id, // Associa i nuovi varchi al parcheggio esistente
                 })));
             }
             return true;
@@ -75,13 +71,14 @@ class ParcheggioRepository {
     }
     delete(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const parcheggio = yield parcheggio_1.default.findByPk(id);
+            const parcheggio = yield parcheggioDao_1.default.findById(id);
             if (!parcheggio) {
                 throw new Error('Parcheggio non trovato');
             }
+            // Elimina prima tutti i varchi associati al parcheggio
             yield varco_1.default.destroy({ where: { id_parcheggio: id } });
-            yield parcheggio.destroy();
-            return true;
+            // Elimina il parcheggio
+            return yield parcheggioDao_1.default.delete(id);
         });
     }
     checkPostiDisponibili(parcheggioId) {

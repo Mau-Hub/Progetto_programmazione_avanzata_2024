@@ -11,66 +11,45 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const errorFactory_1 = require("../ext/errorFactory");
 const parcheggio_1 = require("../models/parcheggio");
-// Classe ParcheggioDao che implementa l'interfaccia DaoI per Parcheggio
 class ParcheggioDao {
-    /**
-     * Recupera tutti i parcheggi.
-     *
-     * @returns {Promise<Parcheggio[]>} Promise che restituisce un array di parcheggi.
-     */
+    // Metodo per ottenere tutti i parcheggi
     findAll() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 return yield parcheggio_1.Parcheggio.findAll();
             }
             catch (error) {
-                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Si è verificato un problema nel recupero dei parcheggi');
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore durante il recupero di tutti i parcheggi');
             }
         });
     }
-    /**
-     * Recupero del parcheggio per ID.
-     *
-     * @param {number} id del parcheggio.
-     * @returns {Promise<Parcheggio | null>} Promise che restituisce un parcheggio o restituisce null se non esistente.
-     */
+    // Metodo per trovare un parcheggio per ID
     findById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const parcheggio = yield parcheggio_1.Parcheggio.findByPk(id);
                 if (!parcheggio) {
-                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, `Il parcheggio con id ${id} è inesistente`);
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, `Il parcheggio con ID ${id} non esiste`);
                 }
                 return parcheggio;
             }
             catch (error) {
-                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `SI è verificato un errore nel recupero del parcheggio con id ${id}`);
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore durante il recupero del parcheggio con ID ${id}`);
             }
         });
     }
-    /**
-     * Crea un nuovo parcheggio.
-     *
-     * @param {ParcheggioAttributes} item dati per generare il parcheggio.
-     * @returns {Promise<Parcheggio>} Promise che restituisce il parcheggio appena creato.
-     */
+    // Metodo per creare un nuovo parcheggio
     create(item) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 return yield parcheggio_1.Parcheggio.create(item);
             }
             catch (error) {
-                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Si è verificato un errore nella creazione del parcheggio');
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore durante la creazione del parcheggio');
             }
         });
     }
-    /**
-     * Aggiorna un parcheggio esistente.
-     *
-     * @param {number} id id attribuito al parcheggio.
-     * @param {ParcheggioAttributes} item dati necessari per l’aggiornamento del parcheggio
-     * @returns {Promise<boolean>} “Promise che restituisce true se l’aggiornamento è avvenuto, false in caso contrario.
-     */
+    // Metodo per aggiornare un parcheggio
     update(id, item) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -78,27 +57,28 @@ class ParcheggioDao {
                     where: { id },
                     returning: true,
                 });
+                if (affectedCount === 0) {
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, `Il parcheggio con ID ${id} non esiste`);
+                }
                 return affectedCount > 0;
             }
             catch (error) {
-                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Si è verificato un errore nell'aggiornamento del parcheggio con id ${id}`);
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore durante l'aggiornamento del parcheggio con ID ${id}`);
             }
         });
     }
-    /**
-     * Cancella un parcheggio per ID.
-     *
-     * @param {number} id id del parcheggio.
-     * @returns {Promise<boolean>} Promise che resitutisce true se la cancellazione è avvenuta, false in caso contrario.
-     */
+    // Metodo per eliminare un parcheggio
     delete(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = yield parcheggio_1.Parcheggio.destroy({ where: { id } });
+                if (result === 0) {
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, `Il parcheggio con ID ${id} non è stato trovato`);
+                }
                 return result > 0;
             }
             catch (error) {
-                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Si è verificato un errore nella cancellazione del parcheggio con id ${id}`);
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore durante l'eliminazione del parcheggio con ID ${id}`);
             }
         });
     }

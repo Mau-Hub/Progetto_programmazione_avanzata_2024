@@ -69,15 +69,12 @@ CREATE TABLE IF NOT EXISTS "Tariffe" (
   "id_tipo_veicolo" INTEGER NOT NULL,
   "importo" FLOAT NOT NULL,
   "fascia_oraria" fascia_oraria_enum NOT NULL,  
-  "giorno_settimana" giorno_settimana_enum NOT NULL, 
   "feriale_festivo" feriale_festivo_enum NOT NULL, 
   "id_parcheggio" INTEGER NOT NULL,
-  "id_utente" INTEGER NOT NULL,
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL,
   "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL,
   FOREIGN KEY ("id_tipo_veicolo") REFERENCES "Tipo_Veicolo" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY ("id_parcheggio") REFERENCES "Parcheggio" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY ("id_utente") REFERENCES "Utenti" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+  FOREIGN KEY ("id_parcheggio") REFERENCES "Parcheggio" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- Crea la tabella Transiti
@@ -144,10 +141,11 @@ INSERT INTO "Varco" ("tipo", "bidirezionale", "id_parcheggio", "createdAt", "upd
 ('INGRESSO', TRUE, 2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- Tariffe di esempio
-INSERT INTO "Tariffe" ("id_tipo_veicolo", "importo", "fascia_oraria", "giorno_settimana", "feriale_festivo", "id_parcheggio", "id_utente", "createdAt", "updatedAt") VALUES
-(1, 2.5, 'DIURNA', 'LUNEDI', 'FERIALE', 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(2, 1.5, 'DIURNA', 'LUNEDI', 'FERIALE', 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(1, 3.0, 'NOTTURNA', 'VENERDI', 'FERIALE', 1, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO "Tariffe" ("id_tipo_veicolo", "importo", "fascia_oraria", "feriale_festivo", "id_parcheggio", "createdAt", "updatedAt") VALUES
+(1, 2.5, 'DIURNA', 'FERIALE', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, 1.5, 'DIURNA', 'FESTIVO', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(1, 3.0, 'NOTTURNA', 'FERIALE', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+(3, 3.0, 'NOTTURNA', 'FESTIVO', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 
 -- Transiti di esempio

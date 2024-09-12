@@ -16,144 +16,146 @@ const varco_1 = __importDefault(require("../models/varco"));
 const errorFactory_1 = require("../ext/errorFactory");
 class VarcoDao {
     /**
-     * Recupera tutti i varchi.
+     * Creazione di un nuovo varco.
      *
-     * @returns {Promise<Varco[]>} Promise che restituice un array di varchi.
+     * @param {VarcoCreationAttributes} varcoData Dati per la creazione del nuovo varco.
+     * @returns {Promise<Varco>} Promise che restituisce il varco appena creato.
      */
-    findAll() {
+    create(varcoData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield varco_1.default.findAll();
+                const nuovoVarco = yield varco_1.default.create(varcoData);
+                return nuovoVarco;
             }
             catch (error) {
-                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Si è verificato un errore nel recupero dei varchi');
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore nella creazione del varco');
             }
         });
     }
     /**
-     * Recupero del varco per ID.
+     * Ottenere tutti i varchi.
      *
-     * @param {number} id del varco.
-     * @returns {Promise<Varco | null>} Promise che restituisce un varco o restituisce null se non esistente.
+     * @returns {Promise<Varco[]>} Promise che restituisce un array di varchi.
+     */
+    findAll() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const varchi = yield varco_1.default.findAll();
+                return varchi;
+            }
+            catch (error) {
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero dei varchi');
+            }
+        });
+    }
+    /**
+     * Ottenere un varco specifico per ID.
+     *
+     * @param {number} id ID del varco.
+     * @returns {Promise<Varco | null>} Promise che restituisce un varco o null se non esistente.
      */
     findById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const varco = yield varco_1.default.findByPk(id);
                 if (!varco) {
-                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, `Il varco con l'id ${id} inesistente`);
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, `Varco con ID ${id} non trovato`);
                 }
                 return varco;
             }
             catch (error) {
-                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Si è verificato un errore nel recupero del varco con id ${id}`);
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero del varco');
             }
         });
     }
     /**
-     * Crea un nuovo varco.
+     * Aggiornare un varco.
      *
-     * @param {VarcoAttributes} item dati per generare il varco.
-     * @returns {Promise<Varco>} Promise che restituisce il varco appena creato.
+     * @param {number} id ID del varco da aggiornare.
+     * @param {Partial<VarcoAttributes>} varcoData Dati parziali per aggiornare il varco.
+     * @returns {Promise<boolean>} Promise che restituisce true se l'aggiornamento è avvenuto con successo, false altrimenti.
      */
-    create(item) {
+    update(id, varcoData) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield varco_1.default.create(item);
+                const [numUpdated] = yield varco_1.default.update(varcoData, { where: { id } });
+                if (numUpdated === 0) {
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, `Varco con ID ${id} non trovato`);
+                }
+                return numUpdated === 1;
             }
             catch (error) {
-                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Si è verificato un errore nella creazione del varco');
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore nell\'aggiornamento del varco');
             }
         });
     }
     /**
-     * Aggiorna un varco esistente.
+     * Eliminare un varco.
      *
-     * @param {number} id id attribuito al varco.
-     * @param {VarcoAttributes} item dati necessari per l'aggiornamento del varco
-     * @returns {Promise<boolean>} Promise che restituisce true se l'aggiornamento è avvenuto, false in caso contrario.
-     */
-    update(id, item) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const [affectedCount] = yield varco_1.default.update(item, {
-                    where: { id },
-                    returning: true,
-                });
-                return affectedCount > 0;
-            }
-            catch (error) {
-                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Si è verificato un errore nell'aggiornamento del varco con id ${id}`);
-            }
-        });
-    }
-    /**
-     * Cancella un varco per ID.
-     *
-     * @param {number} id id del varco.
-     * @returns {Promise<boolean>} Promise che restituisce true se la cancellazione è avvenuta, false in caso contrario.
+     * @param {number} id ID del varco da eliminare.
+     * @returns {Promise<boolean>} Promise che restituisce true se la cancellazione è avvenuta con successo, false altrimenti.
      */
     delete(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield varco_1.default.destroy({ where: { id } });
-                return result > 0;
+                const numDeleted = yield varco_1.default.destroy({ where: { id } });
+                if (numDeleted === 0) {
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, `Varco con ID ${id} non trovato`);
+                }
+                return numDeleted === 1;
             }
             catch (error) {
-                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Si è verificato un errore nella cancellazione del varco con id ${id}`);
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore nell\'eliminazione del varco');
             }
         });
     }
     /**
-     * Recupera tutti i varchi di un parcheggio specifico.
+     * Ottenere tutti i varchi di un parcheggio specifico.
      *
      * @param {number} idParcheggio ID del parcheggio.
-     * @returns {Promise<Varco[]>} Promise che restituisce un array di varchi del parcheggio specificato.
+     * @returns {Promise<Varco[]>} Promise che restituisce un array di varchi per il parcheggio specificato.
      */
     findByParcheggio(idParcheggio) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield varco_1.default.findAll({
-                    where: { id_parcheggio: idParcheggio },
-                });
+                const varchi = yield varco_1.default.findAll({ where: { id_parcheggio: idParcheggio } });
+                return varchi;
             }
             catch (error) {
-                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Si è verificato un errore nel recupero dei varchi per il parcheggio con id ${idParcheggio}`);
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero dei varchi per il parcheggio specificato');
             }
         });
     }
     /**
-     * Recupera tutti i varchi bidirezionali.
+     * Ottenere tutti i varchi bidirezionali.
      *
      * @returns {Promise<Varco[]>} Promise che restituisce un array di varchi bidirezionali.
      */
     findBidirezionali() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield varco_1.default.findAll({
-                    where: { bidirezionale: true },
-                });
+                const varchi = yield varco_1.default.findAll({ where: { bidirezionale: true } });
+                return varchi;
             }
             catch (error) {
-                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Si è verificato un errore nel recupero dei varchi bidirezionali');
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero dei varchi bidirezionali');
             }
         });
     }
     /**
-     * Recupera tutti i varchi di un tipo specifico (INGRESSO o USCITA).
+     * Ottenere tutti i varchi di un tipo specifico.
      *
-     * @param {('INGRESSO' | 'USCITA')} tipo Tipo del varco.
+     * @param {('INGRESSO' | 'USCITA')} tipo Tipo del varco da cercare.
      * @returns {Promise<Varco[]>} Promise che restituisce un array di varchi del tipo specificato.
      */
     findByTipo(tipo) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield varco_1.default.findAll({
-                    where: { tipo },
-                });
+                const varchi = yield varco_1.default.findAll({ where: { tipo } });
+                return varchi;
             }
             catch (error) {
-                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Si è verificato un errore nel recupero dei varchi di tipo ${tipo}`);
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero dei varchi per il tipo specificato');
             }
         });
     }

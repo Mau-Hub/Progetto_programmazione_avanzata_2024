@@ -12,85 +12,91 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const errorFactory_1 = require("../ext/errorFactory");
 const tariffa_1 = __importDefault(require("../models/tariffa"));
 const tipoVeicolo_1 = __importDefault(require("../models/tipoVeicolo"));
 const parcheggio_1 = __importDefault(require("../models/parcheggio"));
-const utente_1 = __importDefault(require("../models/utente"));
+// Creazione tariffa
 class TariffaDao {
-    // Metodo per creare una nuova tariffa
-    createTariffa(data) {
+    create(item) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const tariffa = yield tariffa_1.default.create(data);
+                const tariffa = yield tariffa_1.default.create(item);
                 return tariffa;
             }
             catch (error) {
-                throw new Error(`Errore durante la creazione della tariffa: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`);
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore durante la creazione della tariffa: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`);
             }
         });
     }
-    // Metodo per trovare una tariffa per ID
-    getTariffaById(id) {
+    // Trovare una tariffa per ID
+    findById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const tariffa = yield tariffa_1.default.findByPk(id, {
                     include: [
                         { model: tipoVeicolo_1.default, as: 'tipoVeicolo' },
                         { model: parcheggio_1.default, as: 'parcheggio' },
-                        { model: utente_1.default, as: 'utente' },
                     ],
                 });
+                if (!tariffa) {
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, `La tariffa con ID ${id} non è stata trovata`);
+                }
                 return tariffa;
             }
             catch (error) {
-                throw new Error(`Errore durante il recupero della tariffa con ID ${id}: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`);
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore durante il recupero della tariffa con ID ${id}: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`);
             }
         });
     }
-    // Metodo per ottenere tutte le tariffe
-    getAllTariffe() {
+    // Ottenere tutte le tariffe
+    findAll() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const tariffe = yield tariffa_1.default.findAll({
                     include: [
                         { model: tipoVeicolo_1.default, as: 'tipoVeicolo' },
                         { model: parcheggio_1.default, as: 'parcheggio' },
-                        { model: utente_1.default, as: 'utente' },
                     ],
                 });
                 return tariffe;
             }
             catch (error) {
-                throw new Error(`Errore durante il recupero di tutte le tariffe: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`);
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore durante il recupero di tutte le tariffe: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`);
             }
         });
     }
-    // Metodo per aggiornare una tariffa
-    updateTariffa(id, data) {
+    // Aggiornare una tariffa
+    update(id, item) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = yield tariffa_1.default.update(data, {
+                const result = yield tariffa_1.default.update(item, {
                     where: { id },
-                    returning: true,
                 });
-                return result;
+                if (result[0] === 0) {
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, `La tariffa con ID ${id} non esiste`);
+                }
+                return result[0] > 0;
             }
             catch (error) {
-                throw new Error(`Errore durante l'aggiornamento della tariffa con ID ${id}: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`);
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore durante l'aggiornamento della tariffa con ID ${id}: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`);
             }
         });
     }
-    // Metodo per eliminare una tariffa
-    deleteTariffa(id) {
+    // Eliminare una tariffa
+    delete(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = yield tariffa_1.default.destroy({
                     where: { id },
                 });
-                return result;
+                if (result === 0) {
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, `La tariffa con ID ${id} non è stata trovata`);
+                }
+                return result > 0;
             }
             catch (error) {
-                throw new Error(`Errore durante l'eliminazione della tariffa con ID ${id}: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`);
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore durante l'eliminazione della tariffa con ID ${id}: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`);
             }
         });
     }
