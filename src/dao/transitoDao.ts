@@ -5,12 +5,16 @@ import Tariffa from '../models/tariffa';
 import Posto from '../models/posto';
 import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
 import { DaoI } from './DaoI';
-import { TransitoAttributes } from '../models/transito';
+import {
+  TransitoAttributes,
+  TransitoCreationAttributes,
+} from '../models/transito';
 
 class TransitoDao implements DaoI<TransitoAttributes, number> {
-  public async findAll(): Promise<Transito[]> {
+  public async findAll(options?: any): Promise<Transito[]> {
     try {
       return await Transito.findAll({
+        ...options,
         include: [
           { model: Veicolo, as: 'veicolo' },
           { model: Varco, as: 'varcoIngresso' },
@@ -53,7 +57,7 @@ class TransitoDao implements DaoI<TransitoAttributes, number> {
     }
   }
 
-  public async create(item: TransitoAttributes): Promise<Transito> {
+  public async create(item: TransitoCreationAttributes): Promise<Transito> {
     try {
       return await Transito.create(item);
     } catch (error) {
@@ -64,7 +68,10 @@ class TransitoDao implements DaoI<TransitoAttributes, number> {
     }
   }
 
-  public async update(id: number, item: TransitoAttributes): Promise<boolean> {
+  public async update(
+    id: number,
+    item: Partial<TransitoAttributes>
+  ): Promise<boolean> {
     try {
       const [affectedCount] = await Transito.update(item, {
         where: { id },
