@@ -16,7 +16,6 @@ export interface TransitoAttributes {
   id_varco_ingresso: number;
   id_varco_uscita: number | null;
   id_tariffa: number | null;
-  id_posto: number;
   importo: number | null;
 }
 
@@ -51,8 +50,6 @@ class Transito
   public id_varco_uscita!: number | null;
 
   public id_tariffa!: number | null;
-
-  public id_posto!: number;
 
   public importo!: number | null;
 }
@@ -114,16 +111,7 @@ Transito.init(
       onDelete: 'CASCADE',
       onUpdate: 'CASCADE',
     },
-    id_posto: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: Posto,
-        key: 'id',
-      },
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
-    },
+
     importo: {
       type: DataTypes.FLOAT,
       allowNull: true,
@@ -151,8 +139,5 @@ Transito.belongsTo(Varco, { foreignKey: 'id_varco_uscita', as: 'varcoUscita' });
 
 Tariffa.hasMany(Transito, { foreignKey: 'id_tariffa', as: 'transiti' });
 Transito.belongsTo(Tariffa, { foreignKey: 'id_tariffa', as: 'tariffa' });
-
-Posto.hasMany(Transito, { foreignKey: 'id_posto', as: 'transiti' });
-Transito.belongsTo(Posto, { foreignKey: 'id_posto', as: 'posto' });
 
 export default Transito;

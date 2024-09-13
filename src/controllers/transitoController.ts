@@ -6,22 +6,29 @@ class TransitoController {
   // Creazione di un transito
   async createTransito(req: Request, res: Response, next: NextFunction) {
     try {
-      const { targa, id_tipo_veicolo, id_utente, id_varco_ingresso, id_posto } =
-        req.body;
+      const { targa, id_tipo_veicolo, id_utente, id_varco_ingresso } = req.body;
 
-      // Creazione del transito passando la targa, il tipo di veicolo e l'utente
+      console.log('Dati in ingresso:', {
+        targa,
+        id_tipo_veicolo,
+        id_utente,
+        id_varco_ingresso,
+      });
+
+      // Creazione del transito passando i dati necessari
       const nuovoTransito = await TransitoRepository.create(
         {
           id_varco_ingresso: id_varco_ingresso,
-          id_posto: id_posto,
         },
         targa,
         id_tipo_veicolo,
         id_utente
       );
 
+      console.log('Nuovo transito creato:', nuovoTransito);
       res.status(201).json(nuovoTransito);
     } catch (error) {
+      console.error('Errore nel controller createTransito:', error); // Log dell'errore dettagliato
       if (error instanceof Error) {
         next(
           ErrorGenerator.generateError(

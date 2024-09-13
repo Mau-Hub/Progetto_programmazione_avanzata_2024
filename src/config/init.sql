@@ -23,15 +23,15 @@ CREATE TABLE IF NOT EXISTS "Utenti" (
   "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
--- Crea la tabella Parcheggio
+-- Creazione della tabella Parcheggio 
 CREATE TABLE IF NOT EXISTS "Parcheggio" (
   "id" SERIAL PRIMARY KEY,
   "nome" VARCHAR(100) NOT NULL,
   "capacita" INTEGER NOT NULL,
-  "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL,
-  "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL
+  "posti_disponibili" INTEGER NOT NULL,
+  "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-
 -- Crea la tabella Tipo_Veicolo
 CREATE TABLE IF NOT EXISTS "Tipo_Veicolo" (
   "id" SERIAL PRIMARY KEY,
@@ -85,8 +85,7 @@ CREATE TABLE IF NOT EXISTS "Transiti" (
   "id_veicolo" INTEGER NOT NULL,
   "id_varco_ingresso" INTEGER NOT NULL,
   "id_varco_uscita" INTEGER,
-  "id_tariffa" INTEGER NOT NULL,
-  "id_posto" INTEGER NOT NULL,
+  "id_tariffa" INTEGER,
   "importo" FLOAT,
   "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL,
   "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -118,10 +117,10 @@ INSERT INTO "Utenti" ("nome", "ruolo", "username", "createdAt", "updatedAt") VAL
 ('John Doe', 'automobilista', 'john', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 ('Varco1', 'varco', 'varco1', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
--- Parcheggi di esempio
-INSERT INTO "Parcheggio" ("nome", "capacita", "createdAt", "updatedAt") VALUES
-('Parcheggio Centro', 100, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-('Parcheggio Stazione', 50, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+-- Inserimento dei dati iniziali per Parcheggio
+INSERT INTO "Parcheggio" ("nome", "capacita", "posti_disponibili", "createdAt", "updatedAt") VALUES
+('Parcheggio Centro', 100, 100, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('Parcheggio Stazione', 50, 50, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- Tipi di veicolo
 INSERT INTO "Tipo_Veicolo" ("nome", "createdAt", "updatedAt") VALUES
@@ -148,9 +147,11 @@ INSERT INTO "Tariffe" ("id_tipo_veicolo", "importo", "fascia_oraria", "feriale_f
 
 
 -- Transiti di esempio
-INSERT INTO "Transiti" ("ingresso", "uscita", "id_veicolo", "id_varco_ingresso", "id_varco_uscita", "id_tariffa", "id_posto", "importo", "createdAt", "updatedAt") VALUES
-(CURRENT_TIMESTAMP - INTERVAL '2 HOURS', CURRENT_TIMESTAMP - INTERVAL '1 HOUR', 1, 1, 2, 1, 1, 2.5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(CURRENT_TIMESTAMP - INTERVAL '1 HOUR', NULL, 2, 1, NULL, 2, 2, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO "Transiti" 
+("ingresso", "uscita", "id_veicolo", "id_varco_ingresso", "id_varco_uscita", "id_tariffa", "importo", "createdAt", "updatedAt") 
+VALUES
+(CURRENT_TIMESTAMP - INTERVAL '2 HOURS', CURRENT_TIMESTAMP - INTERVAL '1 HOUR', 1, 1, 2, 1, 2.5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(CURRENT_TIMESTAMP - INTERVAL '1 HOUR', NULL, 2, 1, NULL, NULL, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- -- Fatture di esempio
 INSERT INTO "Fatture" ("data", "importo_totale", "id_utente", "id_transito", "createdAt", "updatedAt") VALUES

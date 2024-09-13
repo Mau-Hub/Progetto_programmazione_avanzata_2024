@@ -2,13 +2,13 @@ import Transito from '../models/transito';
 import Veicolo from '../models/veicolo';
 import Varco from '../models/varco';
 import Tariffa from '../models/tariffa';
-import Posto from '../models/posto';
 import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
 import { DaoI } from './DaoI';
 import {
   TransitoAttributes,
   TransitoCreationAttributes,
 } from '../models/transito';
+import { Transaction } from 'sequelize';
 
 class TransitoDao implements DaoI<TransitoAttributes, number> {
   public async findAll(options?: any): Promise<Transito[]> {
@@ -20,7 +20,6 @@ class TransitoDao implements DaoI<TransitoAttributes, number> {
           { model: Varco, as: 'varcoIngresso' },
           { model: Varco, as: 'varcoUscita' },
           { model: Tariffa, as: 'tariffa' },
-          { model: Posto, as: 'posto' },
         ],
       });
     } catch (error) {
@@ -39,7 +38,6 @@ class TransitoDao implements DaoI<TransitoAttributes, number> {
           { model: Varco, as: 'varcoIngresso' },
           { model: Varco, as: 'varcoUscita' },
           { model: Tariffa, as: 'tariffa' },
-          { model: Posto, as: 'posto' },
         ],
       });
       if (!transito) {
@@ -57,9 +55,12 @@ class TransitoDao implements DaoI<TransitoAttributes, number> {
     }
   }
 
-  public async create(item: TransitoCreationAttributes): Promise<Transito> {
+  public async create(
+    item: TransitoCreationAttributes,
+    transaction?: Transaction
+  ): Promise<Transito> {
     try {
-      return await Transito.create(item);
+      return await Transito.create(item, { transaction });
     } catch (error) {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
@@ -70,12 +71,14 @@ class TransitoDao implements DaoI<TransitoAttributes, number> {
 
   public async update(
     id: number,
-    item: Partial<TransitoAttributes>
+    item: Partial<TransitoAttributes>,
+    transaction?: Transaction
   ): Promise<boolean> {
     try {
       const [affectedCount] = await Transito.update(item, {
         where: { id },
         returning: true,
+        transaction,
       });
 
       if (affectedCount === 0) {

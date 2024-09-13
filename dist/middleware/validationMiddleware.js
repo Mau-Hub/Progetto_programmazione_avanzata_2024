@@ -2,13 +2,15 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const errorFactory_1 = require("../ext/errorFactory");
 const validateParcheggio = (req, res, next) => {
-    const { nome, capacita, varchi } = req.body;
+    const { nome, capacita, varchi, posti_disponibili } = req.body;
     // Verifica che 'nome' sia presente e sia una stringa
     if (!nome || typeof nome !== 'string' || nome.trim() === '') {
         return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, 'Nome è obbligatorio e deve essere una stringa valida'));
     }
     // Verifica che 'capacita' sia un numero intero positivo
-    if (typeof capacita !== 'number' || !Number.isInteger(capacita) || capacita <= 0) {
+    if (typeof capacita !== 'number' ||
+        !Number.isInteger(capacita) ||
+        capacita <= 0) {
         return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, 'Capacità è obbligatoria e deve essere un numero intero positivo'));
     }
     // Verifica che 'varchi' sia un array (se fornito)
@@ -18,11 +20,15 @@ const validateParcheggio = (req, res, next) => {
     // Verifica la validità di ciascun 'varco'
     if (varchi) {
         for (const varco of varchi) {
-            // Controlla che il tipo sia 'INGRESSO' o 'USCITA' e che bidirezionale sia booleano
-            if (!['INGRESSO', 'USCITA'].includes(varco.tipo) || typeof varco.bidirezionale !== 'boolean') {
+            if (!['INGRESSO', 'USCITA'].includes(varco.tipo) ||
+                typeof varco.bidirezionale !== 'boolean') {
                 return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, 'Ogni varco deve avere un tipo valido ("INGRESSO" o "USCITA") e un valore bidirezionale booleano'));
             }
         }
+    }
+    // Impedisce all'utente di impostare 'posti_disponibili' manualmente
+    if (posti_disponibili !== undefined) {
+        return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, 'Non è permesso impostare manualmente "posti_disponibili"'));
     }
     next();
 };
@@ -37,7 +43,10 @@ const validateVarco = (req, res, next) => {
         return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, 'Bidirezionale è obbligatorio e deve essere un valore booleano (true o false)'));
     }
     // Verifica che 'id_parcheggio' esista e sia un numero intero positivo
-    if (!id_parcheggio || typeof id_parcheggio !== 'number' || !Number.isInteger(id_parcheggio) || id_parcheggio <= 0) {
+    if (!id_parcheggio ||
+        typeof id_parcheggio !== 'number' ||
+        !Number.isInteger(id_parcheggio) ||
+        id_parcheggio <= 0) {
         return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.MALFORMED_ID, 'id_parcheggio è obbligatorio e deve essere un numero intero positivo'));
     }
     next();
@@ -45,7 +54,10 @@ const validateVarco = (req, res, next) => {
 const validateTariffa = (req, res, next) => {
     const { id_tipo_veicolo, importo, fascia_oraria, giorno_settimana, id_parcheggio, id_utente, feriale_festivo, } = req.body;
     // Verifica che l'id del tipi di veicolo sia un numero intero positivo
-    if (!id_tipo_veicolo || typeof id_tipo_veicolo !== 'number' || !Number.isInteger(id_tipo_veicolo) || id_tipo_veicolo <= 0) {
+    if (!id_tipo_veicolo ||
+        typeof id_tipo_veicolo !== 'number' ||
+        !Number.isInteger(id_tipo_veicolo) ||
+        id_tipo_veicolo <= 0) {
         return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.MALFORMED_ID, "'id_tipo_veicolo' è obbligatorio e deve essere un numero intero positivo"));
     }
     // Verifica che 'importo' sia un numero positivo
@@ -57,16 +69,30 @@ const validateTariffa = (req, res, next) => {
         return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, "'fascia_oraria' deve essere 'DIURNA' o 'NOTTURNA'"));
     }
     // Verifica che 'giorno_settimana' sia valido
-    const validiGiorniSettimana = ['LUNEDI', 'MARTEDI', 'MERCOLEDI', 'GIOVEDI', 'VENERDI', 'SABATO', 'DOMENICA'];
+    const validiGiorniSettimana = [
+        'LUNEDI',
+        'MARTEDI',
+        'MERCOLEDI',
+        'GIOVEDI',
+        'VENERDI',
+        'SABATO',
+        'DOMENICA',
+    ];
     if (!validiGiorniSettimana.includes(giorno_settimana)) {
         return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, `'giorno_settimana' non valido. Valori ammessi: ${validiGiorniSettimana.join(', ')}`));
     }
     // Verifica che 'id_parcheggio' sia un numero intero positivo
-    if (!id_parcheggio || typeof id_parcheggio !== 'number' || !Number.isInteger(id_parcheggio) || id_parcheggio <= 0) {
+    if (!id_parcheggio ||
+        typeof id_parcheggio !== 'number' ||
+        !Number.isInteger(id_parcheggio) ||
+        id_parcheggio <= 0) {
         return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.MALFORMED_ID, "'id_parcheggio' è obbligatorio e deve essere un numero intero positivo"));
     }
     // Verifica che 'id_utente' sia un numero intero positivo
-    if (!id_utente || typeof id_utente !== 'number' || !Number.isInteger(id_utente) || id_utente <= 0) {
+    if (!id_utente ||
+        typeof id_utente !== 'number' ||
+        !Number.isInteger(id_utente) ||
+        id_utente <= 0) {
         return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.MALFORMED_ID, "'id_utente' è obbligatorio e deve essere un numero intero positivo"));
     }
     // Verifica che 'feriale_festivo' sia valido
@@ -78,7 +104,10 @@ const validateTariffa = (req, res, next) => {
 const validateTransito = (req, res, next) => {
     const { id_veicolo, id_varco_uscita, id_varco_ingresso } = req.body;
     // Verifica che 'id_veicolo' sia un numero intero positivo
-    if (!id_veicolo || typeof id_veicolo !== 'number' || !Number.isInteger(id_veicolo) || id_veicolo <= 0) {
+    if (!id_veicolo ||
+        typeof id_veicolo !== 'number' ||
+        !Number.isInteger(id_veicolo) ||
+        id_veicolo <= 0) {
         return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.MALFORMED_ID, "'id_veicolo' è obbligatorio e deve essere un numero intero positivo"));
     }
     // Verifica che 'uscita', se presente, sia una data valida
@@ -86,7 +115,10 @@ const validateTransito = (req, res, next) => {
         return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, "'id_varco_uscita', se fornita, deve essere un varco valido"));
     }
     // Verifica che 'id_varco_ingresso' sia un numero intero positivo
-    if (!id_varco_ingresso || typeof id_varco_ingresso !== 'number' || !Number.isInteger(id_varco_ingresso) || id_varco_ingresso <= 0) {
+    if (!id_varco_ingresso ||
+        typeof id_varco_ingresso !== 'number' ||
+        !Number.isInteger(id_varco_ingresso) ||
+        id_varco_ingresso <= 0) {
         return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.MALFORMED_ID, "'id_varco_ingresso' è obbligatorio e deve essere un numero intero positivo"));
     }
     next();
@@ -97,8 +129,11 @@ const validateTransito = (req, res, next) => {
 const validateIdParam = (req, res, next) => {
     const { id } = req.params;
     // Verifica che l'ID sia presente e sia un numero intero positivo
-    if (!id || isNaN(Number(id)) || !Number.isInteger(Number(id)) || Number(id) <= 0) {
-        return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.MALFORMED_ID, 'L\'ID fornito non è valido. Deve essere un numero intero positivo.'));
+    if (!id ||
+        isNaN(Number(id)) ||
+        !Number.isInteger(Number(id)) ||
+        Number(id) <= 0) {
+        return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.MALFORMED_ID, "L'ID fornito non è valido. Deve essere un numero intero positivo."));
     }
     next();
 };

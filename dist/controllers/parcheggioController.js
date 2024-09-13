@@ -27,7 +27,7 @@ class ParcheggioController {
             }
         });
     }
-    // Lettura di tutti i parcheggi con varchi associati
+    // Lettura di tutti i parcheggi
     getAllParcheggi(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -39,13 +39,13 @@ class ParcheggioController {
             }
         });
     }
-    // Lettura di un singolo parcheggio con varchi associati
+    // Lettura di un singolo parcheggio
     getParcheggioById(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const parcheggio = yield parcheggioRepository_1.default.findById(Number(req.params.id));
                 if (!parcheggio) {
-                    return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, "Parcheggio non trovato"));
+                    return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, 'Parcheggio non trovato'));
                 }
                 res.status(200).json(parcheggio);
             }
@@ -64,12 +64,12 @@ class ParcheggioController {
                     return res.status(200).json(parcheggioAggiornato);
                 }
                 else {
-                    return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, "Parcheggio non trovato"));
+                    return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, 'Parcheggio non trovato'));
                 }
             }
             catch (error) {
                 if (error.message === 'Parcheggio non trovato') {
-                    return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, "Parcheggio non trovato"));
+                    return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, 'Parcheggio non trovato'));
                 }
                 next(error);
             }
@@ -84,13 +84,29 @@ class ParcheggioController {
                     return res.status(204).send();
                 }
                 else {
-                    return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, "Parcheggio non trovato"));
+                    return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, 'Parcheggio non trovato'));
                 }
             }
             catch (error) {
                 if (error.message === 'Parcheggio non trovato') {
-                    return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, "Parcheggio non trovato"));
+                    return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, 'Parcheggio non trovato'));
                 }
+                next(error);
+            }
+        });
+    }
+    // Nuovo metodo: Controllo dei posti disponibili
+    getPostiDisponibili(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const parcheggioId = Number(req.params.id);
+                const parcheggio = yield parcheggioRepository_1.default.findById(parcheggioId);
+                if (!parcheggio) {
+                    return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, 'Parcheggio non trovato'));
+                }
+                res.status(200).json({ posti_disponibili: parcheggio.posti_disponibili });
+            }
+            catch (error) {
                 next(error);
             }
         });

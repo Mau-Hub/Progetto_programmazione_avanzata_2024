@@ -16,7 +16,6 @@ const transito_1 = __importDefault(require("../models/transito"));
 const veicolo_1 = __importDefault(require("../models/veicolo"));
 const varco_1 = __importDefault(require("../models/varco"));
 const tariffa_1 = __importDefault(require("../models/tariffa"));
-const posto_1 = __importDefault(require("../models/posto"));
 const errorFactory_1 = require("../ext/errorFactory");
 class TransitoDao {
     findAll(options) {
@@ -27,7 +26,6 @@ class TransitoDao {
                         { model: varco_1.default, as: 'varcoIngresso' },
                         { model: varco_1.default, as: 'varcoUscita' },
                         { model: tariffa_1.default, as: 'tariffa' },
-                        { model: posto_1.default, as: 'posto' },
                     ] }));
             }
             catch (error) {
@@ -44,7 +42,6 @@ class TransitoDao {
                         { model: varco_1.default, as: 'varcoIngresso' },
                         { model: varco_1.default, as: 'varcoUscita' },
                         { model: tariffa_1.default, as: 'tariffa' },
-                        { model: posto_1.default, as: 'posto' },
                     ],
                 });
                 if (!transito) {
@@ -57,22 +54,23 @@ class TransitoDao {
             }
         });
     }
-    create(item) {
+    create(item, transaction) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield transito_1.default.create(item);
+                return yield transito_1.default.create(item, { transaction });
             }
             catch (error) {
                 throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore nella creazione del transito');
             }
         });
     }
-    update(id, item) {
+    update(id, item, transaction) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const [affectedCount] = yield transito_1.default.update(item, {
                     where: { id },
                     returning: true,
+                    transaction,
                 });
                 if (affectedCount === 0) {
                     throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, `Il transito con id ${id} non è stato trovato`);

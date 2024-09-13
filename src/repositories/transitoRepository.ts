@@ -1,5 +1,6 @@
 import transitoDao from '../dao/transitoDao';
 import veicoloDao from '../dao/veicoloDao';
+import parcheggioDao from '../dao/parcheggioDao';
 import varcoDao from '../dao/varcoDao';
 import {
   TransitoAttributes,
@@ -29,7 +30,7 @@ class TransitoRepository {
    * @returns Il transito creato
    */
   public async create(
-    transitoData: TransitoCreationAttributes,
+    transitoData: Omit<TransitoCreationAttributes, 'id_posto'>,
     targa: string,
     id_tipo_veicolo: number,
     id_utente: number
@@ -61,11 +62,39 @@ class TransitoRepository {
         );
       }
 
+      // Recupera il parcheggio associato al varco di ingresso
+      const parcheggio = await parcheggioDao.findById(
+        varcoIngresso.id_parcheggio
+      );
+
+      if (!parcheggio) {
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+          'Parcheggio non trovato'
+        );
+      }
+
+      // Verifica se ci sono posti disponibili
+      if (parcheggio.posti_disponibili <= 0) {
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.INVALID_INPUT,
+          'Nessun posto disponibile nel parcheggio'
+        );
+      }
+
+      // Decrementa posti_disponibili
+      parcheggio.posti_disponibili -= 1;
+      await parcheggio.save({ transaction });
+
       // Creazione del nuovo transito con solo ingresso
-      const nuovoTransito = await transitoDao.create({
-        ...transitoData,
-        id_veicolo: veicolo.id, // Associa il veicolo appena creato o trovato
-      });
+      const nuovoTransito = await transitoDao.create(
+        {
+          ...transitoData,
+          ingresso: new Date(),
+          id_veicolo: veicolo.id,
+        },
+        transaction
+      );
 
       await transaction.commit(); // Commit della transazione
       return nuovoTransito;
@@ -113,6 +142,22 @@ class TransitoRepository {
         );
       }
 
+      // Recupera il parcheggio associato al varco di uscita
+      const parcheggio = await parcheggioDao.findById(
+        varcoUscita.id_parcheggio
+      );
+
+      if (!parcheggio) {
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+          'Parcheggio non trovato'
+        );
+      }
+
+      // Incrementa posti_disponibili
+      parcheggio.posti_disponibili += 1;
+      await parcheggio.save({ transaction });
+
       // Calcolo dell'importo basato sulla durata e sulla tariffa dinamica
       const importo = await TransitoService.calcolaImporto(
         transitoId,
@@ -126,7 +171,7 @@ class TransitoRepository {
         importo, // Importo calcolato dinamicamente
       };
 
-      await transitoDao.update(transitoId, updateData);
+      await transitoDao.update(transitoId, updateData, transaction);
 
       await transaction.commit();
       return { ...transito, ...updateData }; // Restituisce il transito aggiornato

@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const transitoDao_1 = __importDefault(require("../dao/transitoDao"));
 const veicoloDao_1 = __importDefault(require("../dao/veicoloDao"));
+const parcheggioDao_1 = __importDefault(require("../dao/parcheggioDao"));
 const varcoDao_1 = __importDefault(require("../dao/varcoDao"));
 const errorFactory_1 = require("../ext/errorFactory");
 const transitoService_1 = __importDefault(require("../ext/transitoService"));
@@ -52,8 +53,20 @@ class TransitoRepository {
                 if (!varcoIngresso) {
                     throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, 'Varco di ingresso non trovato');
                 }
+                // Recupera il parcheggio associato al varco di ingresso
+                const parcheggio = yield parcheggioDao_1.default.findById(varcoIngresso.id_parcheggio);
+                if (!parcheggio) {
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, 'Parcheggio non trovato');
+                }
+                // Verifica se ci sono posti disponibili
+                if (parcheggio.posti_disponibili <= 0) {
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, 'Nessun posto disponibile nel parcheggio');
+                }
+                // Decrementa posti_disponibili
+                parcheggio.posti_disponibili -= 1;
+                yield parcheggio.save({ transaction });
                 // Creazione del nuovo transito con solo ingresso
-                const nuovoTransito = yield transitoDao_1.default.create(Object.assign(Object.assign({}, transitoData), { id_veicolo: veicolo.id }));
+                const nuovoTransito = yield transitoDao_1.default.create(Object.assign(Object.assign({}, transitoData), { ingresso: new Date(), id_veicolo: veicolo.id }), transaction);
                 yield transaction.commit(); // Commit della transazione
                 return nuovoTransito;
             }
@@ -84,6 +97,14 @@ class TransitoRepository {
                 if (!varcoUscita) {
                     throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, 'Varco di uscita non trovato');
                 }
+                // Recupera il parcheggio associato al varco di uscita
+                const parcheggio = yield parcheggioDao_1.default.findById(varcoUscita.id_parcheggio);
+                if (!parcheggio) {
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, 'Parcheggio non trovato');
+                }
+                // Incrementa posti_disponibili
+                parcheggio.posti_disponibili += 1;
+                yield parcheggio.save({ transaction });
                 // Calcolo dell'importo basato sulla durata e sulla tariffa dinamica
                 const importo = yield transitoService_1.default.calcolaImporto(transitoId, dataOraUscita);
                 // Aggiornamento del transito con il varco di uscita, la data di uscita e l'importo calcolato
@@ -92,7 +113,7 @@ class TransitoRepository {
                     uscita: dataOraUscita,
                     importo, // Importo calcolato dinamicamente
                 };
-                yield transitoDao_1.default.update(transitoId, updateData);
+                yield transitoDao_1.default.update(transitoId, updateData, transaction);
                 yield transaction.commit();
                 return Object.assign(Object.assign({}, transito), updateData); // Restituisce il transito aggiornato
             }

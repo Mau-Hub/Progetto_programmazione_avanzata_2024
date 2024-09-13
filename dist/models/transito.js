@@ -8,7 +8,6 @@ const database_1 = __importDefault(require("../db/database"));
 const veicolo_1 = __importDefault(require("./veicolo")); // Importa il modello Veicolo per la relazione
 const varco_1 = __importDefault(require("./varco")); // Importa il modello Varco per la relazione
 const tariffa_1 = __importDefault(require("./tariffa")); // Importa il modello Tariffa per la relazione
-const posto_1 = __importDefault(require("./posto")); // Importa il modello Posto per la relazione
 const sequelize = database_1.default.getInstance();
 // Definizione del model Transito
 class Transito extends sequelize_1.Model {
@@ -69,16 +68,6 @@ Transito.init({
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
     },
-    id_posto: {
-        type: sequelize_1.DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: posto_1.default,
-            key: 'id',
-        },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
-    },
     importo: {
         type: sequelize_1.DataTypes.FLOAT,
         allowNull: true,
@@ -100,6 +89,4 @@ varco_1.default.hasMany(Transito, { foreignKey: 'id_varco_uscita', as: 'transiti
 Transito.belongsTo(varco_1.default, { foreignKey: 'id_varco_uscita', as: 'varcoUscita' });
 tariffa_1.default.hasMany(Transito, { foreignKey: 'id_tariffa', as: 'transiti' });
 Transito.belongsTo(tariffa_1.default, { foreignKey: 'id_tariffa', as: 'tariffa' });
-posto_1.default.hasMany(Transito, { foreignKey: 'id_posto', as: 'transiti' });
-Transito.belongsTo(posto_1.default, { foreignKey: 'id_posto', as: 'posto' });
 exports.default = Transito;

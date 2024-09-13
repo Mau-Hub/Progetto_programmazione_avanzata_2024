@@ -1,8 +1,6 @@
 import ParcheggioDao from '../dao/parcheggioDao';
 import Parcheggio from '../models/parcheggio';
-import Posto from '../models/posto';
 import Varco from '../models/varco';
-
 
 interface ParcheggioData {
   nome: string;
@@ -13,10 +11,10 @@ interface ParcheggioData {
 class ParcheggioRepository {
   async create(data: ParcheggioData): Promise<Parcheggio> {
     const { nome, capacita, varchi } = data;
-  
+
     // Crea il nuovo parcheggio tramite DAO, id sarà generato automaticamente
     const nuovoParcheggio = await ParcheggioDao.create({ nome, capacita });
-  
+
     // Se ci sono varchi, li crea e li associa al parcheggio
     if (varchi && varchi.length > 0) {
       await Promise.all(
@@ -31,7 +29,9 @@ class ParcheggioRepository {
     }
 
     // Ritorna il parcheggio con i varchi associati
-    const parcheggioConVarchi = await ParcheggioDao.findById(nuovoParcheggio.id);
+    const parcheggioConVarchi = await ParcheggioDao.findById(
+      nuovoParcheggio.id
+    );
     if (!parcheggioConVarchi) {
       throw new Error('Parcheggio non trovato');
     }
@@ -53,20 +53,36 @@ class ParcheggioRepository {
     }
 
     const { nome, capacita, varchi } = data;
+
+    // Calcola la differenza di capacità
+    const differenzaCapacita = capacita - parcheggio.capacita;
+
+    // Aggiorna il parcheggio
     await ParcheggioDao.update(id, { nome, capacita });
 
-    // Aggiorna anche i varchi
+    // Aggiorna posti_disponibili in base alla differenza di capacità
+    parcheggio.posti_disponibili += differenzaCapacita;
+
+    // Assicurati che posti_disponibili non superi la nuova capacità
+    if (parcheggio.posti_disponibili > capacita) {
+      parcheggio.posti_disponibili = capacita;
+    }
+
+    // Salva le modifiche
+    await parcheggio.save();
+
+    // Aggiorna i varchi se necessario
     if (varchi && varchi.length > 0) {
-      // Prima elimina tutti i varchi associati a questo parcheggio
+      // Elimina i varchi esistenti
       await Varco.destroy({ where: { id_parcheggio: id } });
 
-      // Poi ricrea i varchi con i nuovi dati
+      // Crea i nuovi varchi
       await Promise.all(
         varchi.map((varco) =>
           Varco.create({
             tipo: varco.tipo,
             bidirezionale: varco.bidirezionale,
-            id_parcheggio: id, // Associa i nuovi varchi al parcheggio esistente
+            id_parcheggio: id,
           })
         )
       );
@@ -83,19 +99,17 @@ class ParcheggioRepository {
 
     // Elimina prima tutti i varchi associati al parcheggio
     await Varco.destroy({ where: { id_parcheggio: id } });
-    
+
     // Elimina il parcheggio
     return await ParcheggioDao.delete(id);
   }
 
   async checkPostiDisponibili(parcheggioId: number): Promise<boolean> {
-    const postiLiberi = await Posto.count({
-      where: {
-        id_parcheggio: parcheggioId,
-        stato: 'libero'
-      }
-    });
-    return postiLiberi > 0;
+    const parcheggio = await ParcheggioDao.findById(parcheggioId);
+    if (!parcheggio) {
+      throw new Error('Parcheggio non trovato');
+    }
+    return parcheggio.posti_disponibili > 0;
   }
 }
 

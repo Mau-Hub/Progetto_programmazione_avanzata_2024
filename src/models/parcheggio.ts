@@ -8,11 +8,12 @@ export interface ParcheggioAttributes {
   id: number;
   nome: string;
   capacita: number;
+  posti_disponibili: number;
 }
 
 // Definizione dei campi opzionali per la creazione
 export interface ParcheggioCreationAttributes
-  extends Optional<ParcheggioAttributes, 'id'> {}
+  extends Optional<ParcheggioAttributes, 'id' | 'posti_disponibili'> {}
 
 // Definizione del modello Parcheggio
 export class Parcheggio
@@ -24,6 +25,8 @@ export class Parcheggio
   public nome!: string;
 
   public capacita!: number;
+
+  public posti_disponibili!: number;
 }
 
 // Inizializzazione del model Parcheggio
@@ -42,6 +45,10 @@ Parcheggio.init(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    posti_disponibili: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   },
   {
     tableName: 'Parcheggio',
@@ -50,5 +57,9 @@ Parcheggio.init(
   }
 );
 
+// Hook per inizializzare posti_disponibili
+Parcheggio.beforeCreate((parcheggio, options) => {
+  parcheggio.posti_disponibili = parcheggio.capacita;
+});
 // Esporta il modello e le interfacce
 export default Parcheggio;

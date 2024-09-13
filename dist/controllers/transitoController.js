@@ -19,15 +19,22 @@ class TransitoController {
     createTransito(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { targa, id_tipo_veicolo, id_utente, id_varco_ingresso, id_posto } = req.body;
-                // Creazione del transito passando la targa, il tipo di veicolo e l'utente
+                const { targa, id_tipo_veicolo, id_utente, id_varco_ingresso } = req.body;
+                console.log('Dati in ingresso:', {
+                    targa,
+                    id_tipo_veicolo,
+                    id_utente,
+                    id_varco_ingresso,
+                });
+                // Creazione del transito passando i dati necessari
                 const nuovoTransito = yield transitoRepository_1.default.create({
                     id_varco_ingresso: id_varco_ingresso,
-                    id_posto: id_posto,
                 }, targa, id_tipo_veicolo, id_utente);
+                console.log('Nuovo transito creato:', nuovoTransito);
                 res.status(201).json(nuovoTransito);
             }
             catch (error) {
+                console.error('Errore nel controller createTransito:', error); // Log dell'errore dettagliato
                 if (error instanceof Error) {
                     next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, `Errore nella creazione del transito: ${error.message}`));
                 }

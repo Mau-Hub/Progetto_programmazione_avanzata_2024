@@ -13,7 +13,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const parcheggioDao_1 = __importDefault(require("../dao/parcheggioDao"));
-const posto_1 = __importDefault(require("../models/posto"));
 const varco_1 = __importDefault(require("../models/varco"));
 class ParcheggioRepository {
     create(data) {
@@ -54,16 +53,27 @@ class ParcheggioRepository {
                 throw new Error('Parcheggio non trovato');
             }
             const { nome, capacita, varchi } = data;
+            // Calcola la differenza di capacità
+            const differenzaCapacita = capacita - parcheggio.capacita;
+            // Aggiorna il parcheggio
             yield parcheggioDao_1.default.update(id, { nome, capacita });
-            // Aggiorna anche i varchi
+            // Aggiorna posti_disponibili in base alla differenza di capacità
+            parcheggio.posti_disponibili += differenzaCapacita;
+            // Assicurati che posti_disponibili non superi la nuova capacità
+            if (parcheggio.posti_disponibili > capacita) {
+                parcheggio.posti_disponibili = capacita;
+            }
+            // Salva le modifiche
+            yield parcheggio.save();
+            // Aggiorna i varchi se necessario
             if (varchi && varchi.length > 0) {
-                // Prima elimina tutti i varchi associati a questo parcheggio
+                // Elimina i varchi esistenti
                 yield varco_1.default.destroy({ where: { id_parcheggio: id } });
-                // Poi ricrea i varchi con i nuovi dati
+                // Crea i nuovi varchi
                 yield Promise.all(varchi.map((varco) => varco_1.default.create({
                     tipo: varco.tipo,
                     bidirezionale: varco.bidirezionale,
-                    id_parcheggio: id, // Associa i nuovi varchi al parcheggio esistente
+                    id_parcheggio: id,
                 })));
             }
             return true;
@@ -83,13 +93,11 @@ class ParcheggioRepository {
     }
     checkPostiDisponibili(parcheggioId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const postiLiberi = yield posto_1.default.count({
-                where: {
-                    id_parcheggio: parcheggioId,
-                    stato: 'libero'
-                }
-            });
-            return postiLiberi > 0;
+            const parcheggio = yield parcheggioDao_1.default.findById(parcheggioId);
+            if (!parcheggio) {
+                throw new Error('Parcheggio non trovato');
+            }
+            return parcheggio.posti_disponibili > 0;
         });
     }
 }
