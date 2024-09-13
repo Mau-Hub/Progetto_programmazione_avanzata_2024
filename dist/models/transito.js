@@ -61,7 +61,7 @@ Transito.init({
     },
     id_tariffa: {
         type: sequelize_1.DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
             model: tariffa_1.default,
             key: 'id',

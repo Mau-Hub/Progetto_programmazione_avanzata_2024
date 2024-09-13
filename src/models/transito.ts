@@ -15,7 +15,7 @@ export interface TransitoAttributes {
   id_veicolo: number;
   id_varco_ingresso: number;
   id_varco_uscita: number | null;
-  id_tariffa: number;
+  id_tariffa: number | null;
   id_posto: number;
   importo: number | null;
 }
@@ -24,7 +24,13 @@ export interface TransitoAttributes {
 export interface TransitoCreationAttributes
   extends Optional<
     TransitoAttributes,
-    'id' | 'uscita' | 'id_varco_uscita' | 'importo'
+    | 'id'
+    | 'ingresso'
+    | 'uscita'
+    | 'id_varco_uscita'
+    | 'importo'
+    | 'id_tariffa'
+    | 'id_veicolo'
   > {}
 
 // Definizione del model Transito
@@ -44,7 +50,7 @@ class Transito
 
   public id_varco_uscita!: number | null;
 
-  public id_tariffa!: number;
+  public id_tariffa!: number | null;
 
   public id_posto!: number;
 
@@ -100,7 +106,7 @@ Transito.init(
     },
     id_tariffa: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: Tariffa,
         key: 'id',

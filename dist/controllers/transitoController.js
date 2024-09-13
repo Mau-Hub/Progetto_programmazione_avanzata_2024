@@ -19,28 +19,21 @@ class TransitoController {
     createTransito(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const nuovoTransito = yield transitoRepository_1.default.create(req.body);
+                const { targa, id_tipo_veicolo, id_utente, id_varco_ingresso, id_posto } = req.body;
+                // Creazione del transito passando la targa, il tipo di veicolo e l'utente
+                const nuovoTransito = yield transitoRepository_1.default.create({
+                    id_varco_ingresso: id_varco_ingresso,
+                    id_posto: id_posto,
+                }, targa, id_tipo_veicolo, id_utente);
                 res.status(201).json(nuovoTransito);
             }
             catch (error) {
                 if (error instanceof Error) {
-                    next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, error.message));
+                    next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, `Errore nella creazione del transito: ${error.message}`));
                 }
                 else {
                     next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore sconosciuto durante la creazione del transito'));
                 }
-            }
-        });
-    }
-    // Ottenere tutti i transiti
-    getAllTransiti(req, res, next) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const transiti = yield transitoRepository_1.default.findAll();
-                res.status(200).json(transiti);
-            }
-            catch (error) {
-                next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero dei transiti'));
             }
         });
     }
@@ -55,29 +48,11 @@ class TransitoController {
                 res.status(200).json(transito);
             }
             catch (error) {
-                next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero del transito'));
-            }
-        });
-    }
-    // Aggiornamento di un transito
-    updateTransito(req, res, next) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const success = yield transitoRepository_1.default.update(Number(req.params.id), req.body);
-                if (success) {
-                    const transitoAggiornato = yield transitoRepository_1.default.findById(Number(req.params.id));
-                    return res.status(200).json(transitoAggiornato);
-                }
-                else {
-                    return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, 'Transito non trovato'));
-                }
-            }
-            catch (error) {
                 if (error instanceof Error) {
-                    next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore nell'aggiornamento del transito: ${error.message}`));
+                    next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore nel recupero del transito: ${error.message}`));
                 }
                 else {
-                    next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore sconosciuto durante l\'aggiornamento del transito'));
+                    next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore sconosciuto nel recupero del transito'));
                 }
             }
         });
@@ -95,7 +70,12 @@ class TransitoController {
                 }
             }
             catch (error) {
-                next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore durante l\'eliminazione del transito'));
+                if (error instanceof Error) {
+                    next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore durante l'eliminazione del transito: ${error.message}`));
+                }
+                else {
+                    next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, "Errore sconosciuto durante l'eliminazione del transito"));
+                }
             }
         });
     }
@@ -104,8 +84,9 @@ class TransitoController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const transitoId = Number(req.params.id);
-                const dataOraUscita = new Date();
-                const transitoAggiornato = yield transitoRepository_1.default.aggiornaTransitoConImporto(transitoId, dataOraUscita);
+                const { id_varco_uscita } = req.body; // Prendi il varco di uscita dal body
+                const dataOraUscita = new Date(); // Ora corrente per l'uscita
+                const transitoAggiornato = yield transitoRepository_1.default.updateUscita(transitoId, id_varco_uscita, dataOraUscita);
                 if (!transitoAggiornato) {
                     return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, 'Transito non trovato'));
                 }
@@ -116,7 +97,7 @@ class TransitoController {
                     next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore durante l'uscita del veicolo: ${error.message}`));
                 }
                 else {
-                    next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore sconosciuto durante l\'uscita del veicolo'));
+                    next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, "Errore sconosciuto durante l'uscita del veicolo"));
                 }
             }
         });

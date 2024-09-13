@@ -53,6 +53,10 @@ class TransitoService {
                 if (!transito) {
                     throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, 'Transito non trovato');
                 }
+                // Controlla che id_tariffa non sia null prima di procedere
+                if (transito.id_tariffa === null) {
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, 'La tariffa non è disponibile per questo transito');
+                }
                 // Recupera la tariffa dal TariffaRepository
                 const tariffa = yield tariffa_1.default.findByPk(transito.id_tariffa);
                 if (!tariffa) {

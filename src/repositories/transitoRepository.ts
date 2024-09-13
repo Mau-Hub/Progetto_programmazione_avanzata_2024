@@ -1,193 +1,199 @@
-import TransitoDao from '../dao/transitoDao'; // Assicurati che il percorso sia corretto
-import Parcheggio from '../models/parcheggio';
-import TransitoService from '../ext/transitoService';
-import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
+import transitoDao from '../dao/transitoDao';
+import veicoloDao from '../dao/veicoloDao';
+import varcoDao from '../dao/varcoDao';
 import {
   TransitoAttributes,
   TransitoCreationAttributes,
 } from '../models/transito';
+import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
+import TransitoService from '../ext/transitoService';
+import { Sequelize } from 'sequelize';
+import Database from '../db/database';
 
 class TransitoRepository {
-  private transitoDao = TransitoDao;
+  private sequelize: Sequelize;
 
-  // Creazione di un nuovo transito con controllo sulla capacità del parcheggio
-  async create(
-    transitoData: TransitoCreationAttributes
+  constructor() {
+    this.sequelize = Database.getInstance(); // Recupero dell'istanza del database
+  }
+
+  /**
+   * Creazione di un transito in ingresso.
+   * Nel transito in ingresso non viene fornito il varco di uscita né la tariffa, poiché saranno calcolati al momento dell'uscita.
+   * Se il veicolo non è presente nel database, viene creato automaticamente.
+   *
+   * @param transitoData - Dati del nuovo transito (solo ingresso)
+   * @param targa - La targa del veicolo che entra
+   * @param id_tipo_veicolo - Il tipo del veicolo
+   * @param id_utente - L'utente a cui è associato il veicolo
+   * @returns Il transito creato
+   */
+  public async create(
+    transitoData: TransitoCreationAttributes,
+    targa: string,
+    id_tipo_veicolo: number,
+    id_utente: number
   ): Promise<TransitoAttributes> {
-    try {
-      const parcheggio = await Parcheggio.findByPk(transitoData.id_posto);
+    const transaction = await this.sequelize.transaction();
 
-      if (!parcheggio) {
+    try {
+      // Verifica se il veicolo esiste tramite la targa, altrimenti crealo
+      let veicolo = await veicoloDao.findByTarga(targa);
+
+      if (!veicolo) {
+        // Crea il veicolo se non esiste
+        veicolo = await veicoloDao.create({
+          targa: targa,
+          id_tipo_veicolo: id_tipo_veicolo,
+          id_utente: id_utente,
+        });
+      }
+
+      // Verifica esistenza varco di ingresso
+      const varcoIngresso = await varcoDao.findById(
+        transitoData.id_varco_ingresso
+      );
+
+      if (!varcoIngresso) {
         throw ErrorGenerator.generateError(
           ApplicationErrorTypes.RESOURCE_NOT_FOUND,
-          'Parcheggio non trovato'
+          'Varco di ingresso non trovato'
         );
       }
 
-      // Controllo sulla capacità del parcheggio
-      const postiOccupati = await this.transitoDao.findAll({
-        where: { id_posto: parcheggio.id, uscita: null },
+      // Creazione del nuovo transito con solo ingresso
+      const nuovoTransito = await transitoDao.create({
+        ...transitoData,
+        id_veicolo: veicolo.id, // Associa il veicolo appena creato o trovato
       });
 
-      if (postiOccupati.length >= parcheggio.capacita) {
-        throw ErrorGenerator.generateError(
-          ApplicationErrorTypes.INVALID_INPUT,
-          'Parcheggio pieno'
-        );
-      }
-
-      return await this.transitoDao.create(
-        transitoData as TransitoCreationAttributes
+      await transaction.commit(); // Commit della transazione
+      return nuovoTransito;
+    } catch (error) {
+      await transaction.rollback(); // Rollback della transazione in caso di errore
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        'Errore durante la creazione del transito'
       );
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw ErrorGenerator.generateError(
-          ApplicationErrorTypes.SERVER_ERROR,
-          `Errore nella creazione del transito: ${error.message}`
-        );
-      } else {
-        throw ErrorGenerator.generateError(
-          ApplicationErrorTypes.SERVER_ERROR,
-          'Errore sconosciuto nella creazione del transito'
-        );
-      }
     }
   }
 
-  // Ottenere tutti i transiti
-  async findAll(): Promise<TransitoAttributes[]> {
-    try {
-      return await this.transitoDao.findAll();
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw ErrorGenerator.generateError(
-          ApplicationErrorTypes.SERVER_ERROR,
-          `Errore nel recupero dei transiti: ${error.message}`
-        );
-      } else {
-        throw ErrorGenerator.generateError(
-          ApplicationErrorTypes.SERVER_ERROR,
-          'Errore sconosciuto nel recupero dei transiti'
-        );
-      }
-    }
-  }
-
-  // Ottenere un transito specifico per ID
-  async findById(id: number): Promise<TransitoAttributes | null> {
-    try {
-      return await this.transitoDao.findById(id);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw ErrorGenerator.generateError(
-          ApplicationErrorTypes.SERVER_ERROR,
-          `Errore nel recupero del transito: ${error.message}`
-        );
-      } else {
-        throw ErrorGenerator.generateError(
-          ApplicationErrorTypes.SERVER_ERROR,
-          'Errore sconosciuto nel recupero del transito'
-        );
-      }
-    }
-  }
-
-  // Aggiornare un transito
-  async update(
-    id: number,
-    transitoData: Partial<TransitoAttributes>
-  ): Promise<boolean> {
-    try {
-      return await this.transitoDao.update(id, transitoData);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw ErrorGenerator.generateError(
-          ApplicationErrorTypes.SERVER_ERROR,
-          `Errore nell'aggiornamento del transito: ${error.message}`
-        );
-      } else {
-        throw ErrorGenerator.generateError(
-          ApplicationErrorTypes.SERVER_ERROR,
-          "Errore sconosciuto nell'aggiornamento del transito"
-        );
-      }
-    }
-  }
-
-  // Eliminare un transito
-  async delete(id: number): Promise<boolean> {
-    try {
-      return await this.transitoDao.delete(id);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw ErrorGenerator.generateError(
-          ApplicationErrorTypes.SERVER_ERROR,
-          `Errore nell'eliminazione del transito: ${error.message}`
-        );
-      } else {
-        throw ErrorGenerator.generateError(
-          ApplicationErrorTypes.SERVER_ERROR,
-          "Errore sconosciuto nell'eliminazione del transito"
-        );
-      }
-    }
-  }
-
-  // Calcolo dell'importo basato su durata e fascia oraria e giorni feriali/festivi
-  async calcolaImporto(
+  /**
+   * Aggiornamento di un transito con varco di uscita e calcolo della tariffa dinamica.
+   *
+   * @param transitoId - L'ID del transito da aggiornare
+   * @param varcoUscitaId - L'ID del varco di uscita
+   * @param dataOraUscita - La data e ora di uscita
+   * @returns Il transito aggiornato con l'importo calcolato
+   */
+  public async updateUscita(
     transitoId: number,
+    varcoUscitaId: number,
     dataOraUscita: Date
-  ): Promise<number> {
+  ): Promise<TransitoAttributes> {
+    const transaction = await this.sequelize.transaction();
+
     try {
-      return await TransitoService.calcolaImporto(transitoId, dataOraUscita);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        throw ErrorGenerator.generateError(
-          ApplicationErrorTypes.SERVER_ERROR,
-          `Errore nel calcolo dell'importo: ${error.message}`
-        );
-      } else {
-        throw ErrorGenerator.generateError(
-          ApplicationErrorTypes.SERVER_ERROR,
-          "Errore sconosciuto nel calcolo dell'importo"
-        );
-      }
-    }
-  }
+      const transito = await this.findById(transitoId);
 
-  // Aggiorna il transito con l'uscita e l'importo calcolato
-  async aggiornaTransitoConImporto(
-    transitoId: number,
-    dataOraUscita: Date
-  ): Promise<TransitoAttributes | null> {
-    try {
-      const importo = await this.calcolaImporto(transitoId, dataOraUscita);
-
-      const updated = await this.transitoDao.update(transitoId, {
-        uscita: dataOraUscita,
-        importo,
-      } as Partial<TransitoAttributes>);
-
-      if (!updated) {
+      if (!transito) {
         throw ErrorGenerator.generateError(
           ApplicationErrorTypes.RESOURCE_NOT_FOUND,
-          "Transito non trovato per l'aggiornamento"
+          `Il transito con id ${transitoId} non è stato trovato`
         );
       }
 
-      return await this.findById(transitoId);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
+      // Verifica esistenza varco di uscita
+      const varcoUscita = await varcoDao.findById(varcoUscitaId);
+
+      if (!varcoUscita) {
         throw ErrorGenerator.generateError(
-          ApplicationErrorTypes.SERVER_ERROR,
-          `Errore nell'aggiornamento del transito con importo: ${error.message}`
-        );
-      } else {
-        throw ErrorGenerator.generateError(
-          ApplicationErrorTypes.SERVER_ERROR,
-          "Errore sconosciuto nell'aggiornamento del transito con importo"
+          ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+          'Varco di uscita non trovato'
         );
       }
+
+      // Calcolo dell'importo basato sulla durata e sulla tariffa dinamica
+      const importo = await TransitoService.calcolaImporto(
+        transitoId,
+        dataOraUscita
+      );
+
+      // Aggiornamento del transito con il varco di uscita, la data di uscita e l'importo calcolato
+      const updateData = {
+        id_varco_uscita: varcoUscitaId,
+        uscita: dataOraUscita,
+        importo, // Importo calcolato dinamicamente
+      };
+
+      await transitoDao.update(transitoId, updateData);
+
+      await transaction.commit();
+      return { ...transito, ...updateData }; // Restituisce il transito aggiornato
+    } catch (error) {
+      await transaction.rollback();
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        `Errore durante l'aggiornamento del transito con uscita per id ${transitoId}`
+      );
+    }
+  }
+
+  /**
+   * Recupera un transito per ID.
+   *
+   * @param id - L'ID del transito da recuperare
+   * @returns Il transito trovato
+   */
+  public async findById(id: number): Promise<TransitoAttributes | null> {
+    try {
+      const transito = await transitoDao.findById(id);
+
+      if (!transito) {
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+          `Il transito con id ${id} non è stato trovato`
+        );
+      }
+
+      return transito;
+    } catch (error) {
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        `Errore nel recupero del transito con id ${id}`
+      );
+    }
+  }
+
+  /**
+   * Cancella un transito per ID.
+   *
+   * @param id - L'ID del transito da eliminare
+   * @returns true se l'eliminazione è avvenuta correttamente, false altrimenti
+   */
+  public async delete(id: number): Promise<boolean> {
+    const transaction = await this.sequelize.transaction();
+
+    try {
+      const transito = await this.findById(id);
+
+      if (!transito) {
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+          `Il transito con id ${id} non esiste`
+        );
+      }
+
+      const deleted = await transitoDao.delete(id);
+
+      await transaction.commit();
+      return deleted;
+    } catch (error) {
+      await transaction.rollback();
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        `Errore durante l'eliminazione del transito con id ${id}`
+      );
     }
   }
 }

@@ -51,6 +51,14 @@ class TransitoService {
         );
       }
 
+      // Controlla che id_tariffa non sia null prima di procedere
+      if (transito.id_tariffa === null) {
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.INVALID_INPUT,
+          'La tariffa non è disponibile per questo transito'
+        );
+      }
+
       // Recupera la tariffa dal TariffaRepository
       const tariffa = await Tariffa.findByPk(transito.id_tariffa);
 

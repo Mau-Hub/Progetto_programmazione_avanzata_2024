@@ -12,142 +12,137 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const transitoDao_1 = __importDefault(require("../dao/transitoDao")); // Assicurati che il percorso sia corretto
-const parcheggio_1 = __importDefault(require("../models/parcheggio"));
-const transitoService_1 = __importDefault(require("../ext/transitoService"));
+const transitoDao_1 = __importDefault(require("../dao/transitoDao"));
+const veicoloDao_1 = __importDefault(require("../dao/veicoloDao"));
+const varcoDao_1 = __importDefault(require("../dao/varcoDao"));
 const errorFactory_1 = require("../ext/errorFactory");
+const transitoService_1 = __importDefault(require("../ext/transitoService"));
+const database_1 = __importDefault(require("../db/database"));
 class TransitoRepository {
     constructor() {
-        this.transitoDao = transitoDao_1.default;
+        this.sequelize = database_1.default.getInstance(); // Recupero dell'istanza del database
     }
-    // Creazione di un nuovo transito con controllo sulla capacità del parcheggio
-    create(transitoData) {
+    /**
+     * Creazione di un transito in ingresso.
+     * Nel transito in ingresso non viene fornito il varco di uscita né la tariffa, poiché saranno calcolati al momento dell'uscita.
+     * Se il veicolo non è presente nel database, viene creato automaticamente.
+     *
+     * @param transitoData - Dati del nuovo transito (solo ingresso)
+     * @param targa - La targa del veicolo che entra
+     * @param id_tipo_veicolo - Il tipo del veicolo
+     * @param id_utente - L'utente a cui è associato il veicolo
+     * @returns Il transito creato
+     */
+    create(transitoData, targa, id_tipo_veicolo, id_utente) {
         return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield this.sequelize.transaction();
             try {
-                const parcheggio = yield parcheggio_1.default.findByPk(transitoData.id_posto);
-                if (!parcheggio) {
-                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, 'Parcheggio non trovato');
+                // Verifica se il veicolo esiste tramite la targa, altrimenti crealo
+                let veicolo = yield veicoloDao_1.default.findByTarga(targa);
+                if (!veicolo) {
+                    // Crea il veicolo se non esiste
+                    veicolo = yield veicoloDao_1.default.create({
+                        targa: targa,
+                        id_tipo_veicolo: id_tipo_veicolo,
+                        id_utente: id_utente,
+                    });
                 }
-                // Controllo sulla capacità del parcheggio
-                const postiOccupati = yield this.transitoDao.findAll({
-                    where: { id_posto: parcheggio.id, uscita: null },
-                });
-                if (postiOccupati.length >= parcheggio.capacita) {
-                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, 'Parcheggio pieno');
+                // Verifica esistenza varco di ingresso
+                const varcoIngresso = yield varcoDao_1.default.findById(transitoData.id_varco_ingresso);
+                if (!varcoIngresso) {
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, 'Varco di ingresso non trovato');
                 }
-                return yield this.transitoDao.create(transitoData);
+                // Creazione del nuovo transito con solo ingresso
+                const nuovoTransito = yield transitoDao_1.default.create(Object.assign(Object.assign({}, transitoData), { id_veicolo: veicolo.id }));
+                yield transaction.commit(); // Commit della transazione
+                return nuovoTransito;
             }
             catch (error) {
-                if (error instanceof Error) {
-                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore nella creazione del transito: ${error.message}`);
-                }
-                else {
-                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore sconosciuto nella creazione del transito');
-                }
+                yield transaction.rollback(); // Rollback della transazione in caso di errore
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore durante la creazione del transito');
             }
         });
     }
-    // Ottenere tutti i transiti
-    findAll() {
+    /**
+     * Aggiornamento di un transito con varco di uscita e calcolo della tariffa dinamica.
+     *
+     * @param transitoId - L'ID del transito da aggiornare
+     * @param varcoUscitaId - L'ID del varco di uscita
+     * @param dataOraUscita - La data e ora di uscita
+     * @returns Il transito aggiornato con l'importo calcolato
+     */
+    updateUscita(transitoId, varcoUscitaId, dataOraUscita) {
         return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield this.sequelize.transaction();
             try {
-                return yield this.transitoDao.findAll();
+                const transito = yield this.findById(transitoId);
+                if (!transito) {
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, `Il transito con id ${transitoId} non è stato trovato`);
+                }
+                // Verifica esistenza varco di uscita
+                const varcoUscita = yield varcoDao_1.default.findById(varcoUscitaId);
+                if (!varcoUscita) {
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, 'Varco di uscita non trovato');
+                }
+                // Calcolo dell'importo basato sulla durata e sulla tariffa dinamica
+                const importo = yield transitoService_1.default.calcolaImporto(transitoId, dataOraUscita);
+                // Aggiornamento del transito con il varco di uscita, la data di uscita e l'importo calcolato
+                const updateData = {
+                    id_varco_uscita: varcoUscitaId,
+                    uscita: dataOraUscita,
+                    importo, // Importo calcolato dinamicamente
+                };
+                yield transitoDao_1.default.update(transitoId, updateData);
+                yield transaction.commit();
+                return Object.assign(Object.assign({}, transito), updateData); // Restituisce il transito aggiornato
             }
             catch (error) {
-                if (error instanceof Error) {
-                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore nel recupero dei transiti: ${error.message}`);
-                }
-                else {
-                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore sconosciuto nel recupero dei transiti');
-                }
+                yield transaction.rollback();
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore durante l'aggiornamento del transito con uscita per id ${transitoId}`);
             }
         });
     }
-    // Ottenere un transito specifico per ID
+    /**
+     * Recupera un transito per ID.
+     *
+     * @param id - L'ID del transito da recuperare
+     * @returns Il transito trovato
+     */
     findById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this.transitoDao.findById(id);
+                const transito = yield transitoDao_1.default.findById(id);
+                if (!transito) {
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, `Il transito con id ${id} non è stato trovato`);
+                }
+                return transito;
             }
             catch (error) {
-                if (error instanceof Error) {
-                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore nel recupero del transito: ${error.message}`);
-                }
-                else {
-                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore sconosciuto nel recupero del transito');
-                }
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore nel recupero del transito con id ${id}`);
             }
         });
     }
-    // Aggiornare un transito
-    update(id, transitoData) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield this.transitoDao.update(id, transitoData);
-            }
-            catch (error) {
-                if (error instanceof Error) {
-                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore nell'aggiornamento del transito: ${error.message}`);
-                }
-                else {
-                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, "Errore sconosciuto nell'aggiornamento del transito");
-                }
-            }
-        });
-    }
-    // Eliminare un transito
+    /**
+     * Cancella un transito per ID.
+     *
+     * @param id - L'ID del transito da eliminare
+     * @returns true se l'eliminazione è avvenuta correttamente, false altrimenti
+     */
     delete(id) {
         return __awaiter(this, void 0, void 0, function* () {
+            const transaction = yield this.sequelize.transaction();
             try {
-                return yield this.transitoDao.delete(id);
+                const transito = yield this.findById(id);
+                if (!transito) {
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, `Il transito con id ${id} non esiste`);
+                }
+                const deleted = yield transitoDao_1.default.delete(id);
+                yield transaction.commit();
+                return deleted;
             }
             catch (error) {
-                if (error instanceof Error) {
-                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore nell'eliminazione del transito: ${error.message}`);
-                }
-                else {
-                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, "Errore sconosciuto nell'eliminazione del transito");
-                }
-            }
-        });
-    }
-    // Calcolo dell'importo basato su durata e fascia oraria e giorni feriali/festivi
-    calcolaImporto(transitoId, dataOraUscita) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield transitoService_1.default.calcolaImporto(transitoId, dataOraUscita);
-            }
-            catch (error) {
-                if (error instanceof Error) {
-                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore nel calcolo dell'importo: ${error.message}`);
-                }
-                else {
-                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, "Errore sconosciuto nel calcolo dell'importo");
-                }
-            }
-        });
-    }
-    // Aggiorna il transito con l'uscita e l'importo calcolato
-    aggiornaTransitoConImporto(transitoId, dataOraUscita) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const importo = yield this.calcolaImporto(transitoId, dataOraUscita);
-                const updated = yield this.transitoDao.update(transitoId, {
-                    uscita: dataOraUscita,
-                    importo,
-                });
-                if (!updated) {
-                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, "Transito non trovato per l'aggiornamento");
-                }
-                return yield this.findById(transitoId);
-            }
-            catch (error) {
-                if (error instanceof Error) {
-                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore nell'aggiornamento del transito con importo: ${error.message}`);
-                }
-                else {
-                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, "Errore sconosciuto nell'aggiornamento del transito con importo");
-                }
+                yield transaction.rollback();
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore durante l'eliminazione del transito con id ${id}`);
             }
         });
     }

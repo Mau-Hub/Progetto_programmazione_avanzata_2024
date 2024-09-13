@@ -1,7 +1,10 @@
 import Veicolo from '../models/veicolo';
 import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
 import { DaoI } from './DaoI';
-import { VeicoloAttributes } from '../models/veicolo';
+import {
+  VeicoloAttributes,
+  VeicoloCreationAttributes,
+} from '../models/veicolo';
 import { Op } from 'sequelize';
 
 // Classe VeicoloDao che implementa l'interfaccia DaoI per Veicolo
@@ -52,7 +55,7 @@ class VeicoloDao implements DaoI<VeicoloAttributes, number> {
    * @param {VeicoloAttributes} item dati per generare il veicolo.
    * @returns {Promise<Veicolo>} Promise che restituisce il veicolo appena creato.
    */
-  public async create(item: VeicoloAttributes): Promise<Veicolo> {
+  public async create(item: VeicoloCreationAttributes): Promise<Veicolo> {
     try {
       return await Veicolo.create(item);
     } catch (error) {
@@ -70,7 +73,10 @@ class VeicoloDao implements DaoI<VeicoloAttributes, number> {
    * @param {VeicoloAttributes} item dati necessari per l'aggiornamento del veicolo
    * @returns {Promise<boolean>} Promise che restituisce true se l'aggiornamento è avvenuto, false in caso contrario.
    */
-  public async update(id: number, item: VeicoloAttributes): Promise<boolean> {
+  public async update(
+    id: number,
+    item: VeicoloCreationAttributes
+  ): Promise<boolean> {
     try {
       const [affectedCount] = await Veicolo.update(item, {
         where: { id },

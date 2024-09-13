@@ -1,29 +1,42 @@
 import { Request, Response, NextFunction } from 'express';
-import TransitoRepository from '../repositories/transitoRepository'; 
+import TransitoRepository from '../repositories/transitoRepository';
 import { ApplicationErrorTypes, ErrorGenerator } from '../ext/errorFactory';
 
 class TransitoController {
   // Creazione di un transito
   async createTransito(req: Request, res: Response, next: NextFunction) {
     try {
-      const nuovoTransito = await TransitoRepository.create(req.body);
+      const { targa, id_tipo_veicolo, id_utente, id_varco_ingresso, id_posto } =
+        req.body;
+
+      // Creazione del transito passando la targa, il tipo di veicolo e l'utente
+      const nuovoTransito = await TransitoRepository.create(
+        {
+          id_varco_ingresso: id_varco_ingresso,
+          id_posto: id_posto,
+        },
+        targa,
+        id_tipo_veicolo,
+        id_utente
+      );
+
       res.status(201).json(nuovoTransito);
     } catch (error) {
       if (error instanceof Error) {
-        next(ErrorGenerator.generateError(ApplicationErrorTypes.INVALID_INPUT, error.message));
+        next(
+          ErrorGenerator.generateError(
+            ApplicationErrorTypes.INVALID_INPUT,
+            `Errore nella creazione del transito: ${error.message}`
+          )
+        );
       } else {
-        next(ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore sconosciuto durante la creazione del transito'));
+        next(
+          ErrorGenerator.generateError(
+            ApplicationErrorTypes.SERVER_ERROR,
+            'Errore sconosciuto durante la creazione del transito'
+          )
+        );
       }
-    }
-  }
-
-  // Ottenere tutti i transiti
-  async getAllTransiti(req: Request, res: Response, next: NextFunction) {
-    try {
-      const transiti = await TransitoRepository.findAll();
-      res.status(200).json(transiti);
-    } catch (error) {
-      next(ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero dei transiti'));
     }
   }
 
@@ -33,32 +46,28 @@ class TransitoController {
       const transito = await TransitoRepository.findById(Number(req.params.id));
       if (!transito) {
         return next(
-          ErrorGenerator.generateError(ApplicationErrorTypes.RESOURCE_NOT_FOUND, 'Transito non trovato')
+          ErrorGenerator.generateError(
+            ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+            'Transito non trovato'
+          )
         );
       }
       res.status(200).json(transito);
     } catch (error) {
-      next(ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero del transito'));
-    }
-  }
-
-  // Aggiornamento di un transito
-  async updateTransito(req: Request, res: Response, next: NextFunction) {
-    try {
-      const success = await TransitoRepository.update(Number(req.params.id), req.body);
-      if (success) {
-        const transitoAggiornato = await TransitoRepository.findById(Number(req.params.id));
-        return res.status(200).json(transitoAggiornato);
-      } else {
-        return next(
-          ErrorGenerator.generateError(ApplicationErrorTypes.RESOURCE_NOT_FOUND, 'Transito non trovato')
-        );
-      }
-    } catch (error) {
       if (error instanceof Error) {
-        next(ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, `Errore nell'aggiornamento del transito: ${error.message}`));
+        next(
+          ErrorGenerator.generateError(
+            ApplicationErrorTypes.SERVER_ERROR,
+            `Errore nel recupero del transito: ${error.message}`
+          )
+        );
       } else {
-        next(ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore sconosciuto durante l\'aggiornamento del transito'));
+        next(
+          ErrorGenerator.generateError(
+            ApplicationErrorTypes.SERVER_ERROR,
+            'Errore sconosciuto nel recupero del transito'
+          )
+        );
       }
     }
   }
@@ -71,11 +80,28 @@ class TransitoController {
         return res.status(204).send();
       } else {
         return next(
-          ErrorGenerator.generateError(ApplicationErrorTypes.RESOURCE_NOT_FOUND, 'Transito non trovato')
+          ErrorGenerator.generateError(
+            ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+            'Transito non trovato'
+          )
         );
       }
     } catch (error) {
-      next(ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore durante l\'eliminazione del transito'));
+      if (error instanceof Error) {
+        next(
+          ErrorGenerator.generateError(
+            ApplicationErrorTypes.SERVER_ERROR,
+            `Errore durante l'eliminazione del transito: ${error.message}`
+          )
+        );
+      } else {
+        next(
+          ErrorGenerator.generateError(
+            ApplicationErrorTypes.SERVER_ERROR,
+            "Errore sconosciuto durante l'eliminazione del transito"
+          )
+        );
+      }
     }
   }
 
@@ -83,20 +109,41 @@ class TransitoController {
   async exitTransito(req: Request, res: Response, next: NextFunction) {
     try {
       const transitoId = Number(req.params.id);
-      const dataOraUscita = new Date();
+      const { id_varco_uscita } = req.body; // Prendi il varco di uscita dal body
 
-      const transitoAggiornato = await TransitoRepository.aggiornaTransitoConImporto(transitoId, dataOraUscita);
+      const dataOraUscita = new Date(); // Ora corrente per l'uscita
+
+      const transitoAggiornato = await TransitoRepository.updateUscita(
+        transitoId,
+        id_varco_uscita,
+        dataOraUscita
+      );
 
       if (!transitoAggiornato) {
-        return next(ErrorGenerator.generateError(ApplicationErrorTypes.RESOURCE_NOT_FOUND, 'Transito non trovato'));
+        return next(
+          ErrorGenerator.generateError(
+            ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+            'Transito non trovato'
+          )
+        );
       }
 
       res.status(200).json(transitoAggiornato);
     } catch (error) {
       if (error instanceof Error) {
-        next(ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, `Errore durante l'uscita del veicolo: ${error.message}`));
+        next(
+          ErrorGenerator.generateError(
+            ApplicationErrorTypes.SERVER_ERROR,
+            `Errore durante l'uscita del veicolo: ${error.message}`
+          )
+        );
       } else {
-        next(ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore sconosciuto durante l\'uscita del veicolo'));
+        next(
+          ErrorGenerator.generateError(
+            ApplicationErrorTypes.SERVER_ERROR,
+            "Errore sconosciuto durante l'uscita del veicolo"
+          )
+        );
       }
     }
   }
