@@ -33,17 +33,15 @@ class TransitoDao {
             }
         });
     }
-    findById(id) {
+    findById(id, options) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const transito = yield transito_1.default.findByPk(id, {
-                    include: [
+                const transito = yield transito_1.default.findByPk(id, Object.assign(Object.assign({}, options), { include: [
                         { model: veicolo_1.default, as: 'veicolo' },
                         { model: varco_1.default, as: 'varcoIngresso' },
                         { model: varco_1.default, as: 'varcoUscita' },
                         { model: tariffa_1.default, as: 'tariffa' },
-                    ],
-                });
+                    ] }));
                 if (!transito) {
                     throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, `Il transito con id ${id} è inesistente`);
                 }

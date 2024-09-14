@@ -2,7 +2,8 @@ import transitoDao from '../dao/transitoDao';
 import veicoloDao from '../dao/veicoloDao';
 import parcheggioDao from '../dao/parcheggioDao';
 import varcoDao from '../dao/varcoDao';
-import {
+import tariffaDao from '../dao/tariffaDao';
+import Transito, {
   TransitoAttributes,
   TransitoCreationAttributes,
 } from '../models/transito';
@@ -15,20 +16,9 @@ class TransitoRepository {
   private sequelize: Sequelize;
 
   constructor() {
-    this.sequelize = Database.getInstance(); // Recupero dell'istanza del database
+    this.sequelize = Database.getInstance();
   }
 
-  /**
-   * Creazione di un transito in ingresso.
-   * Nel transito in ingresso non viene fornito il varco di uscita né la tariffa, poiché saranno calcolati al momento dell'uscita.
-   * Se il veicolo non è presente nel database, viene creato automaticamente.
-   *
-   * @param transitoData - Dati del nuovo transito (solo ingresso)
-   * @param targa - La targa del veicolo che entra
-   * @param id_tipo_veicolo - Il tipo del veicolo
-   * @param id_utente - L'utente a cui è associato il veicolo
-   * @returns Il transito creato
-   */
   public async create(
     transitoData: Omit<TransitoCreationAttributes, 'id_posto'>,
     targa: string,
@@ -38,11 +28,9 @@ class TransitoRepository {
     const transaction = await this.sequelize.transaction();
 
     try {
-      // Verifica se il veicolo esiste tramite la targa, altrimenti crealo
       let veicolo = await veicoloDao.findByTarga(targa);
 
       if (!veicolo) {
-        // Crea il veicolo se non esiste
         veicolo = await veicoloDao.create({
           targa: targa,
           id_tipo_veicolo: id_tipo_veicolo,
@@ -50,7 +38,6 @@ class TransitoRepository {
         });
       }
 
-      // Verifica esistenza varco di ingresso
       const varcoIngresso = await varcoDao.findById(
         transitoData.id_varco_ingresso
       );
@@ -62,7 +49,6 @@ class TransitoRepository {
         );
       }
 
-      // Recupera il parcheggio associato al varco di ingresso
       const parcheggio = await parcheggioDao.findById(
         varcoIngresso.id_parcheggio
       );
@@ -74,7 +60,6 @@ class TransitoRepository {
         );
       }
 
-      // Verifica se ci sono posti disponibili
       if (parcheggio.posti_disponibili <= 0) {
         throw ErrorGenerator.generateError(
           ApplicationErrorTypes.INVALID_INPUT,
@@ -82,11 +67,9 @@ class TransitoRepository {
         );
       }
 
-      // Decrementa posti_disponibili
       parcheggio.posti_disponibili -= 1;
       await parcheggio.save({ transaction });
 
-      // Creazione del nuovo transito con solo ingresso
       const nuovoTransito = await transitoDao.create(
         {
           ...transitoData,
@@ -96,10 +79,10 @@ class TransitoRepository {
         transaction
       );
 
-      await transaction.commit(); // Commit della transazione
+      await transaction.commit();
       return nuovoTransito;
     } catch (error) {
-      await transaction.rollback(); // Rollback della transazione in caso di errore
+      await transaction.rollback();
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
         'Errore durante la creazione del transito'
@@ -107,14 +90,6 @@ class TransitoRepository {
     }
   }
 
-  /**
-   * Aggiornamento di un transito con varco di uscita e calcolo della tariffa dinamica.
-   *
-   * @param transitoId - L'ID del transito da aggiornare
-   * @param varcoUscitaId - L'ID del varco di uscita
-   * @param dataOraUscita - La data e ora di uscita
-   * @returns Il transito aggiornato con l'importo calcolato
-   */
   public async updateUscita(
     transitoId: number,
     varcoUscitaId: number,
@@ -123,7 +98,8 @@ class TransitoRepository {
     const transaction = await this.sequelize.transaction();
 
     try {
-      const transito = await this.findById(transitoId);
+      // Recupera il transito
+      const transito = (await this.findById(transitoId)) as Transito;
 
       if (!transito) {
         throw ErrorGenerator.generateError(
@@ -132,7 +108,14 @@ class TransitoRepository {
         );
       }
 
-      // Verifica esistenza varco di uscita
+      // **Controllo per verificare se il transito è già stato chiuso**
+      if (transito.uscita) {
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.INVALID_INPUT,
+          `Il transito con id ${transitoId} è già stato chiuso`
+        );
+      }
+
       const varcoUscita = await varcoDao.findById(varcoUscitaId);
 
       if (!varcoUscita) {
@@ -142,7 +125,6 @@ class TransitoRepository {
         );
       }
 
-      // Recupera il parcheggio associato al varco di uscita
       const parcheggio = await parcheggioDao.findById(
         varcoUscita.id_parcheggio
       );
@@ -154,28 +136,70 @@ class TransitoRepository {
         );
       }
 
-      // Incrementa posti_disponibili
+      // Incrementa i posti disponibili e salva il parcheggio
       parcheggio.posti_disponibili += 1;
       await parcheggio.save({ transaction });
 
-      // Calcolo dell'importo basato sulla durata e sulla tariffa dinamica
+      // Recupera il veicolo associato al transito
+      const veicolo = await veicoloDao.findById(transito.id_veicolo);
+      if (!veicolo) {
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+          'Veicolo non trovato per il transito'
+        );
+      }
+      const idTipoVeicolo = veicolo.id_tipo_veicolo;
+
+      // Trova la tariffa appropriata
+      const tariffa = await tariffaDao.findOne({
+        where: {
+          id_tipo_veicolo: idTipoVeicolo,
+          fascia_oraria: TransitoService.determinaFasciaOraria(dataOraUscita),
+          feriale_festivo:
+            TransitoService.determinaFerialeFestivo(dataOraUscita),
+          id_parcheggio: varcoUscita.id_parcheggio,
+        },
+      });
+
+      if (!tariffa) {
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+          'Tariffa non disponibile per questo transito'
+        );
+      }
+
+      // Calcolo dell'importo
       const importo = await TransitoService.calcolaImporto(
         transitoId,
         dataOraUscita
       );
 
-      // Aggiornamento del transito con il varco di uscita, la data di uscita e l'importo calcolato
-      const updateData = {
-        id_varco_uscita: varcoUscitaId,
-        uscita: dataOraUscita,
-        importo, // Importo calcolato dinamicamente
-      };
-
-      await transitoDao.update(transitoId, updateData, transaction);
+      // Aggiorna il transito con tutte le informazioni
+      await transitoDao.update(
+        transitoId,
+        {
+          id_tariffa: tariffa.id,
+          id_varco_uscita: varcoUscitaId,
+          uscita: dataOraUscita,
+          importo,
+        },
+        transaction
+      );
 
       await transaction.commit();
-      return { ...transito, ...updateData }; // Restituisce il transito aggiornato
+
+      return {
+        id: transito.id,
+        ingresso: transito.ingresso,
+        uscita: dataOraUscita,
+        id_veicolo: transito.id_veicolo,
+        id_varco_ingresso: transito.id_varco_ingresso,
+        id_varco_uscita: varcoUscitaId,
+        id_tariffa: tariffa.id,
+        importo: importo,
+      };
     } catch (error) {
+      console.error("Errore durante l'uscita del veicolo:", error);
       await transaction.rollback();
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
@@ -184,15 +208,9 @@ class TransitoRepository {
     }
   }
 
-  /**
-   * Recupera un transito per ID.
-   *
-   * @param id - L'ID del transito da recuperare
-   * @returns Il transito trovato
-   */
-  public async findById(id: number): Promise<TransitoAttributes | null> {
+  public async findById(id: number): Promise<Transito> {
     try {
-      const transito = await transitoDao.findById(id);
+      const transito = (await transitoDao.findById(id)) as Transito;
 
       if (!transito) {
         throw ErrorGenerator.generateError(
@@ -210,12 +228,6 @@ class TransitoRepository {
     }
   }
 
-  /**
-   * Cancella un transito per ID.
-   *
-   * @param id - L'ID del transito da eliminare
-   * @returns true se l'eliminazione è avvenuta correttamente, false altrimenti
-   */
   public async delete(id: number): Promise<boolean> {
     const transaction = await this.sequelize.transaction();
 

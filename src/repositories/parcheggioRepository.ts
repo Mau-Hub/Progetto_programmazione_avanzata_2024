@@ -1,6 +1,7 @@
 import ParcheggioDao from '../dao/parcheggioDao';
 import Parcheggio from '../models/parcheggio';
 import Varco from '../models/varco';
+import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
 
 interface ParcheggioData {
   nome: string;
@@ -10,32 +11,41 @@ interface ParcheggioData {
 
 class ParcheggioRepository {
   async create(data: ParcheggioData): Promise<Parcheggio> {
-    const { nome, capacita, varchi } = data;
+    try {
+      const { nome, capacita, varchi } = data;
+      const nuovoParcheggio = await ParcheggioDao.create({
+        nome,
+        capacita,
+        posti_disponibili: capacita,
+      });
 
-    // Crea il nuovo parcheggio tramite DAO, id sarà generato automaticamente
-    const nuovoParcheggio = await ParcheggioDao.create({ nome, capacita });
+      if (varchi && varchi.length > 0) {
+        await Promise.all(
+          varchi.map((varco) =>
+            Varco.create({
+              tipo: varco.tipo,
+              bidirezionale: varco.bidirezionale,
+              id_parcheggio: nuovoParcheggio.id,
+            })
+          )
+        );
+      }
 
-    // Se ci sono varchi, li crea e li associa al parcheggio
-    if (varchi && varchi.length > 0) {
-      await Promise.all(
-        varchi.map((varco) =>
-          Varco.create({
-            tipo: varco.tipo,
-            bidirezionale: varco.bidirezionale,
-            id_parcheggio: nuovoParcheggio.id, // Associa i varchi al parcheggio appena creato
-          })
-        )
+      const parcheggioConVarchi = await ParcheggioDao.findById(
+        nuovoParcheggio.id
+      );
+      if (!parcheggioConVarchi) {
+        throw new Error('Parcheggio non trovato');
+      }
+
+      return parcheggioConVarchi;
+    } catch (error) {
+      console.error('Errore durante la creazione del parcheggio:', error);
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        'Errore durante la creazione del parcheggio'
       );
     }
-
-    // Ritorna il parcheggio con i varchi associati
-    const parcheggioConVarchi = await ParcheggioDao.findById(
-      nuovoParcheggio.id
-    );
-    if (!parcheggioConVarchi) {
-      throw new Error('Parcheggio non trovato');
-    }
-    return parcheggioConVarchi;
   }
 
   async findById(id: number): Promise<Parcheggio | null> {

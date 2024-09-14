@@ -45,6 +45,7 @@ class ParcheggioDao {
                 return yield parcheggio_1.Parcheggio.create(item);
             }
             catch (error) {
+                console.error('Errore durante la creazione del parcheggio nel DAO:', error); // Log dettagliato
                 throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore durante la creazione del parcheggio');
             }
         });

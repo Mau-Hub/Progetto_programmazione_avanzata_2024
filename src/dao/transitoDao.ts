@@ -9,8 +9,9 @@ import {
   TransitoCreationAttributes,
 } from '../models/transito';
 import { Transaction } from 'sequelize';
+import { IncludeOptions } from 'sequelize';
 
-class TransitoDao implements DaoI<TransitoAttributes, number> {
+class TransitoDao implements DaoI<Transito, number> {
   public async findAll(options?: any): Promise<Transito[]> {
     try {
       return await Transito.findAll({
@@ -30,9 +31,13 @@ class TransitoDao implements DaoI<TransitoAttributes, number> {
     }
   }
 
-  public async findById(id: number): Promise<Transito | null> {
+  public async findById(
+    id: number,
+    options?: { include?: IncludeOptions[] }
+  ): Promise<Transito | null> {
     try {
       const transito = await Transito.findByPk(id, {
+        ...options,
         include: [
           { model: Veicolo, as: 'veicolo' },
           { model: Varco, as: 'varcoIngresso' },

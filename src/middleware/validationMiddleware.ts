@@ -118,7 +118,6 @@ const validateTariffa = (req: Request, res: Response, next: NextFunction) => {
     id_tipo_veicolo,
     importo,
     fascia_oraria,
-    giorno_settimana,
     id_parcheggio,
     id_utente,
     feriale_festivo,
@@ -159,25 +158,6 @@ const validateTariffa = (req: Request, res: Response, next: NextFunction) => {
     );
   }
 
-  // Verifica che 'giorno_settimana' sia valido
-  const validiGiorniSettimana = [
-    'LUNEDI',
-    'MARTEDI',
-    'MERCOLEDI',
-    'GIOVEDI',
-    'VENERDI',
-    'SABATO',
-    'DOMENICA',
-  ];
-  if (!validiGiorniSettimana.includes(giorno_settimana)) {
-    return next(
-      ErrorGenerator.generateError(
-        ApplicationErrorTypes.INVALID_INPUT,
-        `'giorno_settimana' non valido. Valori ammessi: ${validiGiorniSettimana.join(', ')}`
-      )
-    );
-  }
-
   // Verifica che 'id_parcheggio' sia un numero intero positivo
   if (
     !id_parcheggio ||
@@ -189,21 +169,6 @@ const validateTariffa = (req: Request, res: Response, next: NextFunction) => {
       ErrorGenerator.generateError(
         ApplicationErrorTypes.MALFORMED_ID,
         "'id_parcheggio' è obbligatorio e deve essere un numero intero positivo"
-      )
-    );
-  }
-
-  // Verifica che 'id_utente' sia un numero intero positivo
-  if (
-    !id_utente ||
-    typeof id_utente !== 'number' ||
-    !Number.isInteger(id_utente) ||
-    id_utente <= 0
-  ) {
-    return next(
-      ErrorGenerator.generateError(
-        ApplicationErrorTypes.MALFORMED_ID,
-        "'id_utente' è obbligatorio e deve essere un numero intero positivo"
       )
     );
   }

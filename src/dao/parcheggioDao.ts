@@ -1,5 +1,8 @@
 import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
-import { ParcheggioAttributes, ParcheggioCreationAttributes } from '../models/parcheggio';
+import {
+  ParcheggioAttributes,
+  ParcheggioCreationAttributes,
+} from '../models/parcheggio';
 import { Parcheggio } from '../models/parcheggio';
 import { DaoI } from './DaoI';
 
@@ -42,6 +45,10 @@ class ParcheggioDao implements DaoI<ParcheggioAttributes, number> {
     try {
       return await Parcheggio.create(item);
     } catch (error) {
+      console.error(
+        'Errore durante la creazione del parcheggio nel DAO:',
+        error
+      ); // Log dettagliato
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
         'Errore durante la creazione del parcheggio'
@@ -50,7 +57,10 @@ class ParcheggioDao implements DaoI<ParcheggioAttributes, number> {
   }
 
   // Metodo per aggiornare un parcheggio
-  public async update(id: number, item: ParcheggioCreationAttributes): Promise<boolean> {
+  public async update(
+    id: number,
+    item: ParcheggioCreationAttributes
+  ): Promise<boolean> {
     try {
       const [affectedCount] = await Parcheggio.update(item, {
         where: { id },

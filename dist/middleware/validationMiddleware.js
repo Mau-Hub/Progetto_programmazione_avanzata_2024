@@ -52,7 +52,7 @@ const validateVarco = (req, res, next) => {
     next();
 };
 const validateTariffa = (req, res, next) => {
-    const { id_tipo_veicolo, importo, fascia_oraria, giorno_settimana, id_parcheggio, id_utente, feriale_festivo, } = req.body;
+    const { id_tipo_veicolo, importo, fascia_oraria, id_parcheggio, id_utente, feriale_festivo, } = req.body;
     // Verifica che l'id del tipi di veicolo sia un numero intero positivo
     if (!id_tipo_veicolo ||
         typeof id_tipo_veicolo !== 'number' ||
@@ -68,32 +68,12 @@ const validateTariffa = (req, res, next) => {
     if (!['DIURNA', 'NOTTURNA'].includes(fascia_oraria)) {
         return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, "'fascia_oraria' deve essere 'DIURNA' o 'NOTTURNA'"));
     }
-    // Verifica che 'giorno_settimana' sia valido
-    const validiGiorniSettimana = [
-        'LUNEDI',
-        'MARTEDI',
-        'MERCOLEDI',
-        'GIOVEDI',
-        'VENERDI',
-        'SABATO',
-        'DOMENICA',
-    ];
-    if (!validiGiorniSettimana.includes(giorno_settimana)) {
-        return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, `'giorno_settimana' non valido. Valori ammessi: ${validiGiorniSettimana.join(', ')}`));
-    }
     // Verifica che 'id_parcheggio' sia un numero intero positivo
     if (!id_parcheggio ||
         typeof id_parcheggio !== 'number' ||
         !Number.isInteger(id_parcheggio) ||
         id_parcheggio <= 0) {
         return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.MALFORMED_ID, "'id_parcheggio' è obbligatorio e deve essere un numero intero positivo"));
-    }
-    // Verifica che 'id_utente' sia un numero intero positivo
-    if (!id_utente ||
-        typeof id_utente !== 'number' ||
-        !Number.isInteger(id_utente) ||
-        id_utente <= 0) {
-        return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.MALFORMED_ID, "'id_utente' è obbligatorio e deve essere un numero intero positivo"));
     }
     // Verifica che 'feriale_festivo' sia valido
     if (!['FERIALE', 'FESTIVO'].includes(feriale_festivo)) {

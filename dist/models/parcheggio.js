@@ -35,9 +35,4 @@ Parcheggio.init({
     sequelize,
     timestamps: true,
 });
-// Hook per inizializzare posti_disponibili
-Parcheggio.beforeCreate((parcheggio, options) => {
-    parcheggio.posti_disponibili = parcheggio.capacita;
-});
-// Esporta il modello e le interfacce
 exports.default = Parcheggio;
