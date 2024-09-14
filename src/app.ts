@@ -6,6 +6,7 @@ import { errorHandler } from './middleware/errorHandler';
 import { authenticationMiddleware } from './middleware/authenticationMiddleware';
 import tariffaRoutes from './routes/tariffeRoutes';
 import transitoRoutes from './routes/transitoRoutes';
+import exportRoutes from './routes/exportRoutes';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -31,6 +32,7 @@ app.use('/api', parcheggioRoutes);
 app.use('/api', varcoRoutes);
 app.use('/api', tariffaRoutes);
 app.use('/api', transitoRoutes);
+app.use('/api', exportRoutes);
 
 // Middleware per la gestione degli errori
 app.use(errorHandler);
