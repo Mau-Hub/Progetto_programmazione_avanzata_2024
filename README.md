@@ -39,6 +39,33 @@ Il diagramma dei casi d'uso mostra i tre attori principali: **Automobilista**, *
 Infine il varco può solo inserire i transiti in ingresso che quelli in uscita. 
 In figura è mostrato il diagramma:
 
+graph TD
+    subgraph Utente Operatore
+        Operatore(fa:fa-user Operatore) ---|Gestione| GestioneParcheggiVarchi([fa:fa-folder-open Gestione_Parcheggi_e_Varchi])
+        Operatore ---|Gestione| GestioneTariffe([fa:fa-folder-open Gestione_Tariffe])
+        Operatore ---|Gestione| GestioneTransiti([fa:fa-folder-open Gestione_Transiti])
+
+        GestioneTransiti ---|Inserimento| InserimentoTransiti([fa:fa-car Inserimento_Transiti])
+        GestioneTransiti ---|Visualizza| VisualizzazioneTransiti([fa:fa-eye Visualizzazione_Transiti])
+        GestioneTransiti ---|Aggiorna| AggiornamentoTransiti([fa:fa-edit Aggiornamento_Transiti])
+        GestioneTransiti ---|Elimina| EliminazioneTransiti([fa:fa-trash Eliminazione_Transiti])
+
+        Operatore ---|Genera| GenerazioneFattura([fa:fa-file-invoice-dollar Generazione_Fattura])
+
+        Operatore ---|Visualizza| StatisticheFatturato([fa:fa-chart-line Statistiche_Fatturato_Parcheggio])
+        Operatore ---|Visualizza| StatistichePostiLiberi([fa:fa-chart-bar Statistiche_Posti_Liberi])
+
+        StatisticheFatturato ---|Dettagli| DettagliFatturatoParcheggio([fa:fa-chart-line Dettagli_Fatturato_Parcheggio])
+        StatistichePostiLiberi ---|Dettagli| DettagliTransitiParcheggio([fa:fa-chart-line Dettagli_Transiti_Parcheggio])
+    end
+
+    subgraph Utente Automobilista
+        Automobilista(fa:fa-car Automobilista) ---|Visualizza| VisualizzazioneTransitiAutomobilista([fa:fa-eye Visualizzazione_Stato_Transiti])
+        Automobilista ---|Esporta| EsportazioneTransiti([fa:fa-file-export Esportazione_Transiti_CSV_PDF])
+    end
+
+    Varco(fa:fa-road Varco) ---|Inserimento| InserimentoTransiti
+
 
 ### 3.2 Diagramma ER
 Il diagramma ER rappresenta un sistema di gestione parcheggi basato su Postgres.
