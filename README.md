@@ -68,18 +68,18 @@ In figura è mostrato il diagramma ER:
 ### 3.5 Struttura delle Directory
 L’architettura dei servizi determina la configurazione complessiva del progetto. La struttura del progetto include i seguenti componenti:
 
-progetto
+progetto/
 ├── src/
-│   ├── config/
-│   ├── controllers/
-│   ├── dao/
-│   ├── db/
-│   ├── ext/
-│   ├── middleware/
-│   ├── models/
-│   ├── repositories/
-│   ├── routes/
-│   └── app.ts
+├── config/
+├── controllers/
+├── dao/
+├── db/
+├── ext/
+├── middleware/
+├── models/
+├── repositories/
+├── routes/
+├── app.ts
 ├── .dockerignore
 ├── .env
 ├── docker-compose.yml
