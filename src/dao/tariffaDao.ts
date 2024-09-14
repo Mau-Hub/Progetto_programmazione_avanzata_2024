@@ -1,12 +1,16 @@
 import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
-import Tariffa, { TariffaAttributes, TariffaCreationAttributes } from '../models/tariffa';
+import Tariffa, {
+  TariffaAttributes,
+  TariffaCreationAttributes,
+} from '../models/tariffa';
 import TipoVeicolo from '../models/tipoVeicolo';
 import Parcheggio from '../models/parcheggio';
 import { DaoI } from './DaoI';
+import { FindOptions } from 'sequelize';
 
 // Creazione tariffa
 class TariffaDao implements DaoI<TariffaAttributes, number> {
-
+  // Creare una nuova tariffa
   public async create(item: TariffaCreationAttributes): Promise<Tariffa> {
     try {
       const tariffa = await Tariffa.create(item);
@@ -49,6 +53,31 @@ class TariffaDao implements DaoI<TariffaAttributes, number> {
     }
   }
 
+  // Trovare una tariffa con criteri personalizzati
+  public async findOne(options: FindOptions): Promise<Tariffa | null> {
+    try {
+      const tariffa = await Tariffa.findOne(options);
+
+      // Se non trovi la tariffa, puoi decidere se lanciare un errore o restituire null.
+      if (!tariffa) {
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+          'Tariffa non trovata per i criteri specificati'
+        );
+      }
+
+      return tariffa;
+    } catch (error) {
+      // Questo cattura errori inaspettati come problemi di connessione al DB.
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        `Errore durante la ricerca della tariffa: ${
+          error instanceof Error ? error.message : 'Errore sconosciuto'
+        }`
+      );
+    }
+  }
+
   // Ottenere tutte le tariffe
   public async findAll(): Promise<Tariffa[]> {
     try {
@@ -70,7 +99,10 @@ class TariffaDao implements DaoI<TariffaAttributes, number> {
   }
 
   // Aggiornare una tariffa
-  public async update(id: number, item: Partial<TariffaAttributes>): Promise<boolean> {
+  public async update(
+    id: number,
+    item: Partial<TariffaAttributes>
+  ): Promise<boolean> {
     try {
       const result = await Tariffa.update(item, {
         where: { id },

@@ -7,8 +7,6 @@ CREATE TYPE tipo_enum AS ENUM ('INGRESSO', 'USCITA');
 -- Definisce il tipo ENUM per la colonna "fascia_oraria" nella tabella "Tariffe"
 CREATE TYPE fascia_oraria_enum AS ENUM ('DIURNA', 'NOTTURNA');
 
--- Definisce il tipo ENUM per la colonna "giorno_settimana" nella tabella "Tariffe"
-CREATE TYPE giorno_settimana_enum AS ENUM ('LUNEDI', 'MARTEDI', 'MERCOLEDI', 'GIOVEDI', 'VENERDI', 'SABATO', 'DOMENICA');
 
 -- Definisce il tipo ENUM per la colonna "feriale_festivo" nella tabella "Tariffe"
 CREATE TYPE feriale_festivo_enum AS ENUM ('FERIALE', 'FESTIVO');
@@ -143,7 +141,8 @@ INSERT INTO "Varco" ("tipo", "bidirezionale", "id_parcheggio", "createdAt", "upd
 INSERT INTO "Tariffe" ("id_tipo_veicolo", "importo", "fascia_oraria", "feriale_festivo", "id_parcheggio", "createdAt", "updatedAt") VALUES
 (1, 2.5, 'DIURNA', 'FERIALE', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
 (2, 1.5, 'DIURNA', 'FESTIVO', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(1, 3.0, 'NOTTURNA', 'FERIALE', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+(1, 3.0, 'NOTTURNA', 'FERIALE', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+(2, 5.0, 'NOTTURNA', 'FERIALE', 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 
 -- Transiti di esempio

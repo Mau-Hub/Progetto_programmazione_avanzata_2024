@@ -14,26 +14,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const parcheggioDao_1 = __importDefault(require("../dao/parcheggioDao"));
 const varco_1 = __importDefault(require("../models/varco"));
+const errorFactory_1 = require("../ext/errorFactory");
 class ParcheggioRepository {
     create(data) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { nome, capacita, varchi } = data;
-            // Crea il nuovo parcheggio tramite DAO, id sarà generato automaticamente
-            const nuovoParcheggio = yield parcheggioDao_1.default.create({ nome, capacita });
-            // Se ci sono varchi, li crea e li associa al parcheggio
-            if (varchi && varchi.length > 0) {
-                yield Promise.all(varchi.map((varco) => varco_1.default.create({
-                    tipo: varco.tipo,
-                    bidirezionale: varco.bidirezionale,
-                    id_parcheggio: nuovoParcheggio.id, // Associa i varchi al parcheggio appena creato
-                })));
+            try {
+                const { nome, capacita, varchi } = data;
+                const nuovoParcheggio = yield parcheggioDao_1.default.create({
+                    nome,
+                    capacita,
+                    posti_disponibili: capacita,
+                });
+                if (varchi && varchi.length > 0) {
+                    yield Promise.all(varchi.map((varco) => varco_1.default.create({
+                        tipo: varco.tipo,
+                        bidirezionale: varco.bidirezionale,
+                        id_parcheggio: nuovoParcheggio.id,
+                    })));
+                }
+                const parcheggioConVarchi = yield parcheggioDao_1.default.findById(nuovoParcheggio.id);
+                if (!parcheggioConVarchi) {
+                    throw new Error('Parcheggio non trovato');
+                }
+                return parcheggioConVarchi;
             }
-            // Ritorna il parcheggio con i varchi associati
-            const parcheggioConVarchi = yield parcheggioDao_1.default.findById(nuovoParcheggio.id);
-            if (!parcheggioConVarchi) {
-                throw new Error('Parcheggio non trovato');
+            catch (error) {
+                console.error('Errore durante la creazione del parcheggio:', error);
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore durante la creazione del parcheggio');
             }
-            return parcheggioConVarchi;
         });
     }
     findById(id) {

@@ -1,48 +1,35 @@
-import Transito from '../models/transito';
-import Tariffa from '../models/tariffa';
-import { getGiornoSettimanaString } from '../ext/dateUtils';
+import tariffaDao from '../dao/tariffaDao';
 import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
+import varcoDao from '../dao/varcoDao';
+import transitoDao from '../dao/transitoDao';
+import Veicolo from '../models/veicolo';
 
 class TransitoService {
-  /**
-   * Calcola la durata del transito in ore.
-   *
-   * @param ingresso - Data e ora di ingresso
-   * @param uscita - Data e ora di uscita
-   * @returns La durata in ore
-   */
   public calcolaDurataInOre(ingresso: Date, uscita: Date): number {
     const durataInMs = uscita.getTime() - ingresso.getTime();
-    return durataInMs / (1000 * 60 * 60); // Durata in ore
+    return durataInMs / (1000 * 60 * 60);
   }
 
-  /**
-   * Determina se un giorno è festivo o feriale.
-   *
-   * @param giornoSettimana - Stringa rappresentante il giorno della settimana
-   * @returns 'FERIALE' o 'FESTIVO'
-   */
-  public determinaFerialeFestivo(
-    giornoSettimana: string
-  ): 'FERIALE' | 'FESTIVO' {
-    return giornoSettimana === 'SABATO' || giornoSettimana === 'DOMENICA'
+  public determinaFerialeFestivo(data: Date): 'FERIALE' | 'FESTIVO' {
+    const giornoSettimana = data.getDay();
+    return giornoSettimana === 0 || giornoSettimana === 6 // Domenica o Sabato
       ? 'FESTIVO'
       : 'FERIALE';
   }
 
-  /**
-   * Calcola l'importo basato sulla tariffa e la durata del transito.
-   *
-   * @param transitoId - L'ID del transito da cui calcolare
-   * @param dataOraUscita - Data e ora di uscita
-   * @returns L'importo calcolato
-   */
+  public determinaFasciaOraria(data: Date): 'DIURNA' | 'NOTTURNA' {
+    const ora = data.getHours();
+    return ora >= 8 && ora < 20 ? 'DIURNA' : 'NOTTURNA';
+  }
+
   async calcolaImporto(
     transitoId: number,
     dataOraUscita: Date
   ): Promise<number> {
     try {
-      const transito = await Transito.findByPk(transitoId);
+      const transito = await transitoDao.findById(transitoId, {
+        include: [{ model: Veicolo, as: 'veicolo' }],
+      });
 
       if (!transito) {
         throw ErrorGenerator.generateError(
@@ -51,55 +38,75 @@ class TransitoService {
         );
       }
 
-      // Controlla che id_tariffa non sia null prima di procedere
-      if (transito.id_tariffa === null) {
+      // Inserisci qui il controllo per transito.veicolo
+      if (!transito.veicolo) {
         throw ErrorGenerator.generateError(
-          ApplicationErrorTypes.INVALID_INPUT,
-          'La tariffa non è disponibile per questo transito'
+          ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+          'Veicolo associato al transito non trovato'
         );
       }
 
-      // Recupera la tariffa dal TariffaRepository
-      const tariffa = await Tariffa.findByPk(transito.id_tariffa);
+      // Ora puoi accedere a transito.veicolo.id_tipo_veicolo senza errori
+      const idTipoVeicolo = transito.veicolo.id_tipo_veicolo;
+
+      const varcoIngresso = await varcoDao.findById(transito.id_varco_ingresso);
+
+      if (!varcoIngresso) {
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+          'Varco di ingresso non trovato'
+        );
+      }
+
+      // Determina la fascia oraria e il giorno per ingresso e uscita
+      const fasciaOrariaIngresso = this.determinaFasciaOraria(
+        transito.ingresso
+      );
+      const fasciaOrariaUscita = this.determinaFasciaOraria(dataOraUscita);
+      const giornoIngresso = this.determinaFerialeFestivo(transito.ingresso);
+      const giornoUscita = this.determinaFerialeFestivo(dataOraUscita);
+
+      const tariffa = await tariffaDao.findOne({
+        where: {
+          id_tipo_veicolo: idTipoVeicolo,
+          fascia_oraria: fasciaOrariaUscita, // Usando fascia oraria dell'uscita
+          feriale_festivo: giornoUscita, // Usando giorno dell'uscita
+          id_parcheggio: varcoIngresso.id_parcheggio,
+        },
+      });
 
       if (!tariffa) {
         throw ErrorGenerator.generateError(
           ApplicationErrorTypes.RESOURCE_NOT_FOUND,
-          'Tariffa non trovata'
+          'Tariffa non disponibile per questo transito'
         );
       }
 
-      // Calcolo della durata in ore
-      const durataInMs = dataOraUscita.getTime() - transito.ingresso.getTime();
-      const durataInOre = durataInMs / (1000 * 60 * 60);
+      // Aggiorna l'id_tariffa solo una volta
+      transito.id_tariffa = tariffa.id;
+      await transito.save();
 
-      // Funzione per determinare la fascia oraria in base all'orario
-      const determinaFasciaOraria = (data: Date): 'DIURNA' | 'NOTTURNA' => {
-        const ora = data.getHours();
-        return ora >= 8 && ora < 20 ? 'DIURNA' : 'NOTTURNA';
-      };
+      const durataInOre = this.calcolaDurataInOre(
+        transito.ingresso,
+        dataOraUscita
+      );
 
-      // Calcolo della tariffa per l'intervallo di ingresso e uscita
-      const fasciaIngresso = determinaFasciaOraria(transito.ingresso);
-      const fasciaUscita = determinaFasciaOraria(dataOraUscita);
-
+      // Usa la stessa tariffa per tutto il periodo se la tariffa è la stessa
       const importoOrarioIngresso =
-        tariffa.fascia_oraria === fasciaIngresso &&
-        tariffa.feriale_festivo ===
-          getGiornoSettimanaString(transito.ingresso.getDay())
+        tariffa.fascia_oraria === fasciaOrariaIngresso &&
+        tariffa.feriale_festivo === giornoIngresso
           ? tariffa.importo
           : 0;
 
       const importoOrarioUscita =
-        tariffa.fascia_oraria === fasciaUscita &&
-        tariffa.feriale_festivo ===
-          getGiornoSettimanaString(dataOraUscita.getDay())
+        tariffa.fascia_oraria === fasciaOrariaUscita &&
+        tariffa.feriale_festivo === giornoUscita
           ? tariffa.importo
           : 0;
 
-      // Calcolo dell'importo totale
       const importoTotale =
         (importoOrarioIngresso + importoOrarioUscita) * durataInOre;
+
       return importoTotale;
     } catch (error) {
       if (error instanceof Error) {

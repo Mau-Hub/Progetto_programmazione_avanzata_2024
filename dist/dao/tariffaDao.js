@@ -18,6 +18,7 @@ const tipoVeicolo_1 = __importDefault(require("../models/tipoVeicolo"));
 const parcheggio_1 = __importDefault(require("../models/parcheggio"));
 // Creazione tariffa
 class TariffaDao {
+    // Creare una nuova tariffa
     create(item) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -46,6 +47,23 @@ class TariffaDao {
             }
             catch (error) {
                 throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore durante il recupero della tariffa con ID ${id}: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`);
+            }
+        });
+    }
+    // Trovare una tariffa con criteri personalizzati
+    findOne(options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const tariffa = yield tariffa_1.default.findOne(options);
+                // Se non trovi la tariffa, puoi decidere se lanciare un errore o restituire null.
+                if (!tariffa) {
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, 'Tariffa non trovata per i criteri specificati');
+                }
+                return tariffa;
+            }
+            catch (error) {
+                // Questo cattura errori inaspettati come problemi di connessione al DB.
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore durante la ricerca della tariffa: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`);
             }
         });
     }

@@ -1,10 +1,8 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import Database from '../db/database';
-import Veicolo from './veicolo'; // Importa il modello Veicolo per la relazione
-import Varco from './varco'; // Importa il modello Varco per la relazione
-import Tariffa from './tariffa'; // Importa il modello Tariffa per la relazione
-import Posto from './posto'; // Importa il modello Posto per la relazione
-
+import Veicolo from './veicolo';
+import Varco from './varco';
+import Tariffa from './tariffa';
 const sequelize = Database.getInstance();
 
 // Definizione degli attributi del model Transito
@@ -17,6 +15,7 @@ export interface TransitoAttributes {
   id_varco_uscita: number | null;
   id_tariffa: number | null;
   importo: number | null;
+  veicolo?: Veicolo;
 }
 
 // Definizione dei campi opzionali per la creazione
@@ -52,6 +51,8 @@ class Transito
   public id_tariffa!: number | null;
 
   public importo!: number | null;
+
+  public readonly veicolo?: Veicolo;
 }
 
 // Inizializzazione del model Transito
