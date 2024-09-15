@@ -1,21 +1,22 @@
-# Progetto programmazione Avanzata A.A. 2023/2024 - Sistema di Gestione Parcheggi
+# Progetto esame programmazione Avanzata A.A. 2023/2024 
 
-## 1. Indice
-1. [Indice](#1-indice)
-2. [Obiettivo](#2-obiettivo)
-3. [Struttura del Progetto](#3-struttura-del-progetto)
-   - [3.1 Diagramma dei Casi d'Uso](#31-diagramma-dei-casi-duso)
-   - [3.2 Diagramma ER](#32-diagramma-er)
-   - [3.3 Pattern Utilizzati](#33-pattern-utilizzati)
-   - [3.4 Diagrammi delle Sequenze](#34-diagrammi-delle-sequenze)
-   - [3.5 Struttura delle Directory](#35-struttura-delle-directory)
-4. [API Routes](#4-api-routes)
-5. [Utilizzo](#5-utilizzo)
-6. [Strumenti Impiegati](#6-strumenti-impiegati)
-7. [Autori](#7-autori)
+## Indice
+1. [Indice](#indice)
+2. [Obiettivo](#obiettivo)
+3. [Struttura del Progetto](#struttura-del-progetto)
+   - [3.1 Diagramma dei Casi d'Uso](#diagramma-dei-casi-duso)
+   - [3.2 Diagramma ER](#diagramma-er)
+   - [3.3 Pattern Utilizzati](#pattern-utilizzati)
+   - [3.4 Diagrammi delle Sequenze](#diagrammi-delle-sequenze)
+   - [3.5 Struttura delle Directory](#struttura-delle-directory)
+4. [API Routes](Api-routes)
+5. [Utilizzo](#Utilizzo)
+6. [Strumenti Impiegati](#Strumenti-impiegati)
+7. [Autori](#Autori)
 
-## 2. Obiettivo
-Il sistema ha lo scopo di gestire il calcolo del costo dei parcheggi per veicoli di diverse tipologie, in base ai transiti tra varchi di ingresso e uscita. Ogni parcheggio può avere più varchi e i costi variano a seconda del tipo di veicolo, della fascia oraria e del giorno della settimana. Il sistema deve registrare i transiti (data, ora, targa, varco) e controllare la disponibilità dei posti, rifiutando l'ingresso se non ci sono spazi liberi.
+## Obiettivo
+Il sistema è progettoato per gestire il calcolo dei costi di parcheggio per autoveicoli di diverse categorie, basandosi sui transiti tra varchi di ingresso e uscita.
+Le caratteristiche principali includono che ogni parcheggio può avere più varchi e i costi variano a seconda del tipo di veicolo, della fascia oraria e del giorno della settimana. Il sistema deve registrare i transiti (data, ora, targa, varco) e controllare la disponibilità dei posti, rifiutando l'ingresso se non ci sono spazi liberi.
 
 Il progetto include funzionalità CRUD per la gestione di:
 
@@ -25,22 +26,54 @@ Il progetto include funzionalità CRUD per la gestione di:
 
 Il sistema prevede inoltre la creazione di rotte per:
 
-- Ottenere lo stato dei transiti in base alle targhe e a un intervallo temporale, con esportazione in formato CSV o PDF.
-- Generare statistiche per l'operatore, come il fatturato e il numero medio di posti liberi per fascia oraria.
+- Consultazione dello stato dei transiti filtrati in base alle targhe e a un intervallo temporale, con esportazione in formato CSV o PDF.
+- Generare statistiche per l'operatore, come il fatturato dei parcheggi e il numero medio di posti liberi per fascia oraria.
 - Fornire statistiche sui transiti distinti per tipologia di veicolo e fascia oraria.
 
-Tutte le rotte sono protette tramite autenticazione JWT, e l'applicazione è sviluppata in TypeScript.
+La sicurezza è garantita in tutte le rotte tramite autenticazione JWT, assicurando un accesso controllato e sicure alle funzionalità del sistema.
 
-## 3. Struttura del Progetto
-Il progetto è un back-end realizzato con Node.js e Express per gestire le API, utilizzando Sequelize per l'interazione con il database PostgreSQL. La struttura del codice è organizzata in moduli per controller, modelli, middleware e DAO, garantendo una gestione chiara e manutenibile delle varie funzionalità.
+## Struttura del Progetto
+Il progetto è  implementato come un'applicazione back-end impiegando tecnologie come:
+- Framework: Node.js e Express per gestire le API
+- ORM: Sequelize per l'interazione con il database
+- Database: PostgreSQL per la persistenza dei dati.
 
-### 3.1 Diagramma dei Casi d'Uso
+La struttura del codice è organizzata in moduli distinti:
+- Controllers: per la gestione della logica di business
+- Models: per la definizione della struttura dei dati
+- Middleware: per l'elaborazione delle richieste e l'autenticazione
+- DAO (Data Access Objects): per l'interazione con il database
+
+Questa struttura modulare facilita la manutenzione, la scalabilità e l'estensibilità del sistema, permettendo una gestione efficace delle diverse funzionalità richieste.
+
+L’architettura dei servizi determina la configurazione complessiva del progetto. La struttura del progetto include i seguenti componenti:
+
+```
+progetto
+├── src/
+│   ├── config/
+│   ├── controllers/
+│   ├── dao/
+│   ├── db/
+│   ├── ext/
+│   ├── middleware/
+│   ├── models/
+│   ├── repositories/
+│   ├── routes/
+│   └── app.ts
+├── .dockerignore
+├── .env
+├── docker-compose.yml
+└── Dockerfile
+```
+
+### Diagramma dei Casi d'Uso
 Il diagramma dei casi d'uso mostra i tre attori principali: **Automobilista**, **Varco** e **Operatore**. L'automobilista può visualizzare lo stato dei propri transiti e esportarli in formato CSV o PDF. L'operatore, invece, ha funzioni più ampie, come la gestione dei parcheggi, varchi e tariffe, l'inserimento e modifica dei transiti, e la generazione automatica delle fatture. L'operatore può inoltre visualizzare statistiche dettagliate sul fatturato e sui posti liberi dei parcheggi, con la possibilità di filtrare i dati per intervalli temporali e ottenere report in vari formati.
 Infine il varco può solo inserire i transiti in ingresso che quelli in uscita. 
 In figura è mostrato il diagramma:
 ![alt text](<immagini/diagramma dei casi d'uso.png>)
 
-### 3.2 Diagramma ER
+### Diagramma ER
 Il diagramma ER rappresenta un sistema di gestione parcheggi basato su Postgres.
 Gli **utenti** possono possedere veicoli, ricevere fatture e gestire parcheggi, varchi e tariffe. I **veicoli** sono associati agli utenti e classificati per tipo. I **parcheggi** hanno varchi e una capacità limitata, con **tariffe** variabili in base a tipologia di veicolo, giorno della settimana e fascia oraria.
 I **transiti** registrano il passaggio dei veicoli attraverso i varchi, includendo orari di ingresso/uscita e l'importo calcolato secondo la tariffa applicata. Le **fatture** sono generate per gli utenti in base ai transiti effettuati.
@@ -66,25 +99,6 @@ In figura è mostrato il diagramma ER:
 ### 3.4 Diagrammi delle Sequenze
 [Inserire qui una breve descrizione e i diagrammi delle sequenze principali]
 
-### 3.5 Struttura delle Directory
-L’architettura dei servizi determina la configurazione complessiva del progetto. La struttura del progetto include i seguenti componenti:
-
-progetto
-├── src/
-│   ├── config/
-│   ├── controllers/
-│   ├── dao/
-│   ├── db/
-│   ├── ext/
-│   ├── middleware/
-│   ├── models/
-│   ├── repositories/
-│   ├── routes/
-│   └── app.ts
-├── .dockerignore
-├── .env
-├── docker-compose.yml
-└── Dockerfile
 
 ## 4. API Routes
 
