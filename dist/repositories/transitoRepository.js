@@ -25,7 +25,7 @@ class TransitoRepository {
     constructor() {
         this.sequelize = database_1.default.getInstance();
     }
-    create(transitoData, targa, id_tipo_veicolo, id_utente) {
+    create(transitoData, targa, id_tipo_veicolo) {
         return __awaiter(this, void 0, void 0, function* () {
             const transaction = yield this.sequelize.transaction();
             try {
@@ -45,6 +45,10 @@ class TransitoRepository {
                     }, transaction);
                 }
                 else {
+                    // Se il veicolo esiste, controlla se l'id_tipo_veicolo è lo stesso
+                    if (veicolo.id_tipo_veicolo !== id_tipo_veicolo) {
+                        throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, `Il tipo di veicolo fornito (${id_tipo_veicolo}) non corrisponde al tipo di veicolo già registrato (${veicolo.id_tipo_veicolo}) per la targa ${targa}.`);
+                    }
                     // Verifica se esiste già un transito attivo per questo veicolo
                     const transitoAttivo = yield transitoDao_1.default.findOne({
                         where: {

@@ -16,9 +16,9 @@ class VeicoloDao implements DaoI<VeicoloAttributes, number> {
    *
    * @returns {Promise<Veicolo[]>} Promise che restituisce un array di veicoli.
    */
-  public async findAll(): Promise<Veicolo[]> {
+  public async findAll(options?: any): Promise<Veicolo[]> {
     try {
-      return await Veicolo.findAll();
+      return await Veicolo.findAll(options);
     } catch (error) {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,

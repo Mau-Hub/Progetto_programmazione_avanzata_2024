@@ -24,6 +24,7 @@ class TransitiExportController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { targhe, from, to, formato } = req.body;
+                const user = req.user;
                 console.log('Parametri ricevuti:', { targhe, from, to, formato });
                 if (!targhe || !from || !to) {
                     return res
@@ -31,7 +32,7 @@ class TransitiExportController {
                         .json({ message: 'Targhe, from e to sono richiesti' });
                 }
                 // Ottenere i transiti dal repository
-                const transiti = yield transitoExportRepository_1.default.findTransitiByTargheAndPeriodo(targhe, new Date(from), new Date(to));
+                const transiti = yield transitoExportRepository_1.default.findTransitiByTargheAndPeriodo(targhe, new Date(from), new Date(to), user.id, user.ruolo);
                 if (transiti.length === 0) {
                     return res
                         .status(404)

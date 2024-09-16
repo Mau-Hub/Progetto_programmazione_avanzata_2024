@@ -11,6 +11,7 @@ class TransitiExportController {
   public async exportTransiti(req: Request, res: Response, next: NextFunction) {
     try {
       const { targhe, from, to, formato } = req.body;
+      const user = (req as any).user;
       console.log('Parametri ricevuti:', { targhe, from, to, formato });
 
       if (!targhe || !from || !to) {
@@ -24,7 +25,9 @@ class TransitiExportController {
         await TransitoExportRepository.findTransitiByTargheAndPeriodo(
           targhe as string[],
           new Date(from as string),
-          new Date(to as string)
+          new Date(to as string),
+          user.id,
+          user.ruolo
         );
 
       if (transiti.length === 0) {
@@ -92,6 +95,7 @@ class TransitiExportController {
       next(error);
     }
   }
+
   public async getStatistichePerParcheggio(
     req: Request,
     res: Response,

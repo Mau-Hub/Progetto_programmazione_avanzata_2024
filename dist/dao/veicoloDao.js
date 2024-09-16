@@ -23,10 +23,10 @@ class VeicoloDao {
      *
      * @returns {Promise<Veicolo[]>} Promise che restituisce un array di veicoli.
      */
-    findAll() {
+    findAll(options) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield veicolo_1.default.findAll();
+                return yield veicolo_1.default.findAll(options);
             }
             catch (error) {
                 throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Si è verificato un problema nel recupero dei veicoli');

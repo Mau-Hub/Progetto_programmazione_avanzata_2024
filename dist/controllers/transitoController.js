@@ -29,7 +29,7 @@ class TransitoController {
                 // Creazione del transito passando i dati necessari
                 const nuovoTransito = yield transitoRepository_1.default.create({
                     id_varco_ingresso: id_varco_ingresso,
-                }, targa, id_tipo_veicolo, id_utente);
+                }, targa, id_tipo_veicolo);
                 console.log('Nuovo transito creato:', nuovoTransito);
                 res.status(201).json(nuovoTransito);
             }

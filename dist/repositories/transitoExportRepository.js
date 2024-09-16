@@ -16,21 +16,37 @@ const transitoDao_1 = __importDefault(require("../dao/transitoDao"));
 const veicoloDao_1 = __importDefault(require("../dao/veicoloDao"));
 const sequelize_1 = require("sequelize");
 class TransitoExportRepository {
-    findTransitiByTargheAndPeriodo(targhe, from, to) {
+    findTransitiByTargheAndPeriodo(targhe, from, to, userId, userRole) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                let targheFiltrate = targhe;
+                // Se l'utente è un automobilista, deve vedere solo i veicoli a lui associati
+                if (userRole === 'automobilista') {
+                    // Trova tutti i veicoli associati all'utente autenticato
+                    const veicoliAssociati = yield veicoloDao_1.default.findAll({
+                        where: { id_utente: userId }, // Filtra i veicoli per l'utente autenticato
+                    });
+                    // Ottieni le targhe dei veicoli associati all'utente
+                    const targheUtente = veicoliAssociati.map((veicolo) => veicolo.targa);
+                    // Filtra le targhe richieste in base ai veicoli associati all'utente
+                    targheFiltrate = targhe.filter((targa) => targheUtente.includes(targa));
+                    // Se l'automobilista non ha accesso ad alcuna delle targhe specificate, genera un errore
+                    if (targheFiltrate.length === 0) {
+                        throw new Error('Accesso negato: non puoi visualizzare i transiti per le targhe specificate.');
+                    }
+                }
                 // Recupera i transiti filtrati per targa e periodo
                 const transiti = yield transitoDao_1.default.findAll({
                     where: {
                         '$veicolo.targa$': {
-                            [sequelize_1.Op.in]: targhe,
+                            [sequelize_1.Op.in]: targheFiltrate,
                         },
                         ingresso: {
                             [sequelize_1.Op.gte]: from,
-                        },
-                        uscita: {
                             [sequelize_1.Op.lte]: to,
                         },
+                        // Condizione per includere i transiti con uscita null o con uscita minore o uguale a 'to'
+                        [sequelize_1.Op.or]: [{ uscita: { [sequelize_1.Op.lte]: to } }, { uscita: null }],
                     },
                     include: ['veicolo', 'varcoIngresso', 'varcoUscita', 'tariffa'],
                 });
