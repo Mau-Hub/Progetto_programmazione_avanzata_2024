@@ -1,5 +1,6 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import Database from '../db/database';
+import Veicolo from './veicolo';
 
 const sequelize = Database.getInstance();
 

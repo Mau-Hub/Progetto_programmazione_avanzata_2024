@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const pdfkit_1 = __importDefault(require("pdfkit"));
-class PdfService {
-    generaPdf(transiti) {
+class PdfStatisticheService {
+    generaPdf(statistiche) {
         return new Promise((resolve, reject) => {
             const doc = new pdfkit_1.default();
             const buffers = [];
@@ -15,16 +15,14 @@ class PdfService {
                 resolve(pdfData);
             });
             // Aggiunta titolo
-            doc.fontSize(20).text('Report Transiti', { align: 'center' });
-            // Aggiungere ogni transito
-            transiti.forEach((transito) => {
+            doc.fontSize(20).text('Report Statistiche', { align: 'center' });
+            // Aggiungere ogni statistica
+            statistiche.forEach((statistica) => {
                 doc
                     .fontSize(12)
-                    .text(`Targa: ${transito.targa}`)
-                    .text(`Ingresso: ${transito.ingresso}`)
-                    .text(`Uscita: ${transito.uscita}`)
-                    .text(`Tipo Veicolo: ${transito.tipoVeicolo}`)
-                    .text(`Costo: ${transito.costo !== null ? transito.costo + ' €' : 'N/A'}`)
+                    .text(`Parcheggio: ${statistica.parcheggio}`)
+                    .text(`Fatturato: ${statistica.fatturato}`)
+                    .text(`Media Posti Liberi: ${statistica.mediaPostiLiberi}`)
                     .moveDown();
             });
             // Chiusura del documento
@@ -32,4 +30,4 @@ class PdfService {
         });
     }
 }
-exports.default = new PdfService();
+exports.default = new PdfStatisticheService();

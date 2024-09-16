@@ -1,13 +1,19 @@
 import transitoDao from '../dao/transitoDao';
 import veicoloDao from '../dao/veicoloDao';
+import tipoveicoloDao from '../dao/tipoveicoloDao';
 import parcheggioDao from '../dao/parcheggioDao';
 import varcoDao from '../dao/varcoDao';
 import tariffaDao from '../dao/tariffaDao';
+import utenteDao from '../dao/utenteDao';
 import Transito, {
   TransitoAttributes,
   TransitoCreationAttributes,
 } from '../models/transito';
-import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
+import {
+  ErrorGenerator,
+  ApplicationErrorTypes,
+  CustomHttpError,
+} from '../ext/errorFactory';
 import TransitoService from '../ext/transitoService';
 import { Sequelize } from 'sequelize';
 import Database from '../db/database';
@@ -20,22 +26,57 @@ class TransitoRepository {
   }
 
   public async create(
-    transitoData: Omit<TransitoCreationAttributes, 'id_posto'>,
+    transitoData: TransitoCreationAttributes,
     targa: string,
-    id_tipo_veicolo: number,
-    id_utente: number
+    id_tipo_veicolo: number
   ): Promise<TransitoAttributes> {
     const transaction = await this.sequelize.transaction();
 
     try {
+      // Cerca il veicolo con la targa fornita
       let veicolo = await veicoloDao.findByTarga(targa);
 
       if (!veicolo) {
-        veicolo = await veicoloDao.create({
-          targa: targa,
-          id_tipo_veicolo: id_tipo_veicolo,
-          id_utente: id_utente,
+        // Se il veicolo non esiste, crea un nuovo utente e un nuovo veicolo
+        const nuovoUtente = await utenteDao.create(
+          {
+            nome: `Automobilista-${targa}`,
+            ruolo: 'automobilista',
+            username: `user_${targa}`,
+          },
+          transaction
+        );
+
+        veicolo = await veicoloDao.create(
+          {
+            targa: targa,
+            id_tipo_veicolo: id_tipo_veicolo,
+            id_utente: nuovoUtente.id,
+          },
+          transaction
+        );
+      } else {
+        // Se il veicolo esiste, controlla se l'id_tipo_veicolo è lo stesso
+        if (veicolo.id_tipo_veicolo !== id_tipo_veicolo) {
+          throw ErrorGenerator.generateError(
+            ApplicationErrorTypes.INVALID_INPUT,
+            `Il tipo di veicolo fornito (${id_tipo_veicolo}) non corrisponde al tipo di veicolo già registrato (${veicolo.id_tipo_veicolo}) per la targa ${targa}.`
+          );
+        }
+        // Verifica se esiste già un transito attivo per questo veicolo
+        const transitoAttivo = await transitoDao.findOne({
+          where: {
+            id_veicolo: veicolo.id,
+            uscita: null,
+          },
         });
+
+        if (transitoAttivo) {
+          throw ErrorGenerator.generateError(
+            ApplicationErrorTypes.INVALID_INPUT,
+            `Il veicolo con targa ${targa} è già in un transito attivo e non può entrare in un altro parcheggio.`
+          );
+        }
       }
 
       const varcoIngresso = await varcoDao.findById(
@@ -83,6 +124,13 @@ class TransitoRepository {
       return nuovoTransito;
     } catch (error) {
       await transaction.rollback();
+
+      // Se l'errore è già un CustomHttpError, rilancialo
+      if (error instanceof CustomHttpError) {
+        throw error;
+      }
+
+      // Altrimenti, lancia un errore generico
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
         'Errore durante la creazione del transito'
@@ -108,7 +156,7 @@ class TransitoRepository {
         );
       }
 
-      // **Controllo per verificare se il transito è già stato chiuso**
+      // Controllo per verificare se il transito è già stato chiuso
       if (transito.uscita) {
         throw ErrorGenerator.generateError(
           ApplicationErrorTypes.INVALID_INPUT,
@@ -138,6 +186,12 @@ class TransitoRepository {
 
       // Incrementa i posti disponibili e salva il parcheggio
       parcheggio.posti_disponibili += 1;
+
+      // Assicurati che i posti disponibili non superino la capacità massima
+      if (parcheggio.posti_disponibili > parcheggio.capacita) {
+        parcheggio.posti_disponibili = parcheggio.capacita;
+      }
+
       await parcheggio.save({ transaction });
 
       // Recupera il veicolo associato al transito
@@ -149,6 +203,13 @@ class TransitoRepository {
         );
       }
       const idTipoVeicolo = veicolo.id_tipo_veicolo;
+
+      console.log({
+        id_tipo_veicolo: idTipoVeicolo,
+        fascia_oraria: TransitoService.determinaFasciaOraria(dataOraUscita),
+        feriale_festivo: TransitoService.determinaFerialeFestivo(dataOraUscita),
+        id_parcheggio: varcoUscita.id_parcheggio,
+      });
 
       // Trova la tariffa appropriata
       const tariffa = await tariffaDao.findOne({
@@ -200,7 +261,14 @@ class TransitoRepository {
       };
     } catch (error) {
       console.error("Errore durante l'uscita del veicolo:", error);
-      await transaction.rollback();
+      try {
+        await transaction.rollback();
+      } catch (rollbackError) {
+        console.error(
+          'Errore durante il rollback della transazione:',
+          rollbackError
+        );
+      }
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
         `Errore durante l'aggiornamento del transito con uscita per id ${transitoId}`

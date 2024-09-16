@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const veicolo_1 = __importDefault(require("../models/veicolo"));
 const errorFactory_1 = require("../ext/errorFactory");
+const tipoVeicolo_1 = __importDefault(require("../models/tipoVeicolo"));
 const sequelize_1 = require("sequelize");
 // Classe VeicoloDao che implementa l'interfaccia DaoI per Veicolo
 class VeicoloDao {
@@ -58,10 +59,10 @@ class VeicoloDao {
      * @param {VeicoloAttributes} item dati per generare il veicolo.
      * @returns {Promise<Veicolo>} Promise che restituisce il veicolo appena creato.
      */
-    create(item) {
+    create(item, transaction) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield veicolo_1.default.create(item);
+                return yield veicolo_1.default.create(item, { transaction });
             }
             catch (error) {
                 throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Si è verificato un errore nella creazione del veicolo');
@@ -141,6 +142,29 @@ class VeicoloDao {
             }
             catch (error) {
                 throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Si è verificato un errore nella ricerca dei veicoli per le targhe specificate`);
+            }
+        });
+    }
+    /**
+     * Recupera un veicolo per ID con il TipoVeicolo associato.
+     *
+     * @param {number} id ID del veicolo.
+     * @returns {Promise<Veicolo | null>} Promise che restituisce un veicolo con il TipoVeicolo o null se non esistente.
+     */
+    findByIdWithTipoVeicolo(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield veicolo_1.default.findByPk(id, {
+                    include: [
+                        {
+                            model: tipoVeicolo_1.default,
+                            as: 'tipoVeicolo',
+                        },
+                    ],
+                });
+            }
+            catch (error) {
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Si è verificato un errore nel recupero del veicolo con id ${id} e il suo TipoVeicolo`);
             }
         });
     }

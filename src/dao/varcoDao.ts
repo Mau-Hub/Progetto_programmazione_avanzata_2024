@@ -2,21 +2,27 @@ import Varco from '../models/varco';
 import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
 import { VarcoAttributes, VarcoCreationAttributes } from '../models/varco';
 import { DaoI } from './DaoI';
+import { Transaction } from 'sequelize';
 
 class VarcoDao implements DaoI<VarcoAttributes, number> {
-  
   /**
    * Creazione di un nuovo varco.
    *
    * @param {VarcoCreationAttributes} varcoData Dati per la creazione del nuovo varco.
    * @returns {Promise<Varco>} Promise che restituisce il varco appena creato.
    */
-  async create(varcoData: VarcoCreationAttributes): Promise<Varco> {
+  async create(
+    varcoData: VarcoCreationAttributes,
+    transaction?: Transaction
+  ): Promise<Varco> {
     try {
-      const nuovoVarco = await Varco.create(varcoData);
+      const nuovoVarco = await Varco.create(varcoData, { transaction });
       return nuovoVarco;
     } catch (error) {
-      throw ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore nella creazione del varco');
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        'Errore nella creazione del varco'
+      );
     }
   }
 
@@ -30,7 +36,10 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
       const varchi = await Varco.findAll();
       return varchi;
     } catch (error) {
-      throw ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero dei varchi');
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        'Errore nel recupero dei varchi'
+      );
     }
   }
 
@@ -44,11 +53,17 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
     try {
       const varco = await Varco.findByPk(id);
       if (!varco) {
-        throw ErrorGenerator.generateError(ApplicationErrorTypes.RESOURCE_NOT_FOUND, `Varco con ID ${id} non trovato`);
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+          `Varco con ID ${id} non trovato`
+        );
       }
       return varco;
     } catch (error) {
-      throw ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero del varco');
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        'Errore nel recupero del varco'
+      );
     }
   }
 
@@ -59,15 +74,24 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
    * @param {Partial<VarcoAttributes>} varcoData Dati parziali per aggiornare il varco.
    * @returns {Promise<boolean>} Promise che restituisce true se l'aggiornamento è avvenuto con successo, false altrimenti.
    */
-  async update(id: number, varcoData: Partial<VarcoAttributes>): Promise<boolean> {
+  async update(
+    id: number,
+    varcoData: Partial<VarcoAttributes>
+  ): Promise<boolean> {
     try {
       const [numUpdated] = await Varco.update(varcoData, { where: { id } });
       if (numUpdated === 0) {
-        throw ErrorGenerator.generateError(ApplicationErrorTypes.RESOURCE_NOT_FOUND, `Varco con ID ${id} non trovato`);
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+          `Varco con ID ${id} non trovato`
+        );
       }
       return numUpdated === 1;
     } catch (error) {
-      throw ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore nell\'aggiornamento del varco');
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        "Errore nell'aggiornamento del varco"
+      );
     }
   }
 
@@ -81,11 +105,17 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
     try {
       const numDeleted = await Varco.destroy({ where: { id } });
       if (numDeleted === 0) {
-        throw ErrorGenerator.generateError(ApplicationErrorTypes.RESOURCE_NOT_FOUND, `Varco con ID ${id} non trovato`);
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+          `Varco con ID ${id} non trovato`
+        );
       }
       return numDeleted === 1;
     } catch (error) {
-      throw ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore nell\'eliminazione del varco');
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        "Errore nell'eliminazione del varco"
+      );
     }
   }
 
@@ -97,10 +127,15 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
    */
   async findByParcheggio(idParcheggio: number): Promise<Varco[]> {
     try {
-      const varchi = await Varco.findAll({ where: { id_parcheggio: idParcheggio } });
+      const varchi = await Varco.findAll({
+        where: { id_parcheggio: idParcheggio },
+      });
       return varchi;
     } catch (error) {
-      throw ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero dei varchi per il parcheggio specificato');
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        'Errore nel recupero dei varchi per il parcheggio specificato'
+      );
     }
   }
 
@@ -114,7 +149,10 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
       const varchi = await Varco.findAll({ where: { bidirezionale: true } });
       return varchi;
     } catch (error) {
-      throw ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero dei varchi bidirezionali');
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        'Errore nel recupero dei varchi bidirezionali'
+      );
     }
   }
 
@@ -129,7 +167,10 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
       const varchi = await Varco.findAll({ where: { tipo } });
       return varchi;
     } catch (error) {
-      throw ErrorGenerator.generateError(ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero dei varchi per il tipo specificato');
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        'Errore nel recupero dei varchi per il tipo specificato'
+      );
     }
   }
 }

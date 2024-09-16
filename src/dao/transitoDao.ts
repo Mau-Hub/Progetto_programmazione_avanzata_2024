@@ -121,6 +121,33 @@ class TransitoDao implements DaoI<Transito, number> {
       );
     }
   }
+  public async findOne(options?: {
+    where?: any;
+    include?: IncludeOptions[];
+  }): Promise<Transito | null> {
+    try {
+      const transito = await Transito.findOne({
+        ...options,
+        include: [
+          { model: Veicolo, as: 'veicolo' },
+          { model: Varco, as: 'varcoIngresso' },
+          { model: Varco, as: 'varcoUscita' },
+          { model: Tariffa, as: 'tariffa' },
+        ],
+      });
+
+      if (!transito) {
+        return null; // Nessun errore se non trovato, ritorna semplicemente null
+      }
+
+      return transito;
+    } catch (error) {
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        'Errore durante la ricerca del transito'
+      );
+    }
+  }
 }
 
 export default new TransitoDao();

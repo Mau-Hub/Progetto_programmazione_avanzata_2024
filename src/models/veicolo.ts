@@ -1,7 +1,7 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import Database from '../db/database';
-import Utente from './utente'; // Importa il modello Utente per la relazione
-import TipoVeicolo from './tipoVeicolo'; // Importa il modello Tipo_Veicolo per la relazione
+import Utente from './utente';
+import TipoVeicolo from './tipoVeicolo';
 
 const sequelize = Database.getInstance();
 
@@ -11,6 +11,7 @@ export interface VeicoloAttributes {
   targa: string;
   id_tipo_veicolo: number;
   id_utente: number;
+  tipoVeicolo?: TipoVeicolo;
 }
 
 // Esporta i campi opzionali per la creazione
@@ -29,6 +30,8 @@ class Veicolo
   public id_tipo_veicolo!: number;
 
   public id_utente!: number;
+
+  public tipoVeicolo?: TipoVeicolo;
 }
 
 // Inizializzazione del model Veicolo

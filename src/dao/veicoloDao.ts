@@ -5,7 +5,9 @@ import {
   VeicoloAttributes,
   VeicoloCreationAttributes,
 } from '../models/veicolo';
+import TipoVeicolo from '../models/tipoVeicolo';
 import { Op } from 'sequelize';
+import { Transaction } from 'sequelize';
 
 // Classe VeicoloDao che implementa l'interfaccia DaoI per Veicolo
 class VeicoloDao implements DaoI<VeicoloAttributes, number> {
@@ -55,9 +57,12 @@ class VeicoloDao implements DaoI<VeicoloAttributes, number> {
    * @param {VeicoloAttributes} item dati per generare il veicolo.
    * @returns {Promise<Veicolo>} Promise che restituisce il veicolo appena creato.
    */
-  public async create(item: VeicoloCreationAttributes): Promise<Veicolo> {
+  public async create(
+    item: VeicoloCreationAttributes,
+    transaction?: Transaction
+  ): Promise<Veicolo> {
     try {
-      return await Veicolo.create(item);
+      return await Veicolo.create(item, { transaction });
     } catch (error) {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
@@ -145,6 +150,29 @@ class VeicoloDao implements DaoI<VeicoloAttributes, number> {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
         `Si è verificato un errore nella ricerca dei veicoli per le targhe specificate`
+      );
+    }
+  }
+  /**
+   * Recupera un veicolo per ID con il TipoVeicolo associato.
+   *
+   * @param {number} id ID del veicolo.
+   * @returns {Promise<Veicolo | null>} Promise che restituisce un veicolo con il TipoVeicolo o null se non esistente.
+   */
+  public async findByIdWithTipoVeicolo(id: number): Promise<Veicolo | null> {
+    try {
+      return await Veicolo.findByPk(id, {
+        include: [
+          {
+            model: TipoVeicolo,
+            as: 'tipoVeicolo',
+          },
+        ],
+      });
+    } catch (error) {
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        `Si è verificato un errore nel recupero del veicolo con id ${id} e il suo TipoVeicolo`
       );
     }
   }

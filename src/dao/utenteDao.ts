@@ -1,6 +1,7 @@
 import Utente from '../models/utente';
 import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
 import { DaoI } from './DaoI';
+import { Transaction } from 'sequelize';
 
 // Definizione dell'interfaccia UtenteAttributes
 interface UtenteAttributes {
@@ -57,9 +58,12 @@ class UtenteDao implements DaoI<UtenteAttributes, number> {
    * @param {UtenteAttributes} item dati per generare l'utente.
    * @returns {Promise<Utente>} Promise che restituisce l'utente appena creato.
    */
-  public async create(item: UtenteAttributes): Promise<Utente> {
+  public async create(
+    item: UtenteAttributes,
+    transaction?: Transaction
+  ): Promise<Utente> {
     try {
-      return await Utente.create(item);
+      return await Utente.create(item, { transaction });
     } catch (error) {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,

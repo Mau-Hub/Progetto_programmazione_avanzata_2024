@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import TransitoRepository from '../repositories/transitoRepository';
-import { ApplicationErrorTypes, ErrorGenerator } from '../ext/errorFactory';
+import {
+  ApplicationErrorTypes,
+  ErrorGenerator,
+  CustomHttpError,
+} from '../ext/errorFactory';
 
 class TransitoController {
   // Creazione di un transito
@@ -21,21 +25,16 @@ class TransitoController {
           id_varco_ingresso: id_varco_ingresso,
         },
         targa,
-        id_tipo_veicolo,
-        id_utente
+        id_tipo_veicolo
       );
 
       console.log('Nuovo transito creato:', nuovoTransito);
       res.status(201).json(nuovoTransito);
     } catch (error) {
       console.error('Errore nel controller createTransito:', error); // Log dell'errore dettagliato
-      if (error instanceof Error) {
-        next(
-          ErrorGenerator.generateError(
-            ApplicationErrorTypes.INVALID_INPUT,
-            `Errore nella creazione del transito: ${error.message}`
-          )
-        );
+      if (error instanceof CustomHttpError) {
+        // Passa l'errore personalizzato direttamente al middleware di gestione degli errori
+        next(error);
       } else {
         next(
           ErrorGenerator.generateError(

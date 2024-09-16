@@ -35,8 +35,9 @@ class TransitoController {
             }
             catch (error) {
                 console.error('Errore nel controller createTransito:', error); // Log dell'errore dettagliato
-                if (error instanceof Error) {
-                    next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, `Errore nella creazione del transito: ${error.message}`));
+                if (error instanceof errorFactory_1.CustomHttpError) {
+                    // Passa l'errore personalizzato direttamente al middleware di gestione degli errori
+                    next(error);
                 }
                 else {
                     next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore sconosciuto durante la creazione del transito'));

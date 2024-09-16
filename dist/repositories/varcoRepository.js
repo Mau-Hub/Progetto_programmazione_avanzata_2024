@@ -13,7 +13,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const varcoDao_1 = __importDefault(require("../dao/varcoDao"));
+const utenteDao_1 = __importDefault(require("../dao/utenteDao"));
+const database_1 = __importDefault(require("../db/database"));
+const errorFactory_1 = require("../ext/errorFactory");
 class VarcoRepository {
+    constructor() {
+        this.sequelize = database_1.default.getInstance();
+    }
     /**
      * Creazione di un nuovo varco
      *
@@ -22,8 +28,23 @@ class VarcoRepository {
      */
     create(varcoData) {
         return __awaiter(this, void 0, void 0, function* () {
-            // Chiama il metodo del DAO per creare un nuovo varco
-            return varcoDao_1.default.create(varcoData);
+            const transaction = yield this.sequelize.transaction();
+            try {
+                // Crea il nuovo varco
+                const nuovoVarco = yield varcoDao_1.default.create(varcoData, transaction);
+                // Crea l'utente "varco" associato
+                yield utenteDao_1.default.create({
+                    nome: `UtenteVarco-${nuovoVarco.id}`,
+                    ruolo: 'varco',
+                    username: `varco${nuovoVarco.id}`,
+                }, transaction);
+                yield transaction.commit();
+                return nuovoVarco;
+            }
+            catch (error) {
+                yield transaction.rollback();
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, "Errore nella creazione del varco e dell'utente varco");
+            }
         });
     }
     /**

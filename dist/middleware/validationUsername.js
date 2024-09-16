@@ -21,5 +21,5 @@ exports.validateUsername = [
         .withMessage('Il nome utente deve contenere solo caratteri alfanumerici')
         .isLength({ min: 3, max: 20 })
         .withMessage('Il nome utente deve avere una lunghezza compresa tra 3 e 20 caratteri'),
-    validationRequestMiddleware_1.default
+    validationRequestMiddleware_1.default,
 ];

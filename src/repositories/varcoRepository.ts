@@ -1,8 +1,17 @@
 import VarcoDao from '../dao/varcoDao';
+import UtenteDao from '../dao/utenteDao';
 import { VarcoAttributes, VarcoCreationAttributes } from '../models/varco';
 import Varco from '../models/varco';
+import { Sequelize } from 'sequelize';
+import Database from '../db/database';
+import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
 
 class VarcoRepository {
+  private sequelize: Sequelize;
+
+  constructor() {
+    this.sequelize = Database.getInstance();
+  }
   /**
    * Creazione di un nuovo varco
    *
@@ -10,8 +19,30 @@ class VarcoRepository {
    * @returns {Promise<Varco>}
    */
   async create(varcoData: VarcoCreationAttributes): Promise<Varco> {
-    // Chiama il metodo del DAO per creare un nuovo varco
-    return VarcoDao.create(varcoData);
+    const transaction = await this.sequelize.transaction();
+    try {
+      // Crea il nuovo varco
+      const nuovoVarco = await VarcoDao.create(varcoData, transaction);
+
+      // Crea l'utente "varco" associato
+      await UtenteDao.create(
+        {
+          nome: `UtenteVarco-${nuovoVarco.id}`,
+          ruolo: 'varco',
+          username: `varco${nuovoVarco.id}`,
+        },
+        transaction
+      );
+
+      await transaction.commit();
+      return nuovoVarco;
+    } catch (error) {
+      await transaction.rollback();
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        "Errore nella creazione del varco e dell'utente varco"
+      );
+    }
   }
 
   /**
@@ -42,7 +73,10 @@ class VarcoRepository {
    * @param {Partial<VarcoAttributes>} varcoData
    * @returns {Promise<boolean>}
    */
-  async update(id: number, varcoData: Partial<VarcoAttributes>): Promise<boolean> {
+  async update(
+    id: number,
+    varcoData: Partial<VarcoAttributes>
+  ): Promise<boolean> {
     // Chiama il metodo del DAO per aggiornare un varco
     return VarcoDao.update(id, varcoData);
   }

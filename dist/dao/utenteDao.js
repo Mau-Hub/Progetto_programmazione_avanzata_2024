@@ -56,10 +56,10 @@ class UtenteDao {
      * @param {UtenteAttributes} item dati per generare l'utente.
      * @returns {Promise<Utente>} Promise che restituisce l'utente appena creato.
      */
-    create(item) {
+    create(item, transaction) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield utente_1.default.create(item);
+                return yield utente_1.default.create(item, { transaction });
             }
             catch (error) {
                 throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, "Si è verificato un errore nella creazione dell'utente");

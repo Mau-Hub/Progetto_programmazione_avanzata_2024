@@ -16,28 +16,28 @@ router.use(authenticationMiddleware);
 router.post(
   '/transito',
   authorizeRoles(['operatore', 'varco']),
-  TransitoController.createTransito // Usa il controller per creare il transito
+  TransitoController.createTransito
 );
 
 // Recupero di un transito per ID
 router.get(
   '/transito/:id',
   authorizeRoles(['operatore']),
-  TransitoController.getTransitoById // Usa il controller per ottenere i dettagli del transito
+  TransitoController.getTransitoById
 );
 
 // Aggiornamento di un transito (uscita) e calcolo della tariffa
 router.put(
   '/transito/:id/uscita',
-  authorizeRoles(['operatore']), // Solo gli operatori possono gestire l'uscita
-  TransitoController.exitTransito // Usa il controller per gestire l'uscita e calcolare la tariffa
+  authorizeRoles(['operatore']),
+  TransitoController.exitTransito
 );
 
 // Eliminazione di un transito per ID
 router.delete(
   '/transito/:id',
   authorizeRoles(['operatore']),
-  TransitoController.deleteTransito // Usa il controller per eliminare il transito
+  TransitoController.deleteTransito
 );
 
 // Gestione degli errori

@@ -5,8 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const database_1 = __importDefault(require("../db/database"));
-const utente_1 = __importDefault(require("./utente")); // Importa il modello Utente per la relazione
-const tipoVeicolo_1 = __importDefault(require("./tipoVeicolo")); // Importa il modello Tipo_Veicolo per la relazione
+const utente_1 = __importDefault(require("./utente"));
+const tipoVeicolo_1 = __importDefault(require("./tipoVeicolo"));
 const sequelize = database_1.default.getInstance();
 // Definizione del modello Veicolo
 class Veicolo extends sequelize_1.Model {

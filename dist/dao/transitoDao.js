@@ -94,5 +94,24 @@ class TransitoDao {
             }
         });
     }
+    findOne(options) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const transito = yield transito_1.default.findOne(Object.assign(Object.assign({}, options), { include: [
+                        { model: veicolo_1.default, as: 'veicolo' },
+                        { model: varco_1.default, as: 'varcoIngresso' },
+                        { model: varco_1.default, as: 'varcoUscita' },
+                        { model: tariffa_1.default, as: 'tariffa' },
+                    ] }));
+                if (!transito) {
+                    return null; // Nessun errore se non trovato, ritorna semplicemente null
+                }
+                return transito;
+            }
+            catch (error) {
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore durante la ricerca del transito');
+            }
+        });
+    }
 }
 exports.default = new TransitoDao();

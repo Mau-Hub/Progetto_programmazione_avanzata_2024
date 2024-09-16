@@ -21,10 +21,10 @@ class VarcoDao {
      * @param {VarcoCreationAttributes} varcoData Dati per la creazione del nuovo varco.
      * @returns {Promise<Varco>} Promise che restituisce il varco appena creato.
      */
-    create(varcoData) {
+    create(varcoData, transaction) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const nuovoVarco = yield varco_1.default.create(varcoData);
+                const nuovoVarco = yield varco_1.default.create(varcoData, { transaction });
                 return nuovoVarco;
             }
             catch (error) {
@@ -85,7 +85,7 @@ class VarcoDao {
                 return numUpdated === 1;
             }
             catch (error) {
-                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore nell\'aggiornamento del varco');
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, "Errore nell'aggiornamento del varco");
             }
         });
     }
@@ -105,7 +105,7 @@ class VarcoDao {
                 return numDeleted === 1;
             }
             catch (error) {
-                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore nell\'eliminazione del varco');
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, "Errore nell'eliminazione del varco");
             }
         });
     }
@@ -118,7 +118,9 @@ class VarcoDao {
     findByParcheggio(idParcheggio) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const varchi = yield varco_1.default.findAll({ where: { id_parcheggio: idParcheggio } });
+                const varchi = yield varco_1.default.findAll({
+                    where: { id_parcheggio: idParcheggio },
+                });
                 return varchi;
             }
             catch (error) {
