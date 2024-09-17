@@ -193,12 +193,6 @@ La gestione degli errori è prevista per i casi di accesso negato, transito non 
 
 ![alt text](immagini/putTransito.png)
 
-- GET /Export
-
-- GET /Statistiche
-
-- GET /StatisticheParcheggio
-
 ## API Routes
 
 La tabella sottostante elenca alcune delle rotte disponibili, specificando i livelli di accesso autorizzati e fornendo una descrizione del loro scopo. Di seguito verranno rappresentate alcune di queste rotte per fornire una panoramica del funzionamento del sistema.
