@@ -25,13 +25,13 @@
 ## Obiettivo
 
 Il sistema è progettato per gestire il calcolo dei costi di parcheggio per autoveicoli di diverse categorie, basandosi sui transiti tra varchi di ingresso e uscita.
-Le caratteristiche principali includono che ogni parcheggio può avere più varchi e i costi variano a seconda del tipo di veicolo, della fascia oraria e del giorno della settimana. Il sistema deve registrare i transiti (data, ora, targa, varco) e controllare la disponibilità dei posti, rifiutando l'ingresso se non ci sono spazi liberi.
+Le caratteristiche principali includono che ogni parcheggio può avere più varchi e i costi variano a seconda del tipo di veicolo, della fascia oraria e del giorno della settimana. Il sistema deve registrare i transiti (data, ora, targa, varco) e controllare la disponibilità dei posti, rifiutando l'ingresso se non ci sono posti disponibili.
 
 Il progetto include funzionalità CRUD per la gestione di:
 
 - Parcheggi e varchi.
 - Tariffe per parcheggio.
-- Transiti (ingresso o uscita), con la possibilità di creare automaticamente la fattura per l'utente.
+- Transiti (ingresso o uscita).
 
 Il sistema prevede inoltre la creazione di rotte per:
 
@@ -39,11 +39,11 @@ Il sistema prevede inoltre la creazione di rotte per:
 - Generare statistiche per l'operatore, come il fatturato dei parcheggi e il numero medio di posti liberi per fascia oraria.
 - Fornire statistiche sui transiti distinti per tipologia di veicolo e fascia oraria.
 
-La sicurezza è garantita in tutte le rotte tramite autenticazione JWT, assicurando un accesso controllato e sicure alle funzionalità del sistema.
+La sicurezza è garantita in tutte le rotte tramite autenticazione JWT, assicurando un accesso controllato e sicuro alle funzionalità del sistema.
 
 ## Struttura del Progetto
 
-Il progetto è implementato come un'applicazione back-end impiegando tecnologie come:
+Il progetto consiste nell'implementazione di un back-end impiegando tecnologie come:
 
 - Framework: Node.js e Express per gestire le API
 - ORM: Sequelize per l'interazione con il database
@@ -53,12 +53,13 @@ La struttura del codice è organizzata in moduli distinti:
 
 - Controllers: per la gestione della logica di business
 - Models: per la definizione della struttura dei dati
-- Middleware: per l'elaborazione delle richieste e l'autenticazione
-- DAO (Data Access Objects): per l'interazione con il database
+- Middleware: per l'elaborazione delle richieste e la validazione
+- DAO (Data Access Objects): per gestire l'interazione diretta con il database
+- Repositories: aggiunge un layer più astratto per la manipolazione dei dati gestiti dal DAO
 
 Questa struttura modulare facilita la manutenzione, la scalabilità e l'estensibilità del sistema, permettendo una gestione efficace delle diverse funzionalità richieste.
 
-L’architettura dei servizi determina la configurazione complessiva del progetto. La struttura del progetto include i seguenti componenti:
+La struttura del progetto include i seguenti componenti:
 
 ```
 progetto
@@ -103,8 +104,6 @@ Il diagramma ER rappresenta la struttura del database per gestire i transiti di 
 - **TARIFFA**: Le tariffe variano in base al parcheggio, alla tipologia di veicolo, alla fascia oraria e se è un giorno feriale o festivo.
 
 - **TRANSITO**: Rappresenta il passaggio di un veicolo attraverso un varco. Include i dettagli dell'ingresso e dell'uscita, la tariffa applicata e l'importo calcolato.
-
-- **FATTURA**: Le fatture vengono generate per gli automobilisti, includendo i transiti effettuati in un determinato periodo.
 
 In figura è mostrato il diagramma ER:
 ![alt text](immagini/diagrammaER.png)
@@ -212,30 +211,30 @@ La gestione degli errori è prevista per i casi di accesso negato, transito non 
 
 La tabella sottostante elenca alcune delle rotte disponibili, specificando i livelli di accesso autorizzati e fornendo una descrizione del loro scopo. Di seguito ne verranno rappresentate alcune per fornire una panoramica del funzionamento.
 
-| Tipo     | Rotta                               | Autenticazione | Autorizzazione              |
-|----------|-------------------------------------|----------------|-----------------------------|
-| `POST`   | `/api/parcheggio`                   | Sì             | Operatore                   |
-| `GET`    | `/parcheggio/id`                    | Sì             | Operatore                   |
-| `GET`    | `/api/parcheggi`                    | Sì             | Operatore                   |
-| `PUT`    | `/api/parcheggio/id`                | Sì             | Operatore                   |
-| `DELETE` | `/api/parcheggio/id`                | Sì             | Operatore                   |
-| `POST`   | `/api/varco`                        | Sì             | Operatore                   |
-| `GET`    | `/api/varco/id`                     | Sì             | Operatore                   |
-| `GET`    | `/api/varchi`                       | Sì             | Operatore                   |
-| `PUT`    | `/api/varco/id`                     | Sì             | Operatore                   |
-| `POST`   | `/api/tariffa`                      | Sì             | Operatore                   |
-| `GET`    | `/api/tariffa/id`                   | Sì             | Operatore                   |
-| `GET`    | `/api/tariffe`                      | Sì             | Operatore                   |
-| `PUT`    | `/api/tariffa/id`                   | Sì             | Operatore                   |
-| `DELETE` | `/api/tariffa/id`                   | Sì             | Operatore                   |
-| `POST`   | `/api/transito`                     | Sì             | Operatore, Varco            |
-| `GET`    | `/api/transito/id`                  | Sì             | Operatore                   |
-| `PUT`    | `/api/transito/id/uscita`           | Sì             | Operatore                   |
-| `DELETE` | `/api/transito/id`                  | Sì             | Operatore                   |
-| `GET`    | `/api/transiti/export`              | Sì             | Operatore, Automobilista    |
-| `GET`    | `/api/statistiche`                  | Sì             | Operatore                   |
-| `GET`    | `/api/statistiche/parcheggio`       | Sì             | Operatore                   |
-| `POST`   | `/api/login`                        | No             | Operatore, Varco, Automobilista |
+| Tipo     | Rotta                         | Autenticazione | Autorizzazione                  |
+| -------- | ----------------------------- | -------------- | ------------------------------- |
+| `POST`   | `/api/parcheggio`             | Sì             | Operatore                       |
+| `GET`    | `/parcheggio/id`              | Sì             | Operatore                       |
+| `GET`    | `/api/parcheggi`              | Sì             | Operatore                       |
+| `PUT`    | `/api/parcheggio/id`          | Sì             | Operatore                       |
+| `DELETE` | `/api/parcheggio/id`          | Sì             | Operatore                       |
+| `POST`   | `/api/varco`                  | Sì             | Operatore                       |
+| `GET`    | `/api/varco/id`               | Sì             | Operatore                       |
+| `GET`    | `/api/varchi`                 | Sì             | Operatore                       |
+| `PUT`    | `/api/varco/id`               | Sì             | Operatore                       |
+| `POST`   | `/api/tariffa`                | Sì             | Operatore                       |
+| `GET`    | `/api/tariffa/id`             | Sì             | Operatore                       |
+| `GET`    | `/api/tariffe`                | Sì             | Operatore                       |
+| `PUT`    | `/api/tariffa/id`             | Sì             | Operatore                       |
+| `DELETE` | `/api/tariffa/id`             | Sì             | Operatore                       |
+| `POST`   | `/api/transito`               | Sì             | Operatore, Varco                |
+| `GET`    | `/api/transito/id`            | Sì             | Operatore                       |
+| `PUT`    | `/api/transito/id/uscita`     | Sì             | Operatore                       |
+| `DELETE` | `/api/transito/id`            | Sì             | Operatore                       |
+| `GET`    | `/api/transiti/export`        | Sì             | Operatore, Automobilista        |
+| `GET`    | `/api/statistiche`            | Sì             | Operatore                       |
+| `GET`    | `/api/statistiche/parcheggio` | Sì             | Operatore                       |
+| `POST`   | `/api/login`                  | No             | Operatore, Varco, Automobilista |
 
 ### Parcheggio
 
