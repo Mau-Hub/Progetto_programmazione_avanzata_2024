@@ -82,24 +82,22 @@ progetto
 
 ## Diagramma dei Casi d'Uso
 
-Il diagramma dei casi d'uso viene mostrato in figura, nel quale è possibile notare i tre attori principali: **Automobilista**, **Varco** e **Operatore**. L'automobilista può visualizzare lo stato dei propri transiti e esportarli in formato CSV o PDF. L'operatore ha funzioni più ampie come la gestione dei parcheggi, varchi e tariffe, l'inserimento e modifica dei transiti, e la generazione automatica delle fatture. L'operatore può inoltre visualizzare statistiche dettagliate sul fatturato e sui posti liberi dei parcheggi, con la possibilità di filtrare i dati per intervalli temporali e ottenere report in vari formati.
-Infine il varco può solo inserire i transiti in ingresso che quelli in uscita.
+Il diagramma dei casi d'uso mostrato in figura evidenzia i tre attori principali: **Automobilista**, **Varco** e **Operatore**. L'automobilista può visualizzare lo stato dei propri transiti ed esportarli in formato CSV o PDF. L'operatore ha funzionalità più estese, come la gestione dei parcheggi, dei varchi e delle tariffe, oltre all'inserimento e alla modifica dei transiti e alla generazione automatica delle fatture. Inoltre, l'operatore può visualizzare statistiche dettagliate sul fatturato e sui posti liberi nei parcheggi, con la possibilità di filtrare i dati per intervalli temporali e ottenere report in vari formati.
+Infine, il varco può inserire sia i transiti in ingresso che quelli in uscita.
 
 ![alt text](<immagini/casi d'uso diagramma.png>)
 
 ## Diagramma ER
 
-Il diagramma ER rappresenta la struttura del database per gestire i transiti di veicoli in parcheggi e la relativa fatturazione. Le principali entità coinvolte sono l'utente (che può essere un automobilista o un operatore), i veicoli, i parcheggi, i varchi, le tariffe, i transiti e le fatture. Ciascuna entità è descritta da una serie di attributi e collegata ad altre entità per gestire le relazioni chiave nel sistema.
+Il diagramma ER rappresenta la struttura del database per la gestione completa dei parcheggi, inclusi i transiti dei veicoli. Le principali entità coinvolte sono l'utente (che può essere un automobilista, un operatore o un varco), i veicoli, i parcheggi, le tariffe e i transiti. Ogni entità è descritta da una serie di attributi ed è collegata ad altre entità per gestire le relazioni chiave nel sistema.
 
-- **UTENTE**: L'entità rappresenta sia l'automobilista che l'operatore. Gli automobilisti possiedono veicoli e questi veicoli effettuano transiti. Gli operatori, invece, gestiscono i parcheggi, configurano i varchi e impostano le tariffe.
+- **UTENTE**: L'entità rappresenta l'automobilista, l'operatore o il varco. Gli automobilisti possiedono veicoli e questi veicoli effettuano transiti. Gli operatori, invece, gestiscono i parcheggi, configurano i varchi e impostano le tariffe. Un varco rappresenta un punto di ingresso o uscita per i veicoli all'interno di un parcheggio. Può essere bidirezionale.
 
 - **VEICOLO**: Collegato a un utente (automobilista), ogni veicolo può essere di una certa categoria (ad esempio, citycar o berlina). I transiti vengono effettuati dai veicoli nei parcheggi attraverso dei varchi.
 
 - **TIPO_VEICOLO**: Descrive il tipo del veicolo ( citycar, berlina e suv ).
 
 - **PARCHEGGIO**: Ogni parcheggio ha una capacità e può ospitare vari autoveicoli. È collegato a più varchi per l'ingresso e l'uscita dei veicoli.
-
-- **VARCO**: Un varco rappresenta un punto di ingresso o uscita per i veicoli all'interno di un parcheggio. Può essere bidirezionale.
 
 - **TARIFFA**: Le tariffe variano in base al parcheggio, alla tipologia di veicolo, alla fascia oraria e se è un giorno feriale o festivo.
 
@@ -124,23 +122,21 @@ L'adozione del pattern DAO si dimostra particolarmente efficace in questo proget
 - **Riutilizzabilità**: il codice del DAO può essere richiamato da altre componenti, come il sistema di gestione transiti, semplificando la logica di accesso ai dati.
 - **Astrazione**: separare la logica di accesso ai dati dal resto dell'applicazione consente di mantenere il codice più pulito e comprensibile, oltre a facilitare eventuali cambiamenti futuri nel sistema di persistenza (ad esempio, cambiando database o ORM).
 
-Nel contesto del progetto, i DAO sono stati implementati per gestire tutte le operazioni di accesso ai dati per ogni entità principale, garantendo una solida struttura di accesso ai dati distribuita in maniera chiara.
-
-### Factory
-
-Nel progetto, il pattern **Factory** viene utilizzato per gestire la generazione di errori HTTP personalizzati. Questo pattern permette di isolare la logica di creazione degli errori all'interno di una classe dedicata, che genera l'errore corretto in base al tipo richiesto. Ciò semplifica la gestione degli errori, centralizzando la logica in un unico punto e rendendo il codice più flessibile e manutenibile.
-
-All'interno del sistema, il pattern è stato implementato nella classe `ErrorGenerator`, che crea istanze personalizzate della classe `CustomHttpError` in base al tipo di errore applicativo. In questo modo, il codice cliente può generare errori specifici, come `RESOURCE_NOT_FOUND`, `INVALID_INPUT` o `AUTH_FAILED`, senza dover conoscere i dettagli della loro creazione. Questa strategia non solo semplifica l'aggiunta di nuovi tipi di errore in futuro, ma migliora la manutenibilità e riusabilità del codice.
-
-Inoltre, la Factory fa uso della libreria `http-status-codes` per associare in modo efficiente ogni tipo di errore a uno status HTTP appropriato, incapsulando tutta la logica di gestione degli errori in un'unica classe. Questo approccio facilita la gestione centralizzata degli errori, rendendo più semplice aggiornare o estendere il comportamento degli errori senza dover modificare il codice in più punti del progetto.
-
 ### Repository
 
 Il pattern **Repository** è stato implementato per centralizzare la logica di accesso ai dati e fornire un'interfaccia uniforme alle altre componenti dell'applicazione. Questo pattern astrae l'accesso ai dati, nascondendo i dettagli tecnici su come i dati vengono recuperati o salvati, semplificando così la gestione delle entità.
 
-Il Repository consente di manipolare le entità come collezioni in memoria, fornendo metodi per l'aggiunta, la rimozione e il recupero degli oggetti. Dietro le quinte, utilizza i DAO per eseguire le operazioni di persistenza effettiva sul database.
+Il Repository consente di manipolare le entità come collezioni in memoria, fornendo metodi per l'aggiunta, la rimozione e il recupero degli oggetti; utilizza i DAO per eseguire le operazioni di persistenza effettiva sul database.
 
 Rispetto ai DAO, che operano direttamente sulle tabelle e gestiscono le CRUD di base, il Repository offre un livello di astrazione più elevato, orchestrando queste operazioni. Questa struttura rende l'accesso ai dati flessibile e modulare, permettendo di modificare o sostituire la logica di persistenza senza impattare il resto dell'applicazione.
+
+### Factory
+
+Nel progetto, il pattern **Factory** viene utilizzato per gestire la generazione di errori HTTP personalizzati. Questo pattern permette di isolare la logica di creazione degli errori all'interno di una classe dedicata, che genera l'errore corretto in base al tipo richiesto.
+
+All'interno del sistema, il pattern è stato implementato nella classe `ErrorGenerator`, che crea istanze personalizzate della classe `CustomHttpError` in base al tipo di errore applicativo. In questo modo, il codice cliente può generare errori specifici, come `RESOURCE_NOT_FOUND`, `INVALID_INPUT` o `AUTH_FAILED`, senza dover conoscere i dettagli della loro creazione. Questa strategia non solo semplifica l'aggiunta di nuovi tipi di errore in futuro, ma migliora la manutenibilità e riusabilità del codice.
+
+Inoltre, la Factory fa uso della libreria `http-status-codes` per associare in modo efficiente ogni tipo di errore a uno status HTTP appropriato, incapsulando tutta la logica di gestione degli errori in un'unica classe. Questo approccio facilita la gestione centralizzata degli errori, rendendo più semplice aggiornare o estendere il comportamento degli errori senza dover modificare il codice in più punti del progetto.
 
 ### Singleton
 
@@ -161,12 +157,10 @@ Il **Controller** è il componente che riceve le richieste e interagisce con il 
 
 Nonostante il progetto sia orientato principalmente al backend, e quindi non preveda una componente **View** tradizionale, la visualizzazione dei dati è stata comunque resa possibile attraverso strumenti come **Postman**, il quale permette di testare le API e visualizzare le risposte generate dal backend, fornendo una rappresentazione in formato JSON dei dati gestiti.
 
-L'adozione di questo pattern ha permesso di mantenere una chiara separazione delle responsabilità, garantendo che ciascuna parte del sistema fosse indipendente e facilmente manutenibile.
-
 ## Diagrammi delle Sequenze
 
 I diagrammi delle sequenze sono strumenti fondamentali per visualizzare le interazioni tra diversi oggetti in un sistema, tracciando il flusso di messaggi di richiesta e risposta. Questi diagrammi sono particolarmente utili per comprendere come le entità comunichino tra loro e per rappresentare chiaramente i processi di interazione all'interno di un sistema basato su rotte API.
-Nel contesto del sistema in sviluppo, che include numerose rotte per le operazioni CRUD (Create, Read, Update, Delete), si è scelto di focalizzarsi sui diagrammi delle rotte più complesse e significative. Sono inclusi diagrammi per le rotte di tipo GET e/o POST, oltre a quelle PUT, mentre le rotte DELETE per l'eliminazione sono state escluse a causa della loro somiglianza tra loro. Questo approccio consente di mantenere il focus sui processi più rilevanti e complessi, offrendo una visione chiara e concisa delle principali dinamiche di comunicazione del sistema.
+Nel contesto del sistema in sviluppo, che include numerose rotte per le operazioni CRUD (Create, Read, Update, Delete), si è scelto di focalizzarsi solo su alcune di queste.
 
 - POST /login
   Il diagramma di sequenze illustra il processo di autenticazione di un utente utilizzando un token JWT. Il client inizia inviando una richiesta HTTP POST all'endpoint `/login`, includendo un token JWT nell'header di autorizzazione. Il router di Express riceve questa richiesta e passa il token al middleware di autenticazione.
@@ -178,8 +172,7 @@ Nel contesto del sistema in sviluppo, che include numerose rotte per le operazio
 - GET /parcheggiobyID
 
 Il diagramma di sequenze descrive il flusso per ottenere i dettagli di un parcheggio attraverso una richiesta HTTP GET all'endpoint `/parcheggio/:id`. Il processo inizia quando il client invia la richiesta al router di Express. Il router inoltra la richiesta a un middleware di autorizzazione per verificare se l'utente ha il ruolo necessario per accedere ai dettagli del parcheggio. Se l'utente ha il ruolo autorizzato, la richiesta viene poi passata a un middleware di validazione.
-Il middleware di validazione verifica che l'ID del parcheggio fornito nella richiesta sia nel formato corretto. Se l'ID è valido, la richiesta prosegue verso il ParcheggioController. Il ParcheggioController è responsabile di comunicare con il ParcheggioDao per recuperare i dettagli del parcheggio dal database.
-Una volta ottenuti i dati dal ParcheggioDao, il ParcheggioController restituisce queste informazioni al router, che infine le invia al client come risposta. Se il processo ha successo, il client riceve i dettagli del parcheggio richiesto.
+Il middleware di validazione verifica che l'ID del parcheggio fornito nella richiesta sia nel formato corretto. Se l'ID è valido, la richiesta prosegue verso il ParcheggioController. Il ParcheggioController è responsabile di comunicare con il ParcheggioRepository per recuperare i dettagli del parcheggio dal database tramite il ParcheggioDAO. Una volta ottenuti i dati, il ParcheggioController restituisce queste informazioni al router, che infine le invia al client come risposta. Se il processo ha successo, il client riceve i dettagli del parcheggio richiesto.
 Il diagramma include anche la gestione degli errori per garantire una risposta adeguata in caso di problemi. Gli errori gestiti includono l'assenza di autorizzazione del ruolo, ID non valido, parcheggio non trovato e eventuali errori del server, assicurando che il client riceva un messaggio chiaro in caso di fallimenti durante il processo.
 
 ![alt text](immagini/getParcheggioID.png)
@@ -187,15 +180,14 @@ Il diagramma include anche la gestione degli errori per garantire una risposta a
 - GET /allVarchi
 
 Il diagramma di sequenze illustra il processo per ottenere l'elenco di tutti i varchi attraverso una richiesta HTTP GET all'endpoint `/varchi`. Il flusso inizia quando il client invia una richiesta al router di Express. Il router, dopo aver ricevuto la richiesta, passa il controllo a un middleware di autorizzazione per verificare se l'utente ha il ruolo adeguato per accedere alle informazioni sui varchi.
-Se l'utente è autorizzato, la richiesta viene inoltrata al VarcoController. Il VarcoController è incaricato di interagire con il VarcoDao per recuperare i dati relativi ai varchi dal database. Una volta che il VarcoDao ha ottenuto l'elenco completo dei varchi dal database, restituisce questi dati al VarcoController.
-Il VarcoController poi trasmette l'elenco dei varchi al router, che infine invia la risposta completa al client. Questo diagramma prevede anche la gestione degli errori: se l'utente non è autorizzato, viene restituito un messaggio di accesso negato. Inoltre, se ci sono problemi nel recupero dei dati, viene gestito un errore e comunicato al client, assicurando che riceva un'informativa adeguata in caso di malfunzionamenti.
+Se l'utente è autorizzato, la richiesta viene inoltrata al VarcoController. Il VarcoController è incaricato di interagire con il VarcoRepository per recuperare i dati relativi ai varchi dal database tramite il VarcoDAO. Una volta ottenuto l'elenco completo dei varchi dal database, restituisce questi dati al VarcoController. Il VarcoController trasmette l'elenco dei varchi al router, che infine invia la risposta completa al client. Questo diagramma prevede anche la gestione degli errori: se l'utente non è autorizzato, viene restituito un messaggio di accesso negato. Inoltre, se ci sono problemi nel recupero dei dati, viene gestito un errore e comunicato al client, assicurando che riceva un'informativa adeguata in caso di malfunzionamenti.
 
 ![alt text](immagini/getAllVarchi.png)
 
 - PUT /updateTransito
 
 Il diagramma di sequenze descrive il flusso per gestire l'uscita di un transito tramite una richiesta HTTP PUT all'endpoint `/transito/:id/uscita`. Dopo che il client invia la richiesta, il router di Express verifica se l'utente ha il ruolo di 'operatore' tramite un middleware di autorizzazione. Se l'autorizzazione è confermata, il router passa la richiesta al TransitoController per gestire l'uscita.
-Il TransitoController prima recupera il transito corrispondente all'ID fornito, interpellando il TransitoDao che esegue una query sul database. Una volta ottenuto il transito, il controller calcola la tariffa basata sul tempo di ingresso e uscita, consultando il TariffaDao che a sua volta interroga il database per ottenere la tariffa.
+Il TransitoController prima recupera il transito corrispondente all'ID fornito, interagendo con il TransitoRepository che tramite il TransitoDao esegue una query sul database. Una volta ottenuto il transito, il controller calcola la tariffa basata sul tempo di ingresso e uscita, consultando il TariffaDao che a sua volta interroga il database per ottenere la tariffa.
 Con i dati aggiornati, il TransitoController aggiorna il transito nel database con i dettagli dell'uscita e l'importo calcolato, e conferma l'aggiornamento al router. Infine, il router restituisce al client la risposta con il transito aggiornato.
 La gestione degli errori è prevista per i casi di accesso negato, transito non trovato e errori nel calcolo della tariffa, con risposte adeguate fornite al client per ciascun caso.
 
@@ -209,7 +201,7 @@ La gestione degli errori è prevista per i casi di accesso negato, transito non 
 
 ## API Routes
 
-La tabella sottostante elenca alcune delle rotte disponibili, specificando i livelli di accesso autorizzati e fornendo una descrizione del loro scopo. Di seguito ne verranno rappresentate alcune per fornire una panoramica del funzionamento.
+La tabella sottostante elenca alcune delle rotte disponibili, specificando i livelli di accesso autorizzati e fornendo una descrizione del loro scopo. Di seguito verranno rappresentate alcune di queste rotte per fornire una panoramica del funzionamento del sistema.
 
 | Tipo     | Rotta                         | Autenticazione | Autorizzazione                  |
 | -------- | ----------------------------- | -------------- | ------------------------------- |
@@ -482,23 +474,23 @@ _Risposta:_
 
 Per utilizzare l'applicazione è necessario seguire i seguenti passaggi:
 
-1. eseguire la _clone_ della repository
+1. Eseguire il _clone_ della repository
 
 ```bash
 git clone https://github.com/Mauro0503/Progetto_programmazione_avanzata_2024.git
 ```
 
-2. configurare il file `.env`
+2. Configurare il file `.env`
 
-3. importare la collection su Postman contenuta nel file: `CollectionParcheggio.postman_collection.json`
+3. Importare la collection su Postman contenuta nel file: `CollectionParcheggio.postman_collection.json`
 
-4. avvia l'applicazione con Docker:
+4. Avviare l'applicazione con Docker:
 
 ```bash
 docker-compose up --build -d
 ```
 
-5. Accedi all'applicazione su `http://localhost:3000`.
+5. Accedere all'applicazione su `http://localhost:3000`.
 
 ## Strumenti Impiegati
 
