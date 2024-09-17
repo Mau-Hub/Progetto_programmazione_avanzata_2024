@@ -192,7 +192,32 @@ La gestione degli errori è prevista per i casi di accesso negato, transito non 
 - GET /StatisticheParcheggio
 
 ## API Routes
-La tabella sottostante elenca alcune delle rotte disponibili,  specificando i livelli di accesso autorizzati e fornendo una descrizione del loro scopo. Di seguito ne verranno rappresentate alcune per fornire una panoramica del funzionamento. 
+La tabella sottostante elenca tutte le rotte disponibili nella collection, specificando i livelli di accesso autorizzati e fornendo una descrizione del loro scopo. E a seguire ne verranno mostrate alcune per fornire una panoramica del funzionamento. 
+
+| Tipo     | Rotta                               | Autenticazione | Autorizzazione              |
+|----------|-------------------------------------|----------------|-----------------------------|
+| `POST`   | `/api/parcheggio`                   | Sì             | Operatore                   |
+| `GET`    | `/parcheggio/id`                    | Sì             | Operatore                   |
+| `GET`    | `/api/parcheggi`                    | Sì             | Operatore                   |
+| `PUT`    | `/api/parcheggio/id`                | Sì             | Operatore                   |
+| `DELETE` | `/api/parcheggio/id`                | Sì             | Operatore                   |
+| `POST`   | `/api/varco`                        | Sì             | Operatore                   |
+| `GET`    | `/api/varco/id`                     | Sì             | Operatore                   |
+| `GET`    | `/api/varchi`                       | Sì             | Operatore                   |
+| `PUT`    | `/api/varco/id`                     | Sì             | Operatore                   |
+| `POST`   | `/api/tariffa`                      | Sì             | Operatore                   |
+| `GET`    | `/api/tariffa/id`                   | Sì             | Operatore                   |
+| `GET`    | `/api/tariffe`                      | Sì             | Operatore                   |
+| `PUT`    | `/api/tariffa/id`                   | Sì             | Operatore                   |
+| `DELETE` | `/api/tariffa/id`                   | Sì             | Operatore                   |
+| `POST`   | `/api/transito`                     | Sì             | Operatore, Varco            |
+| `GET`    | `/api/transito/id`                  | Sì             | Operatore                   |
+| `PUT`    | `/api/transito/id/uscita`           | Sì             | Operatore                   |
+| `DELETE` | `/api/transito/id`                  | Sì             | Operatore                   |
+| `GET`    | `/api/transiti/export`              | Sì             | Operatore, Automobilista    |
+| `GET`    | `/api/statistiche`                  | Sì             | Operatore                   |
+| `GET`    | `/api/statistiche/parcheggio`       | Sì             | Operatore                   |
+| `POST`   | `/api/login`                        | No             | Operatore, Varco, Automobilista |
 
 ### Parcheggio
 *Rotta:*
@@ -408,12 +433,6 @@ docker-compose up --build -d
 ```
 5. Accedi all'applicazione su `http://localhost:3000`.
 
-## Strumenti Impiegati
-- **Node.js e Express**: Framework per il backend.
-- **Sequelize**: ORM per interagire con il database.
-- **PostgreSQL**: Database relazionale.
-- **TypeScript**: Linguaggio di programmazione.
-- **JWT**: Autenticazione tramite token.
-- **Docker e Docker Compose**: Contenitori e orchestrazione.
+Le rotte API mostrate nella sezione [API Routes](#api-routes) possono essere testate tramite Postman, utilizzando la collection `CollectionParcheggio.postman_collection.json` e l'environment `Parcheggio.postman_environment.json`.
 
 ## Autori
