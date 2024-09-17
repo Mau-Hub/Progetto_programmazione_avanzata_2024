@@ -185,12 +185,6 @@ La gestione degli errori è prevista per i casi di accesso negato, transito non 
 
 ![alt text](<immagini/putTransito.png>)
 
-- GET /Export
-
-- GET /Statistiche
-
-- GET /StatisticheParcheggio
-
 ## API Routes
 La tabella sottostante elenca tutte le rotte disponibili nella collection, specificando i livelli di accesso autorizzati e fornendo una descrizione del loro scopo. E a seguire ne verranno mostrate alcune per fornire una panoramica del funzionamento. 
 
@@ -220,6 +214,7 @@ La tabella sottostante elenca tutte le rotte disponibili nella collection, speci
 | `POST`   | `/api/login`                        | No             | Operatore, Varco, Automobilista |
 
 ### Parcheggio
+
 *Rotta:*
 ```bash
 POST api/parcheggio
@@ -371,7 +366,7 @@ GET api/transiti/export
 Se il formato richiesto è in csv, la risposta sarà la seguente:
 ![alt text](<immagini/csvExport.jpg>)
 
-### Statistiche
+### getStatistiche
 *Rotta:*
 ```bash
 GET api/statistiche
@@ -388,7 +383,7 @@ GET api/statistiche
 Se il formato richiesto è in pdf, la risposta sarà la seguente:
 ![alt text](<immagini/reportStatistiche.jpg>)
 
-### StatisticheParcheggio
+### getStatisticheParcheggio
 *Rotta:*
 ```bash
 GET api/statistiche/parcheggio
@@ -416,22 +411,24 @@ GET api/statistiche/parcheggio
     "fatturatoTotale": 16.599169305555556
 }
 ```
-## Configurazione e avvio
-Per utilizzare l'applicazione è necessario seguire i seguenti passaggi:
+## Configurazione e Avvio
 
-1. eseguire la *clone* della repository
+Per utilizzare l'applicazione, basta seguire i seguenti passi. Assicurarsi di avere installato Docker e Postman sul proprio sistema prima di procedere:
+
+### Clona il repository
+Clonare il repository GitHub nella macchina locale eseguendo il seguente comando:
 ```bash
 git clone https://github.com/Mauro0503/Progetto_programmazione_avanzata_2024.git
 ```
-2. configurare il file ```.env```
+2. All'interno della directory del progetto, è presente un file di configurazione ```.env``` da importare.
 
-3. importare la collection su Postman contenuta nel file: `CollectionParcheggio.postman_collection.json`
+3. Importare la collection Postman contenuta nel file: `CollectionParcheggio.postman_collection.json`
 
-4. avvia l'applicazione con Docker:
+4. Avviare l'applicazione con Docker tramite il comando:
 ```bash
-docker-compose up --build -d
+docker-compose up --build 
 ```
-5. Accedi all'applicazione su `http://localhost:3000`.
+5. Una volta che Docker avrà avviato correttamente l'applicazione, sarà possibile accedervi all'indirizzo: `http://localhost:3000`.
 
 Le rotte API mostrate nella sezione [API Routes](#api-routes) possono essere testate tramite Postman, utilizzando la collection `CollectionParcheggio.postman_collection.json` e l'environment `Parcheggio.postman_environment.json`.
 
