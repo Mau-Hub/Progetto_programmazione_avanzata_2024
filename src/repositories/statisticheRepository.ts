@@ -4,6 +4,7 @@ import parcheggioDao from '../dao/parcheggioDao';
 import veicoloDao from '../dao/veicoloDao';
 import transitoService from '../ext/transitoService';
 import { ApplicationErrorTypes, ErrorGenerator } from '../ext/errorFactory';
+import { CustomHttpError } from '../ext/errorFactory';
 
 export interface StatisticheData {
   parcheggio: string;
@@ -40,9 +41,6 @@ class StatisticheRepository {
             return totale + (transito.importo || 0);
           }, 0);
 
-          // Calcola la media dei posti liberi
-          // Dovrai implementare una logica per calcolare la media dei posti liberi
-          // durante il periodo specificato e per il parcheggio indicato.
           const mediaPostiLiberi = await this.calcolaMediaPostiLiberi(
             parcheggio.id,
             from,
@@ -60,26 +58,29 @@ class StatisticheRepository {
       return statistiche;
     } catch (error) {
       console.error('Errore nel calcolo delle statistiche:', error);
-      throw new Error('Errore nel calcolo delle statistiche');
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        'Errore nel calcolo delle statistiche'
+      );
     }
   }
 
-  // Nuova funzione per calcolare la media dei posti liberi
   private async calcolaMediaPostiLiberi(
     idParcheggio: number,
     from: Date,
     to: Date
   ): Promise<number> {
     try {
-      // Ottieni il parcheggio specifico per avere la sua capacità totale
       const parcheggio = await parcheggioDao.findById(idParcheggio);
       if (!parcheggio) {
-        throw new Error('Parcheggio non trovato');
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+          'Parcheggio non trovato'
+        );
       }
 
       const capacitaTotale = parcheggio.capacita;
 
-      // Ottieni tutti i transiti relativi al parcheggio nel periodo specificato
       const transiti = await transitoDao.findAll({
         where: {
           ingresso: {
@@ -93,7 +94,6 @@ class StatisticheRepository {
         include: ['varcoIngresso', 'varcoUscita'],
       });
 
-      // Mantieni una mappa dei posti occupati nel tempo
       let postiOccupatiNelTempo = 0;
       let sommaPostiLiberi = 0;
       let conteggioFasi = 0;
@@ -102,31 +102,39 @@ class StatisticheRepository {
         const ingresso = transito.ingresso.getTime();
         const uscita = transito.uscita ? transito.uscita.getTime() : Date.now();
 
-        // Calcola per ogni ora del periodo
         for (let t = ingresso; t < uscita; t += 3600000) {
-          // 3600000 ms = 1 ora
           postiOccupatiNelTempo++;
           sommaPostiLiberi += capacitaTotale - postiOccupatiNelTempo;
           conteggioFasi++;
         }
       });
 
-      // Calcola la media dei posti liberi
       return conteggioFasi > 0
         ? sommaPostiLiberi / conteggioFasi
         : capacitaTotale;
     } catch (error) {
       console.error('Errore nel calcolo della media dei posti liberi:', error);
-      throw new Error('Errore nel calcolo della media dei posti liberi');
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        'Errore nel calcolo della media dei posti liberi'
+      );
     }
   }
+
   public async calcolaStatistichePerParcheggio(
     idParcheggio: number,
     from: Date,
     to: Date
   ): Promise<any> {
     try {
-      // Recuperare i transiti relativi a questo parcheggio
+      // Controlla se il parcheggio esiste nel database
+      const parcheggio = await parcheggioDao.findById(idParcheggio);
+      if (!parcheggio) {
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+          'Parcheggio non trovato nel database'
+        );
+      }
       const transiti = await transitoDao.findAll({
         where: {
           ingresso: {
@@ -140,10 +148,8 @@ class StatisticheRepository {
         include: ['varcoIngresso'],
       });
 
-      // Numero totale di transiti
       const numeroTotaleTransiti = transiti.length;
 
-      // Numero totale di transiti distinti per tipologia di veicolo
       const transitiPerTipoVeicolo: Record<string, number> = {};
 
       for (const transito of transiti) {
@@ -162,7 +168,6 @@ class StatisticheRepository {
         transitiPerTipoVeicolo[tipoVeicolo]++;
       }
 
-      // Numero totale di transiti distinti per fascia oraria
       const transitiPerFasciaOraria = {
         DIURNA: 0,
         NOTTURNA: 0,
@@ -174,7 +179,6 @@ class StatisticheRepository {
         transitiPerFasciaOraria[fasciaOraria]++;
       });
 
-      // Calcolo del fatturato
       const fatturatoTotale = transiti.reduce((totale, transito) => {
         return totale + (transito.importo || 0);
       }, 0);
@@ -187,9 +191,18 @@ class StatisticheRepository {
       };
     } catch (error) {
       console.error('Errore nel calcolo delle statistiche:', error);
-      throw new Error('Errore nel calcolo delle statistiche');
+
+      // Se l'errore è un CustomHttpError, rilancialo
+      if (error instanceof CustomHttpError) {
+        throw error;
+      }
+
+      // Altrimenti, lancia un errore generico
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        'Errore nel calcolo delle statistiche'
+      );
     }
   }
 }
-
 export default new StatisticheRepository();

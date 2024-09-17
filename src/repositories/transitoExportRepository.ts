@@ -1,5 +1,6 @@
 import transitoDao from '../dao/transitoDao';
 import veicoloDao from '../dao/veicoloDao';
+import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
 import { Op } from 'sequelize';
 
 interface TransitoData {
@@ -25,7 +26,7 @@ class TransitoExportRepository {
       if (userRole === 'automobilista') {
         // Trova tutti i veicoli associati all'utente autenticato
         const veicoliAssociati = await veicoloDao.findAll({
-          where: { id_utente: userId }, // Filtra i veicoli per l'utente autenticato
+          where: { id_utente: userId },
         });
 
         // Ottieni le targhe dei veicoli associati all'utente
@@ -36,8 +37,9 @@ class TransitoExportRepository {
 
         // Se l'automobilista non ha accesso ad alcuna delle targhe specificate, genera un errore
         if (targheFiltrate.length === 0) {
-          throw new Error(
-            'Accesso negato: non puoi visualizzare i transiti per le targhe specificate.'
+          throw ErrorGenerator.generateError(
+            ApplicationErrorTypes.ACCESS_DENIED,
+            'Non puoi visualizzare i transiti per le targhe specificate.'
           );
         }
       }
@@ -52,7 +54,6 @@ class TransitoExportRepository {
             [Op.gte]: from,
             [Op.lte]: to,
           },
-          // Condizione per includere i transiti con uscita null o con uscita minore o uguale a 'to'
           [Op.or]: [{ uscita: { [Op.lte]: to } }, { uscita: null }],
         },
         include: ['veicolo', 'varcoIngresso', 'varcoUscita', 'tariffa'],
@@ -81,7 +82,10 @@ class TransitoExportRepository {
       );
     } catch (error) {
       console.error('Errore nel recupero dei transiti:', error);
-      throw new Error('Errore nel recupero dei transiti');
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        'Errore nel recupero dei transiti'
+      );
     }
   }
 }

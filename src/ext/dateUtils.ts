@@ -1,15 +1,5 @@
-// Funzione di utilità per mapping dei giorni della settimana
-export function getGiornoSettimanaString(dayNumber: number): string {
-    const giorniSettimana = [
-      'DOMENICA', // 0
-      'LUNEDI',   // 1
-      'MARTEDI',  // 2
-      'MERCOLEDI',// 3
-      'GIOVEDI',  // 4
-      'VENERDI',  // 5
-      'SABATO'    // 6
-    ];
-    
-    return giorniSettimana[dayNumber];
-  }
-  
+export const isValidISODate = (dateStr: string): boolean => {
+  // Controlla se la stringa corrisponde al formato ISO 8601
+  const isoDateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/;
+  return isoDateRegex.test(dateStr) && !isNaN(Date.parse(dateStr));
+};

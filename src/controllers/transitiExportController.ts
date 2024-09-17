@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import CsvService from '../ext/csvService';
-import PdfService from '../ext/pdfService';
+import CsvService from '../ext/csvExportService';
+import PdfService from '../ext/pdfExportService';
 import pdfStatisticheService from '../ext/pdfStatisticheService';
 import csvStaticticheService from '../ext/csvStaticticheService';
 import TransitoExportRepository from '../repositories/transitoExportRepository';
 import statisticheRepository from '../repositories/statisticheRepository';
+import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
 
 class TransitiExportController {
   // Rotta per ottenere i transiti in formato CSV o PDF
@@ -15,9 +16,10 @@ class TransitiExportController {
       console.log('Parametri ricevuti:', { targhe, from, to, formato });
 
       if (!targhe || !from || !to) {
-        return res
-          .status(400)
-          .json({ message: 'Targhe, from e to sono richiesti' });
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.INVALID_INPUT,
+          'Targhe, from e to sono richiesti'
+        );
       }
 
       // Ottenere i transiti dal repository
@@ -31,9 +33,10 @@ class TransitiExportController {
         );
 
       if (transiti.length === 0) {
-        return res
-          .status(404)
-          .json({ message: 'Nessun transito trovato per i parametri forniti' });
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+          'Nessun transito trovato per i parametri forniti'
+        );
       }
 
       // Generazione del file in base al formato specificato
@@ -48,9 +51,10 @@ class TransitiExportController {
         res.attachment('transiti.pdf');
         return res.send(pdf);
       } else {
-        return res
-          .status(400)
-          .json({ message: 'Formato non supportato. Usa "csv" o "pdf".' });
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.INVALID_INPUT,
+          'Formato non supportato. Usa "csv" o "pdf".'
+        );
       }
     } catch (error) {
       console.error('Errore nella rotta exportTransiti:', error);
@@ -63,7 +67,10 @@ class TransitiExportController {
       const { from, to, formato } = req.body;
 
       if (!from || !to) {
-        return res.status(400).json({ message: 'From e to sono richiesti' });
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.INVALID_INPUT,
+          'From e to sono richiesti'
+        );
       }
 
       // Calcolare le statistiche
@@ -86,9 +93,10 @@ class TransitiExportController {
       } else if (formato === 'json') {
         return res.json(statistiche);
       } else {
-        return res.status(400).json({
-          message: 'Formato non supportato. Usa "csv", "pdf" o "json".',
-        });
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.INVALID_INPUT,
+          'Formato non supportato. Usa "csv", "pdf" o "json".'
+        );
       }
     } catch (error) {
       console.error('Errore nella rotta getStatistiche:', error);
@@ -105,9 +113,10 @@ class TransitiExportController {
       const { idParcheggio, from, to } = req.body;
 
       if (!idParcheggio || !from || !to) {
-        return res
-          .status(400)
-          .json({ message: 'idParcheggio, from e to sono richiesti' });
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.INVALID_INPUT,
+          'idParcheggio, from e to sono richiesti'
+        );
       }
 
       // Calcolare le statistiche per il parcheggio specificato

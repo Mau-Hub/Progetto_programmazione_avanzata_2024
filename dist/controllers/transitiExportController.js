@@ -18,6 +18,7 @@ const pdfStatisticheService_1 = __importDefault(require("../ext/pdfStatisticheSe
 const csvStaticticheService_1 = __importDefault(require("../ext/csvStaticticheService"));
 const transitoExportRepository_1 = __importDefault(require("../repositories/transitoExportRepository"));
 const statisticheRepository_1 = __importDefault(require("../repositories/statisticheRepository"));
+const errorFactory_1 = require("../ext/errorFactory");
 class TransitiExportController {
     // Rotta per ottenere i transiti in formato CSV o PDF
     exportTransiti(req, res, next) {
@@ -27,16 +28,12 @@ class TransitiExportController {
                 const user = req.user;
                 console.log('Parametri ricevuti:', { targhe, from, to, formato });
                 if (!targhe || !from || !to) {
-                    return res
-                        .status(400)
-                        .json({ message: 'Targhe, from e to sono richiesti' });
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, 'Targhe, from e to sono richiesti');
                 }
                 // Ottenere i transiti dal repository
                 const transiti = yield transitoExportRepository_1.default.findTransitiByTargheAndPeriodo(targhe, new Date(from), new Date(to), user.id, user.ruolo);
                 if (transiti.length === 0) {
-                    return res
-                        .status(404)
-                        .json({ message: 'Nessun transito trovato per i parametri forniti' });
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, 'Nessun transito trovato per i parametri forniti');
                 }
                 // Generazione del file in base al formato specificato
                 if (formato === 'csv') {
@@ -52,9 +49,7 @@ class TransitiExportController {
                     return res.send(pdf);
                 }
                 else {
-                    return res
-                        .status(400)
-                        .json({ message: 'Formato non supportato. Usa "csv" o "pdf".' });
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, 'Formato non supportato. Usa "csv" o "pdf".');
                 }
             }
             catch (error) {
@@ -68,7 +63,7 @@ class TransitiExportController {
             try {
                 const { from, to, formato } = req.body;
                 if (!from || !to) {
-                    return res.status(400).json({ message: 'From e to sono richiesti' });
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, 'From e to sono richiesti');
                 }
                 // Calcolare le statistiche
                 const statistiche = yield statisticheRepository_1.default.calcolaStatistiche(new Date(from), new Date(to));
@@ -89,9 +84,7 @@ class TransitiExportController {
                     return res.json(statistiche);
                 }
                 else {
-                    return res.status(400).json({
-                        message: 'Formato non supportato. Usa "csv", "pdf" o "json".',
-                    });
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, 'Formato non supportato. Usa "csv", "pdf" o "json".');
                 }
             }
             catch (error) {
@@ -105,9 +98,7 @@ class TransitiExportController {
             try {
                 const { idParcheggio, from, to } = req.body;
                 if (!idParcheggio || !from || !to) {
-                    return res
-                        .status(400)
-                        .json({ message: 'idParcheggio, from e to sono richiesti' });
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, 'idParcheggio, from e to sono richiesti');
                 }
                 // Calcolare le statistiche per il parcheggio specificato
                 const statistiche = yield statisticheRepository_1.default.calcolaStatistichePerParcheggio(idParcheggio, new Date(from), new Date(to));

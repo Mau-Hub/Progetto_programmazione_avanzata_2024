@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const errorFactory_1 = require("../ext/errorFactory");
+const dateUtils_1 = require("../ext/dateUtils");
 const validateParcheggio = (req, res, next) => {
     const { nome, capacita, varchi, posti_disponibili } = req.body;
     // Verifica che 'nome' sia presente e sia una stringa
@@ -52,7 +53,7 @@ const validateVarco = (req, res, next) => {
     next();
 };
 const validateTariffa = (req, res, next) => {
-    const { id_tipo_veicolo, importo, fascia_oraria, id_parcheggio, id_utente, feriale_festivo, } = req.body;
+    const { id_tipo_veicolo, importo, fascia_oraria, id_parcheggio, feriale_festivo, } = req.body;
     // Verifica che l'id del tipi di veicolo sia un numero intero positivo
     if (!id_tipo_veicolo ||
         typeof id_tipo_veicolo !== 'number' ||
@@ -82,17 +83,17 @@ const validateTariffa = (req, res, next) => {
     next();
 };
 const validateTransito = (req, res, next) => {
-    const { id_veicolo, id_varco_uscita, id_varco_ingresso } = req.body;
-    // Verifica che 'id_veicolo' sia un numero intero positivo
-    if (!id_veicolo ||
-        typeof id_veicolo !== 'number' ||
-        !Number.isInteger(id_veicolo) ||
-        id_veicolo <= 0) {
-        return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.MALFORMED_ID, "'id_veicolo' è obbligatorio e deve essere un numero intero positivo"));
+    const { targa, id_tipo_veicolo, id_varco_ingresso } = req.body;
+    // Verifica che 'targa' sia presente e sia una stringa valida
+    if (!targa || typeof targa !== 'string' || targa.trim() === '') {
+        return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, "'targa' è obbligatorio e deve essere una stringa valida"));
     }
-    // Verifica che 'uscita', se presente, sia una data valida
-    if (id_varco_uscita && isNaN(Date.parse(id_varco_uscita))) {
-        return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, "'id_varco_uscita', se fornita, deve essere un varco valido"));
+    // Verifica che 'id_tipo_veicolo' sia un numero intero positivo
+    if (!id_tipo_veicolo ||
+        typeof id_tipo_veicolo !== 'number' ||
+        !Number.isInteger(id_tipo_veicolo) ||
+        id_tipo_veicolo <= 0) {
+        return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.MALFORMED_ID, "'id_tipo_veicolo' è obbligatorio e deve essere un numero intero positivo"));
     }
     // Verifica che 'id_varco_ingresso' sia un numero intero positivo
     if (!id_varco_ingresso ||
@@ -100,6 +101,75 @@ const validateTransito = (req, res, next) => {
         !Number.isInteger(id_varco_ingresso) ||
         id_varco_ingresso <= 0) {
         return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.MALFORMED_ID, "'id_varco_ingresso' è obbligatorio e deve essere un numero intero positivo"));
+    }
+    next();
+};
+const validateUpdateUscita = (req, res, next) => {
+    const { id } = req.params;
+    const { id_varco_uscita } = req.body;
+    // Verifica che 'id' sia presente nei parametri e sia un numero intero positivo
+    if (!id ||
+        isNaN(Number(id)) ||
+        !Number.isInteger(Number(id)) ||
+        Number(id) <= 0) {
+        return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.MALFORMED_ID, "L'ID del transito fornito non è valido. Deve essere un numero intero positivo."));
+    }
+    // Verifica che 'id_varco_uscita' sia un numero intero positivo
+    if (!id_varco_uscita ||
+        typeof id_varco_uscita !== 'number' ||
+        !Number.isInteger(id_varco_uscita) ||
+        id_varco_uscita <= 0) {
+        return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.MALFORMED_ID, "'id_varco_uscita' è obbligatorio e deve essere un numero intero positivo"));
+    }
+    next();
+};
+const validateExportTransiti = (req, res, next) => {
+    const { targhe, from, to, formato } = req.body;
+    // Verifica che 'targhe' sia un array di stringhe
+    if (!Array.isArray(targhe) ||
+        targhe.length === 0 ||
+        !targhe.every((targa) => typeof targa === 'string' && targa.trim() !== '')) {
+        return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, "'targhe' è obbligatorio e deve essere un array di stringhe non vuote"));
+    }
+    // Verifica che 'from' e 'to' siano date ISO valide
+    if (!from || !(0, dateUtils_1.isValidISODate)(from)) {
+        return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, "'from' è obbligatorio e deve essere una data ISO valida"));
+    }
+    if (!to || !(0, dateUtils_1.isValidISODate)(to)) {
+        return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, "'to' è obbligatorio e deve essere una data ISO valida"));
+    }
+    // Verifica che 'formato' sia valido ('csv' o 'pdf')
+    if (!['csv', 'pdf'].includes(formato)) {
+        return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, "'formato' deve essere 'csv' o 'pdf'"));
+    }
+    next();
+};
+const validateStatistiche = (req, res, next) => {
+    const { from, to } = req.body;
+    // Verifica che 'from' e 'to' siano stringhe e rappresentino date ISO valide
+    if (!from || typeof from !== 'string' || !(0, dateUtils_1.isValidISODate)(from)) {
+        return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, "'from' è obbligatorio e deve essere una stringa rappresentante una data ISO valida"));
+    }
+    if (!to || typeof to !== 'string' || !(0, dateUtils_1.isValidISODate)(to)) {
+        return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, "'to' è obbligatorio e deve essere una stringa rappresentante una data ISO valida"));
+    }
+    next();
+};
+const validateStatisticheParcheggio = (req, res, next) => {
+    const { idParcheggio, from, to } = req.body;
+    // Verifica che 'idParcheggio' sia un numero intero positivo
+    if (!idParcheggio ||
+        typeof idParcheggio !== 'number' ||
+        !Number.isInteger(idParcheggio) ||
+        idParcheggio <= 0) {
+        return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.MALFORMED_ID, "'idParcheggio' è obbligatorio e deve essere un numero intero positivo"));
+    }
+    // Verifica che 'from' e 'to' siano stringhe e rappresentino date ISO valide
+    if (!from || typeof from !== 'string' || !(0, dateUtils_1.isValidISODate)(from)) {
+        return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, "'from' è obbligatorio e deve essere una stringa rappresentante una data ISO valida"));
+    }
+    if (!to || typeof to !== 'string' || !(0, dateUtils_1.isValidISODate)(to)) {
+        return next(errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.INVALID_INPUT, "'to' è obbligatorio e deve essere una stringa rappresentante una data ISO valida"));
     }
     next();
 };
@@ -122,5 +192,9 @@ exports.default = {
     validateVarco,
     validateTariffa,
     validateTransito,
+    validateUpdateUscita,
+    validateExportTransiti,
+    validateStatistiche,
+    validateStatisticheParcheggio,
     validateIdParam,
 };

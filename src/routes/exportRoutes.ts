@@ -3,6 +3,7 @@ import { authenticationMiddleware } from '../middleware/authenticationMiddleware
 import transitiExportController from '../controllers/transitiExportController';
 import { errorHandler } from '../middleware/errorHandler';
 import { authorizeRoles } from '../middleware/authenticationMiddleware';
+import validationMiddleware from '../middleware/validationMiddleware';
 
 const router = Router();
 
@@ -11,6 +12,7 @@ router.get(
   '/transiti/export',
   authenticationMiddleware,
   authorizeRoles(['operatore', 'automobilista']),
+  validationMiddleware.validateExportTransiti,
   transitiExportController.exportTransiti
 );
 // Rotta autenticata per ottenere le statistiche in formato JSON, CSV o PDF
@@ -18,6 +20,7 @@ router.get(
   '/statistiche',
   authenticationMiddleware,
   authorizeRoles(['operatore']),
+  validationMiddleware.validateStatistiche,
   transitiExportController.getStatistiche
 );
 
@@ -26,6 +29,7 @@ router.get(
   '/statistiche/parcheggio',
   authenticationMiddleware,
   authorizeRoles(['operatore']),
+  validationMiddleware.validateStatisticheParcheggio,
   transitiExportController.getStatistichePerParcheggio
 );
 

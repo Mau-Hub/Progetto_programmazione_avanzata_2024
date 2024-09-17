@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const transitoDao_1 = __importDefault(require("../dao/transitoDao"));
 const veicoloDao_1 = __importDefault(require("../dao/veicoloDao"));
+const errorFactory_1 = require("../ext/errorFactory");
 const sequelize_1 = require("sequelize");
 class TransitoExportRepository {
     findTransitiByTargheAndPeriodo(targhe, from, to, userId, userRole) {
@@ -24,7 +25,7 @@ class TransitoExportRepository {
                 if (userRole === 'automobilista') {
                     // Trova tutti i veicoli associati all'utente autenticato
                     const veicoliAssociati = yield veicoloDao_1.default.findAll({
-                        where: { id_utente: userId }, // Filtra i veicoli per l'utente autenticato
+                        where: { id_utente: userId },
                     });
                     // Ottieni le targhe dei veicoli associati all'utente
                     const targheUtente = veicoliAssociati.map((veicolo) => veicolo.targa);
@@ -32,7 +33,7 @@ class TransitoExportRepository {
                     targheFiltrate = targhe.filter((targa) => targheUtente.includes(targa));
                     // Se l'automobilista non ha accesso ad alcuna delle targhe specificate, genera un errore
                     if (targheFiltrate.length === 0) {
-                        throw new Error('Accesso negato: non puoi visualizzare i transiti per le targhe specificate.');
+                        throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.ACCESS_DENIED, 'Non puoi visualizzare i transiti per le targhe specificate.');
                     }
                 }
                 // Recupera i transiti filtrati per targa e periodo
@@ -45,7 +46,6 @@ class TransitoExportRepository {
                             [sequelize_1.Op.gte]: from,
                             [sequelize_1.Op.lte]: to,
                         },
-                        // Condizione per includere i transiti con uscita null o con uscita minore o uguale a 'to'
                         [sequelize_1.Op.or]: [{ uscita: { [sequelize_1.Op.lte]: to } }, { uscita: null }],
                     },
                     include: ['veicolo', 'varcoIngresso', 'varcoUscita', 'tariffa'],
@@ -68,7 +68,7 @@ class TransitoExportRepository {
             }
             catch (error) {
                 console.error('Errore nel recupero dei transiti:', error);
-                throw new Error('Errore nel recupero dei transiti');
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero dei transiti');
             }
         });
     }

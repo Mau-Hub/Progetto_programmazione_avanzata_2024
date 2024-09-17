@@ -16,6 +16,7 @@ router.use(authenticationMiddleware);
 router.post(
   '/transito',
   authorizeRoles(['operatore', 'varco']),
+  validationMiddleware.validateTransito,
   TransitoController.createTransito
 );
 
@@ -30,6 +31,7 @@ router.get(
 router.put(
   '/transito/:id/uscita',
   authorizeRoles(['operatore']),
+  validationMiddleware.validateUpdateUscita,
   TransitoController.exitTransito
 );
 

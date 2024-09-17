@@ -1,0 +1,589 @@
+{
+	"info": {
+		"_postman_id": "bbbdf395-1272-4294-a2c4-d821e072a6eb",
+		"name": "CollectionParcheggio",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "38169026",
+		"_collection_link": "https://progetto-pa.postman.co/workspace/PROGETTO-PA-Workspace~fbb37c21-8cdd-4ade-8b39-17cabc9758d4/collection/38169026-bbbdf395-1272-4294-a2c4-d821e072a6eb?action=share&source=collection_link&creator=38169026"
+	},
+	"item": [
+		{
+			"name": "Parcheggio",
+			"item": [
+				{
+					"name": "createParcheggio",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibm9tZSI6IkFkbWluIiwicnVvbG8iOiJvcGVyYXRvcmUiLCJpYXQiOjE3MjU2MTQ2ODAsImV4cCI6MTcyNTYxODI4MH0.J4lCsA19VQwzg586Q_yfwv5jsDQrozmjXoBBWNiHuIw",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"nome\": \"Stamira\",\r\n  \"capacita\": 100\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/api/parcheggio"
+					},
+					"response": []
+				},
+				{
+					"name": "parcheggiobyID",
+					"request": {
+						"auth": {
+							"type": "jwt",
+							"jwt": {
+								"algorithm": "HS256",
+								"isSecretBase64Encoded": false,
+								"payload": "{}",
+								"addTokenTo": "header",
+								"headerPrefix": "Bearer",
+								"queryParamKey": "token",
+								"header": "{}"
+							}
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibm9tZSI6IkFkbWluIiwicnVvbG8iOiJvcGVyYXRvcmUiLCJpYXQiOjE3MjU2MTMzOTIsImV4cCI6MTcyNTYxNjk5Mn0.tjg-zS9eYW5upF48Wmf8xmhvwlgPMEab9LdTvczwqIU",
+								"type": "text"
+							}
+						],
+						"url": "http://localhost:3000/parcheggio/1"
+					},
+					"response": []
+				},
+				{
+					"name": "allParcheggi",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/api/parcheggi"
+					},
+					"response": []
+				},
+				{
+					"name": "updateParcheggio",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nome\": \"Via Flavia\",\r\n  \"capacita\": 600\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/api/parcheggio/2"
+					},
+					"response": []
+				},
+				{
+					"name": "deleteParcheggio",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/api/parcheggio/8"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Varco",
+			"item": [
+				{
+					"name": "createVarco",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n      \"tipo\": \"USCITA\",\r\n      \"bidirezionale\": true,\r\n      \"id_parcheggio\": 1\r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/api/varco"
+					},
+					"response": []
+				},
+				{
+					"name": "varcobyID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": "http://localhost:3000/api/varco/4"
+					},
+					"response": []
+				},
+				{
+					"name": "allVarchi",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": "http://localhost:3000/api/varchi"
+					},
+					"response": []
+				},
+				{
+					"name": "updateVarco",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n      \"tipo\": \"USCITA\",\r\n      \"bidirezionale\": true,\r\n      \"id_parcheggio\": 1\r\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/api/varco/1"
+					},
+					"response": []
+				},
+				{
+					"name": "deleteVarco",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer ",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/api/parcheggio"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tariffa",
+			"item": [
+				{
+					"name": "createTariffa",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id_tipo_veicolo\": 1,\r\n  \"importo\": 4,\r\n  \"fascia_oraria\": \"NOTTURNA\",\r\n  \"feriale_festivo\": \"FERIALE\",\r\n  \"id_parcheggio\": 2\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/api/tariffa"
+					},
+					"response": []
+				},
+				{
+					"name": "tariffabyID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": "http://localhost:3000/api/tariffa/4"
+					},
+					"response": []
+				},
+				{
+					"name": "allTariffe",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": "http://localhost:3000/api/tariffe"
+					},
+					"response": []
+				},
+				{
+					"name": "updateTariffa",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"id_tipo_veicolo\": 3,\r\n  \"importo\": 5,\r\n  \"fascia_oraria\": \"DIURNA\",\r\n  \"feriale_festivo\": \"FERIALE\",\r\n  \"id_parcheggio\": 2\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/api/tariffa/4"
+					},
+					"response": []
+				},
+				{
+					"name": "deleteTariffa",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": "http://localhost:3000/api/tariffa/4"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Transito",
+			"item": [
+				{
+					"name": "createTransito",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"targa\":\"FEDE\",\r\n  \"id_tipo_veicolo\": 2,\r\n  \"id_varco_ingresso\": 3\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/api/transito"
+					},
+					"response": []
+				},
+				{
+					"name": "transitobyID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": "http://localhost:3000/api/transito/20"
+					},
+					"response": []
+				},
+				{
+					"name": "updateTransito",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id_varco_uscita\": 3\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/api/transito/15/uscita"
+					},
+					"response": []
+				},
+				{
+					"name": "deleteTransito",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": "http://localhost:3000/api/transito/10"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Export e Stats",
+			"item": [
+				{
+					"name": "getExport",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"targhe\": [\"FEDE\"],\r\n  \"from\": \"2024-09-01T00:00:00.000Z\",\r\n  \"to\": \"2024-09-30T23:59:59.999Z\",\r\n  \"formato\": \"csv\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/api/transiti/export"
+					},
+					"response": []
+				},
+				{
+					"name": "getStatistiche",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"from\": \"2024-09-01T00:00:00.000Z\",\r\n  \"to\": \"2024-09-30T23:59:59.999Z\",\r\n  \"formato\": \"json\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/api/statistiche"
+					},
+					"response": []
+				},
+				{
+					"name": "getStatisticheParcheggio",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"idParcheggio\": 1,\r\n  \"from\": \"2024-09-01T00:00:00.000Z\",\r\n  \"to\": \"2024-09-30T23:59:59.999Z\",\r\n  \"formato\": \"json\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/api/statistiche/parcheggio"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();\r",
+							"pm.environment.set(\"token\", jsonData.token);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"id\": 1,\r\n  \"username\": \"admin\",\r\n  \"ruolo\": \"operatore\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/api/login"
+			},
+			"response": []
+		},
+		{
+			"name": "allUtenti",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"url": "http://localhost:3000/api/utenti"
+			},
+			"response": []
+		}
+	]
+}
