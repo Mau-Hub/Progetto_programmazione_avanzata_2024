@@ -1,18 +1,16 @@
 # Progetto esame programmazione Avanzata A.A. 2023/2024 
 
 ## Indice
-1. [Indice](#indice)
-2. [Obiettivo](#obiettivo)
-3. [Struttura del Progetto](#struttura-del-progetto)
-   - [3.1 Diagramma dei Casi d'Uso](#diagramma-dei-casi-duso)
-   - [3.2 Diagramma ER](#diagramma-er)
-   - [3.3 Pattern Utilizzati](#pattern-utilizzati)
-   - [3.4 Diagrammi delle Sequenze](#diagrammi-delle-sequenze)
-   - [3.5 Struttura delle Directory](#struttura-delle-directory)
-4. [API Routes](Api-routes)
-5. [Utilizzo](#Utilizzo)
-6. [Strumenti Impiegati](#Strumenti-impiegati)
-7. [Autori](#Autori)
+1. [Obiettivo](#obiettivo)
+2. [Struttura del Progetto](#struttura-del-progetto)
+   - [Diagramma dei Casi d'Uso](#diagramma-dei-casi-duso)
+   - [Diagramma ER](#diagramma-er)
+   - [Pattern Utilizzati](#pattern-utilizzati)
+   - [Diagrammi delle Sequenze](#diagrammi-delle-sequenze)
+3. [API Routes](#api-routes)
+4. [Configurazione e avvio](#configurazione-e-avvio)
+5. [Autori](#autori)
+
 
 ## Obiettivo
 Il sistema è progettato per gestire il calcolo dei costi di parcheggio per autoveicoli di diverse categorie, basandosi sui transiti tra varchi di ingresso e uscita.
@@ -67,13 +65,13 @@ progetto
 └── Dockerfile
 ```
 
-### Diagramma dei Casi d'Uso
+## Diagramma dei Casi d'Uso
 Il diagramma dei casi d'uso viene mostrato in figura, nel quale è possibile notare i tre attori principali: **Automobilista**, **Varco** e **Operatore**. L'automobilista può visualizzare lo stato dei propri transiti e esportarli in formato CSV o PDF. L'operatore ha funzioni più ampie come la gestione dei parcheggi, varchi e tariffe, l'inserimento e modifica dei transiti, e la generazione automatica delle fatture. L'operatore può inoltre visualizzare statistiche dettagliate sul fatturato e sui posti liberi dei parcheggi, con la possibilità di filtrare i dati per intervalli temporali e ottenere report in vari formati.
 Infine il varco può solo inserire i transiti in ingresso che quelli in uscita. 
 
 ![alt text](<immagini/casi d'uso diagramma.png>)
 
-### Diagramma ER
+## Diagramma ER
 Il diagramma ER rappresenta la struttura del database per gestire i transiti di veicoli in parcheggi e la relativa fatturazione. Le principali entità coinvolte sono l'utente (che può essere un automobilista o un operatore), i veicoli, i parcheggi, i varchi, le tariffe, i transiti e le fatture. Ciascuna entità è descritta da una serie di attributi e collegata ad altre entità per gestire le relazioni chiave nel sistema.
 
 - **UTENTE**: L'entità rappresenta sia l'automobilista che l'operatore. Gli automobilisti possiedono veicoli e questi veicoli effettuano transiti. Gli operatori, invece, gestiscono i parcheggi, configurano i varchi e impostano le tariffe.
@@ -93,9 +91,9 @@ Il diagramma ER rappresenta la struttura del database per gestire i transiti di 
 - **FATTURA**: Le fatture vengono generate per gli automobilisti, includendo i transiti effettuati in un determinato periodo. 
 
 In figura è mostrato il diagramma ER:
-![alt text](<immagini/diagramma ER.png>)
+![alt text](<immagini/diagrammaER.png>)
 
-### Pattern Utilizzati
+## Pattern Utilizzati
 
 ### Data Access Object (DAO)
 
@@ -149,43 +147,268 @@ Nonostante il progetto sia orientato principalmente al backend, e quindi non pre
 
 L'adozione di questo pattern ha permesso di mantenere una chiara separazione delle responsabilità, garantendo che ciascuna parte del sistema fosse indipendente e facilmente manutenibile.
 
-### 3.4 Diagrammi delle Sequenze
-I diagrammi delle sequenze sono strumenti fondamentali per visualizzare le interazioni tra diversi oggetti in un sistema, tracciando il flusso di messaggi di richiesta e risposta. Questi diagrammi sono particolarmente utili per comprendere come le entità comunichino tra loro e per rappresentare chiaramente i processi di interazione all'interno di un sistema basato su rotte API.
+## Diagrammi delle Sequenze
 
+I diagrammi delle sequenze sono strumenti fondamentali per visualizzare le interazioni tra diversi oggetti in un sistema, tracciando il flusso di messaggi di richiesta e risposta. Questi diagrammi sono particolarmente utili per comprendere come le entità comunichino tra loro e per rappresentare chiaramente i processi di interazione all'interno di un sistema basato su rotte API.
 Nel contesto del sistema in sviluppo, che include numerose rotte per le operazioni CRUD (Create, Read, Update, Delete), si è scelto di focalizzarsi sui diagrammi delle rotte più complesse e significative. Sono inclusi diagrammi per le rotte di tipo GET e/o POST, oltre a quelle PUT, mentre le rotte DELETE per l'eliminazione sono state escluse a causa della loro somiglianza tra loro. Questo approccio consente di mantenere il focus sui processi più rilevanti e complessi, offrendo una visione chiara e concisa delle principali dinamiche di comunicazione del sistema.
 
+- POST /login
+Il diagramma di sequenze illustra il processo di autenticazione di un utente utilizzando un token JWT. Il client inizia inviando una richiesta HTTP POST all'endpoint `/login`, includendo un token JWT nell'header di autorizzazione. Il router di Express riceve questa richiesta e passa il token al middleware di autenticazione.
+Il middleware di autenticazione si occupa di verificare la validità del token inviandolo al servizio di verifica JWT. Se il token è valido, il middleware conferma l'autenticazione e il router prosegue recuperando i dati dell'utente associato al token dal database. Una volta ottenuti i dati, il router invia queste informazioni al client, completando il processo di autenticazione.
+In caso di token invalido, il middleware di autenticazione segnala l'errore al router. Il gestore degli errori si occupa quindi di restituire un messaggio di errore al client, indicando che l'autenticazione è fallita a causa di un token non valido. Questo diagramma copre anche la gestione degli errori per garantire che il client riceva una risposta adeguata in caso di problemi con il token o con l'autenticazione.
 
+![alt text](<immagini/postLogin.png>)
 
-## 4. API Routes
+- GET /parcheggiobyID
 
-### Parcheggi
+Il diagramma di sequenze descrive il flusso per ottenere i dettagli di un parcheggio attraverso una richiesta HTTP GET all'endpoint `/parcheggio/:id`. Il processo inizia quando il client invia la richiesta al router di Express. Il router inoltra la richiesta a un middleware di autorizzazione per verificare se l'utente ha il ruolo necessario per accedere ai dettagli del parcheggio. Se l'utente ha il ruolo autorizzato, la richiesta viene poi passata a un middleware di validazione.
+Il middleware di validazione verifica che l'ID del parcheggio fornito nella richiesta sia nel formato corretto. Se l'ID è valido, la richiesta prosegue verso il ParcheggioController. Il ParcheggioController è responsabile di comunicare con il ParcheggioDao per recuperare i dettagli del parcheggio dal database.
+Una volta ottenuti i dati dal ParcheggioDao, il ParcheggioController restituisce queste informazioni al router, che infine le invia al client come risposta. Se il processo ha successo, il client riceve i dettagli del parcheggio richiesto.
+Il diagramma include anche la gestione degli errori per garantire una risposta adeguata in caso di problemi. Gli errori gestiti includono l'assenza di autorizzazione del ruolo, ID non valido, parcheggio non trovato e eventuali errori del server, assicurando che il client riceva un messaggio chiaro in caso di fallimenti durante il processo.
 
-### Varchi
+![alt text](<immagini/getParcheggioID.png>)
 
-### Tariffe
+- GET /allVarchi
 
-### Transiti
+Il diagramma di sequenze illustra il processo per ottenere l'elenco di tutti i varchi attraverso una richiesta HTTP GET all'endpoint `/varchi`. Il flusso inizia quando il client invia una richiesta al router di Express. Il router, dopo aver ricevuto la richiesta, passa il controllo a un middleware di autorizzazione per verificare se l'utente ha il ruolo adeguato per accedere alle informazioni sui varchi.
+Se l'utente è autorizzato, la richiesta viene inoltrata al VarcoController. Il VarcoController è incaricato di interagire con il VarcoDao per recuperare i dati relativi ai varchi dal database. Una volta che il VarcoDao ha ottenuto l'elenco completo dei varchi dal database, restituisce questi dati al VarcoController.
+Il VarcoController poi trasmette l'elenco dei varchi al router, che infine invia la risposta completa al client. Questo diagramma prevede anche la gestione degli errori: se l'utente non è autorizzato, viene restituito un messaggio di accesso negato. Inoltre, se ci sono problemi nel recupero dei dati, viene gestito un errore e comunicato al client, assicurando che riceva un'informativa adeguata in caso di malfunzionamenti.
+
+![alt text](<immagini/getAllVarchi.png>)
+
+- PUT /updateTransito
+
+Il diagramma di sequenze descrive il flusso per gestire l'uscita di un transito tramite una richiesta HTTP PUT all'endpoint `/transito/:id/uscita`. Dopo che il client invia la richiesta, il router di Express verifica se l'utente ha il ruolo di 'operatore' tramite un middleware di autorizzazione. Se l'autorizzazione è confermata, il router passa la richiesta al TransitoController per gestire l'uscita.
+Il TransitoController prima recupera il transito corrispondente all'ID fornito, interpellando il TransitoDao che esegue una query sul database. Una volta ottenuto il transito, il controller calcola la tariffa basata sul tempo di ingresso e uscita, consultando il TariffaDao che a sua volta interroga il database per ottenere la tariffa.
+Con i dati aggiornati, il TransitoController aggiorna il transito nel database con i dettagli dell'uscita e l'importo calcolato, e conferma l'aggiornamento al router. Infine, il router restituisce al client la risposta con il transito aggiornato.
+La gestione degli errori è prevista per i casi di accesso negato, transito non trovato e errori nel calcolo della tariffa, con risposte adeguate fornite al client per ciascun caso.
+
+![alt text](<immagini/putTransito.png>)
+
+- GET /Export
+
+- GET /Statistiche
+
+- GET /StatisticheParcheggio
+
+## API Routes
+La tabella sottostante elenca alcune delle rotte disponibili,  specificando i livelli di accesso autorizzati e fornendo una descrizione del loro scopo. Di seguito ne verranno rappresentate alcune per fornire una panoramica del funzionamento. 
+
+### Parcheggio
+*Rotta:*
+```bash
+POST api/parcheggio
+```
+*Body Richiesta:*
+
+```json
+{
+  "nome": "Stamira",
+  "capacita": 60,
+  "varchi": [
+    {
+      "tipo": "USCITA",
+      "bidirezionale": true
+    }
+  ]
+}
+```
+*Risposta:*
+```json
+{
+    "id": 5,
+    "nome": "Stamira",
+    "capacita": 60,
+    "posti_disponibili": 60,
+    "createdAt": "2024-09-17T08:37:03.721Z",
+    "updatedAt": "2024-09-17T08:37:03.721Z"
+}
+```
+### ParcheggiobyID
+*Rotta:*
+```bash
+GET api/parcheggio/id
+```
+*Risposta:*
+```json
+{
+    "id": 1,
+    "nome": "Parcheggio Centro",
+    "capacita": 100,
+    "posti_disponibili": 97,
+    "createdAt": "2024-09-14T08:12:28.722Z",
+    "updatedAt": "2024-09-15T09:35:33.393Z"
+}
+```
+
+### allVarchi
+*Rotta:*
+```bash
+GET api/varchi
+```
+*Risposta:*
+```json
+[
+    {
+        "id": 1,
+        "tipo": "INGRESSO",
+        "bidirezionale": false,
+        "id_parcheggio": 1,
+        "createdAt": "2024-09-14T08:12:28.729Z",
+        "updatedAt": "2024-09-14T08:12:28.729Z"
+    },
+    {
+        "id": 2,
+        "tipo": "USCITA",
+        "bidirezionale": false,
+        "id_parcheggio": 1,
+        "createdAt": "2024-09-14T08:12:28.729Z",
+        "updatedAt": "2024-09-14T08:12:28.729Z"
+    },
+    {
+        "id": 3,
+        "tipo": "INGRESSO",
+        "bidirezionale": true,
+        "id_parcheggio": 2,
+        "createdAt": "2024-09-14T08:12:28.729Z",
+        "updatedAt": "2024-09-14T08:12:28.729Z"
+    }
+]
+```
+
+### updateTariffa
+*Rotta:*
+```bash
+PUT /api/tariffa/id
+```
+*Richiesta:*
+```json
+{
+  "id_tipo_veicolo": 3,
+  "importo": 4,
+  "fascia_oraria": "NOTTURNA",
+  "feriale_festivo": "FERIALE",
+  "id_parcheggio": 2
+}
+```
+*Risposta:*
+```json
+{
+    "id": 7,
+    "id_tipo_veicolo": 3,
+    "importo": 4,
+    "fascia_oraria": "NOTTURNA",
+    "feriale_festivo": "FERIALE",
+    "id_parcheggio": 2,
+    "updatedAt": "2024-09-17T08:42:14.254Z",
+    "createdAt": "2024-09-17T08:42:14.254Z"
+}
+```
+### updateTransito
+*Rotta:*
+```bash
+PUT /api/transito/id/ingresso o uscita
+```
+*Richiesta:*
+```json
+{
+    "id_varco_uscita": 2
+}
+```
+*Risposta:*
+```json
+{
+    "id": 23,
+    "ingresso": "2024-09-17T08:48:09.007Z",
+    "uscita": "2024-09-17T08:50:38.786Z",
+    "id_veicolo": 16,
+    "id_varco_ingresso": 1,
+    "id_varco_uscita": 2,
+    "id_tariffa": 8,
+    "importo": 0.3328422222222222
+}
+```
+### getExport
+*Rotta:*
+```bash
+GET api/transiti/export
+```
+*Richiesta:*
+```json
+{
+  "targhe": ["AB123CD"],
+  "from": "2024-09-01T00:00:00.000Z",
+  "to": "2024-09-30T23:59:59.999Z",
+  "formato": "csv"
+}
+```
+*Risposta:*
+Se il formato richiesto è in csv, la risposta sarà la seguente:
+![alt text](<immagini/csvExport.jpg>)
 
 ### Statistiche
+*Rotta:*
+```bash
+GET api/statistiche
+```
+*Richiesta:*
+```json
+{
+  "from": "2024-09-01T00:00:00.000Z",
+  "to": "2024-09-30T23:59:59.999Z",
+  "formato": "pdf"
+}
+```
+*Risposta:*
+Se il formato richiesto è in pdf, la risposta sarà la seguente:
+![alt text](<immagini/reportStatistiche.jpg>)
 
-## 5. Utilizzo
+### StatisticheParcheggio
+*Rotta:*
+```bash
+GET api/statistiche/parcheggio
+```
+*Richiesta:*
+```json
+{
+  "idParcheggio": 1,
+  "from": "2024-09-01T00:00:00.000Z",
+  "to": "2024-09-30T23:59:59.999Z",
+}
+```
+*Risposta:*
+```json
+{
+    "numeroTotaleTransiti": 5,
+    "transitiPerTipoVeicolo": {
+        "1": 2,
+        "2": 3
+    },
+    "transitiPerFasciaOraria": {
+        "DIURNA": 3,
+        "NOTTURNA": 2
+    },
+    "fatturatoTotale": 16.599169305555556
+}
+```
+## Configurazione e avvio
+Per utilizzare l'applicazione è necessario seguire i seguenti passaggi:
 
-### Requisiti
+1. eseguire la *clone* della repository
+```bash
+git clone https://github.com/Mauro0503/Progetto_programmazione_avanzata_2024.git
+```
+2. configurare il file ```.env```
 
-### Configurazione
-1. Clona il repository:
+3. importare la collection su Postman contenuta nel file: `CollectionParcheggio.postman_collection.json`
 
+4. avvia l'applicazione con Docker:
+```bash
+docker-compose up --build -d
+```
+5. Accedi all'applicazione su `http://localhost:3000`.
 
-2. 
-
-3. Avvia l'applicazione con Docker:
-
-4. Accedi all'applicazione su `http://localhost:3000`.
-
-
-### Testing
-
-## 6. Strumenti Impiegati
+## Strumenti Impiegati
 - **Node.js e Express**: Framework per il backend.
 - **Sequelize**: ORM per interagire con il database.
 - **PostgreSQL**: Database relazionale.
@@ -193,3 +416,4 @@ Nel contesto del sistema in sviluppo, che include numerose rotte per le operazio
 - **JWT**: Autenticazione tramite token.
 - **Docker e Docker Compose**: Contenitori e orchestrazione.
 
+## Autori
