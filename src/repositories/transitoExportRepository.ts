@@ -11,7 +11,19 @@ interface TransitoData {
   costo: number | null;
 }
 
+
 class TransitoExportRepository {
+  /**
+   * Recupera i transiti basati sulle targhe e sul periodo specificati.
+   *
+   * @param {string[]} targhe - Lista delle targhe da filtrare.
+   * @param {Date} from - Data di inizio del periodo da considerare.
+   * @param {Date} to - Data di fine del periodo da considerare.
+   * @param {number | null} userId - ID dell'utente per il controllo degli accessi.
+   * @param {string} userRole - Ruolo dell'utente per determinare l'accesso ai dati.
+   * @returns {Promise<TransitoData[]>} - Promise che restituisce un array di dati dei transiti.
+   * @throws {Error} - Errore se si verifica un problema durante il recupero dei transiti.
+   */
   public async findTransitiByTargheAndPeriodo(
     targhe: string[],
     from: Date,

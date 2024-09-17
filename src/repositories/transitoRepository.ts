@@ -22,9 +22,19 @@ class TransitoRepository {
   private sequelize: Sequelize;
 
   constructor() {
+    // Inizializza l'istanza di Sequelize per gestire le transazioni
     this.sequelize = Database.getInstance();
   }
 
+  /**
+   * Crea un nuovo transito e gestisce le operazioni di transazione.
+   *
+   * @param {TransitoCreationAttributes} transitoData - Dati per la creazione del transito.
+   * @param {string} targa - Targa del veicolo.
+   * @param {number} id_tipo_veicolo - ID del tipo di veicolo.
+   * @returns {Promise<TransitoAttributes>} - Promise che restituisce i dati del transito creato.
+   * @throws {Error} - Errore se si verifica un problema durante la creazione del transito.
+   */
   public async create(
     transitoData: TransitoCreationAttributes,
     targa: string,
@@ -138,6 +148,15 @@ class TransitoRepository {
     }
   }
 
+  /**
+   * Aggiorna l'uscita di un transito esistente.
+   *
+   * @param {number} transitoId - ID del transito da aggiornare.
+   * @param {number} varcoUscitaId - ID del varco di uscita.
+   * @param {Date} dataOraUscita - Data e ora di uscita.
+   * @returns {Promise<TransitoAttributes>} - Promise che restituisce i dati del transito aggiornato.
+   * @throws {Error} - Errore se si verifica un problema durante l'aggiornamento del transito.
+   */
   public async updateUscita(
     transitoId: number,
     varcoUscitaId: number,
@@ -281,6 +300,13 @@ class TransitoRepository {
     }
   }
 
+  /**
+   * Trova un transito per ID.
+   *
+   * @param {number} id - ID del transito da trovare.
+   * @returns {Promise<Transito>} - Promise che restituisce il transito trovato.
+   * @throws {Error} - Errore se il transito non viene trovato o si verifica un problema.
+   */
   public async findById(id: number): Promise<Transito> {
     try {
       const transito = (await transitoDao.findById(id)) as Transito;
@@ -301,6 +327,13 @@ class TransitoRepository {
     }
   }
 
+  /**
+   * Elimina un transito per ID.
+   *
+   * @param {number} id - ID del transito da eliminare.
+   * @returns {Promise<boolean>} - Promise che restituisce true se l'eliminazione è avvenuta con successo.
+   * @throws {Error} - Errore se si verifica un problema durante l'eliminazione del transito.
+   */
   public async delete(id: number): Promise<boolean> {
     const transaction = await this.sequelize.transaction();
 

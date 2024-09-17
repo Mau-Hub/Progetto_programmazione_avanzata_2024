@@ -7,6 +7,14 @@ import {
   CustomHttpError,
 } from '../ext/errorFactory';
 
+/**
+ * Interfaccia per i dati necessari alla creazione di un parcheggio.
+ *
+ * @interface ParcheggioData
+ * @property {string} nome - Nome del parcheggio.
+ * @property {number} capacita - Capacità totale del parcheggio.
+ * @property {Array<{ tipo: 'INGRESSO' | 'USCITA'; bidirezionale: boolean }>} [varchi] - Array opzionale di varchi associati al parcheggio.
+ */
 interface ParcheggioData {
   nome: string;
   capacita: number;
@@ -14,6 +22,13 @@ interface ParcheggioData {
 }
 
 class ParcheggioRepository {
+  /**
+   * Crea un nuovo parcheggio e, se specificato, i relativi varchi.
+   *
+   * @param {ParcheggioData} data - Dati del parcheggio da creare.
+   * @returns {Promise<Parcheggio>} - Promise che restituisce il parcheggio creato.
+   * @throws {CustomHttpError | Error} - Se si verifica un errore durante la creazione del parcheggio o dei varchi.
+   */
   async create(data: ParcheggioData): Promise<Parcheggio> {
     try {
       const { nome, capacita, varchi } = data;
@@ -74,6 +89,13 @@ class ParcheggioRepository {
     }
   }
 
+  /**
+   * Trova un parcheggio per ID.
+   *
+   * @param {number} id - ID del parcheggio da cercare.
+   * @returns {Promise<Parcheggio | null>} - Promise che restituisce il parcheggio trovato o null se non esiste.
+   * @throws {CustomHttpError | Error} - Se si verifica un errore durante il recupero del parcheggio.
+   */
   async findById(id: number): Promise<Parcheggio | null> {
     try {
       return await ParcheggioDao.findById(id);
@@ -90,6 +112,12 @@ class ParcheggioRepository {
     }
   }
 
+  /**
+   * Trova tutti i parcheggi.
+   *
+   * @returns {Promise<Parcheggio[]>} - Promise che restituisce un array di parcheggi.
+   * @throws {CustomHttpError | Error} - Se si verifica un errore durante il recupero dei parcheggi.
+   */
   async findAll(): Promise<Parcheggio[]> {
     try {
       return await ParcheggioDao.findAll();
@@ -106,6 +134,14 @@ class ParcheggioRepository {
     }
   }
 
+  /**
+   * Aggiorna un parcheggio esistente e i relativi varchi, se necessario.
+   *
+   * @param {number} id - ID del parcheggio da aggiornare.
+   * @param {ParcheggioData} data - Dati aggiornati per il parcheggio.
+   * @returns {Promise<boolean>} - Promise che restituisce true se l'aggiornamento è avvenuto con successo, false altrimenti.
+   * @throws {CustomHttpError | Error} - Se il parcheggio non viene trovato o si verifica un errore durante l'aggiornamento.
+   */
   async update(id: number, data: ParcheggioData): Promise<boolean> {
     try {
       const parcheggio = await ParcheggioDao.findById(id);
@@ -196,6 +232,13 @@ class ParcheggioRepository {
     }
   }
 
+  /**
+   * Elimina un parcheggio e tutti i varchi associati.
+   *
+   * @param {number} id - ID del parcheggio da eliminare.
+   * @returns {Promise<boolean>} - Promise che restituisce true se l'eliminazione è avvenuta con successo, false altrimenti.
+   * @throws {CustomHttpError | Error} - Se il parcheggio non viene trovato o si verifica un errore durante l'eliminazione.
+   */
   async delete(id: number): Promise<boolean> {
     try {
       const parcheggio = await ParcheggioDao.findById(id);

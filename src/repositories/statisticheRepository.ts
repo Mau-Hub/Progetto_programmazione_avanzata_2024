@@ -6,6 +6,14 @@ import transitoService from '../ext/transitoService';
 import { ApplicationErrorTypes, ErrorGenerator } from '../ext/errorFactory';
 import { CustomHttpError } from '../ext/errorFactory';
 
+/**
+ * Interfaccia per le statistiche dei parcheggi.
+ *
+ * @interface StatisticheData
+ * @property {string} parcheggio - Nome del parcheggio.
+ * @property {number} fatturato - Fatturato totale generato dal parcheggio.
+ * @property {number} mediaPostiLiberi - Media dei posti liberi nel parcheggio.
+ */
 export interface StatisticheData {
   parcheggio: string;
   fatturato: number;
@@ -13,6 +21,14 @@ export interface StatisticheData {
 }
 
 class StatisticheRepository {
+  /**
+   * Calcola le statistiche per tutti i parcheggi nel periodo specificato.
+   *
+   * @param {Date} from - Data di inizio del periodo.
+   * @param {Date} to - Data di fine del periodo.
+   * @returns {Promise<StatisticheData[]>} - Promise che restituisce un array di statistiche per ogni parcheggio.
+   * @throws {CustomHttpError | Error} - Se si verifica un errore durante il calcolo delle statistiche.
+   */
   public async calcolaStatistiche(
     from: Date,
     to: Date
@@ -65,6 +81,15 @@ class StatisticheRepository {
     }
   }
 
+  /**
+   * Calcola la media dei posti liberi per un parcheggio nel periodo specificato.
+   *
+   * @param {number} idParcheggio - ID del parcheggio.
+   * @param {Date} from - Data di inizio del periodo.
+   * @param {Date} to - Data di fine del periodo.
+   * @returns {Promise<number>} - Promise che restituisce la media dei posti liberi.
+   * @throws {CustomHttpError | Error} - Se si verifica un errore durante il calcolo della media dei posti liberi.
+   */
   private async calcolaMediaPostiLiberi(
     idParcheggio: number,
     from: Date,
@@ -121,6 +146,15 @@ class StatisticheRepository {
     }
   }
 
+  /**
+   * Calcola le statistiche specifiche per un parcheggio nel periodo specificato.
+   *
+   * @param {number} idParcheggio - ID del parcheggio.
+   * @param {Date} from - Data di inizio del periodo.
+   * @param {Date} to - Data di fine del periodo.
+   * @returns {Promise<any>} - Promise che restituisce un oggetto contenente statistiche specifiche per il parcheggio.
+   * @throws {CustomHttpError | Error} - Se si verifica un errore durante il calcolo delle statistiche per il parcheggio.
+   */
   public async calcolaStatistichePerParcheggio(
     idParcheggio: number,
     from: Date,

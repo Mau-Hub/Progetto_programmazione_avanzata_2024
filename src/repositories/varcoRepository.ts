@@ -8,16 +8,19 @@ import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
 import { CustomHttpError } from '../ext/errorFactory';
 
 class VarcoRepository {
+  // Inizializza l'istanza di Sequelize per gestire le transazioni
   private sequelize: Sequelize;
 
   constructor() {
     this.sequelize = Database.getInstance();
   }
+  
   /**
-   * Creazione di un nuovo varco
+   * Crea un nuovo varco e l'utente associato in una transazione.
    *
-   * @param {VarcoCreationAttributes} varcoData
-   * @returns {Promise<Varco>}
+   * @param {VarcoCreationAttributes} varcoData - Dati per la creazione del varco.
+   * @returns {Promise<Varco>} - Promise che restituisce il nuovo varco creato.
+   * @throws {Error} - Errore se si verifica un problema durante la creazione.
    */
   async create(varcoData: VarcoCreationAttributes): Promise<Varco> {
     const transaction = await this.sequelize.transaction();
@@ -53,9 +56,9 @@ class VarcoRepository {
   }
 
   /**
-   * Ottenere tutti i varchi
+   * Ottiene tutti i varchi.
    *
-   * @returns {Promise<Varco[]>}
+   * @returns {Promise<Varco[]>} - Promise che restituisce una lista di varchi.
    */
   async findAll(): Promise<Varco[]> {
     // Chiama il metodo del DAO per ottenere tutti i varchi
@@ -63,10 +66,10 @@ class VarcoRepository {
   }
 
   /**
-   * Ottenere un varco specifico per ID
+   * Ottiene un varco specifico per ID.
    *
-   * @param {number} id
-   * @returns {Promise<Varco | null>}
+   * @param {number} id - ID del varco da trovare.
+   * @returns {Promise<Varco | null>} - Promise che restituisce il varco trovato o null se non esiste.
    */
   async findById(id: number): Promise<Varco | null> {
     // Chiama il metodo del DAO per ottenere il varco con un ID specifico
@@ -74,11 +77,11 @@ class VarcoRepository {
   }
 
   /**
-   * Aggiornare un varco
+   * Aggiorna un varco esistente.
    *
-   * @param {number} id
-   * @param {Partial<VarcoAttributes>} varcoData
-   * @returns {Promise<boolean>}
+   * @param {number} id - ID del varco da aggiornare.
+   * @param {Partial<VarcoAttributes>} varcoData - Dati da aggiornare.
+   * @returns {Promise<boolean>} - Promise che restituisce true se l'aggiornamento è avvenuto con successo.
    */
   async update(
     id: number,
@@ -89,10 +92,10 @@ class VarcoRepository {
   }
 
   /**
-   * Eliminare un varco
+   * Elimina un varco per ID.
    *
-   * @param {number} id
-   * @returns {Promise<boolean>}
+   * @param {number} id - ID del varco da eliminare.
+   * @returns {Promise<boolean>} - Promise che restituisce true se l'eliminazione è avvenuta con successo.
    */
   async delete(id: number): Promise<boolean> {
     // Chiama il metodo del DAO per eliminare un varco
@@ -100,10 +103,10 @@ class VarcoRepository {
   }
 
   /**
-   * Ottenere tutti i varchi di un parcheggio specifico
+   * Ottiene tutti i varchi di un parcheggio specifico.
    *
-   * @param {number} idParcheggio
-   * @returns {Promise<Varco[]>}
+   * @param {number} idParcheggio - ID del parcheggio.
+   * @returns {Promise<Varco[]>} - Promise che restituisce una lista di varchi per il parcheggio specificato.
    */
   async findByParcheggio(idParcheggio: number): Promise<Varco[]> {
     // Chiama il metodo del DAO per ottenere tutti i varchi di un parcheggio specifico
@@ -111,9 +114,9 @@ class VarcoRepository {
   }
 
   /**
-   * Ottenere tutti i varchi bidirezionali
+   * Ottiene tutti i varchi bidirezionali.
    *
-   * @returns {Promise<Varco[]>}
+   * @returns {Promise<Varco[]>} - Promise che restituisce una lista di varchi bidirezionali.
    */
   async findBidirezionali(): Promise<Varco[]> {
     // Chiama il metodo del DAO per ottenere tutti i varchi bidirezionali
@@ -121,10 +124,10 @@ class VarcoRepository {
   }
 
   /**
-   * Ottenere tutti i varchi di un tipo specifico
+   * Ottiene tutti i varchi di un tipo specifico.
    *
-   * @param {('INGRESSO' | 'USCITA')} tipo
-   * @returns {Promise<Varco[]>}
+   * @param {('INGRESSO' | 'USCITA')} tipo - Tipo di varco ('INGRESSO' o 'USCITA').
+   * @returns {Promise<Varco[]>} - Promise che restituisce una lista di varchi del tipo specificato.
    */
   async findByTipo(tipo: 'INGRESSO' | 'USCITA'): Promise<Varco[]> {
     // Chiama il metodo del DAO per ottenere tutti i varchi di un tipo specifico
