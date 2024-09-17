@@ -8,8 +8,10 @@ const secretKey = process.env.JWT_SECRET as string; // Recupera la chiave segret
 
 /**
  * Genera un token JWT con un payload specificato e una durata di 1 ora.
- * @param payload Oggetto contenente le informazioni da includere nel token.
- * @returns Una stringa rappresentante il token JWT generato.
+ *
+ * @param {object} payload - Oggetto contenente le informazioni da includere nel token.
+ * @returns {string} - Una stringa rappresentante il token JWT generato.
+ * @throws {Error} - Se si verifica un errore durante la generazione del token.
  */
 export const generateToken = (payload: object): string => {
   try {
@@ -24,8 +26,10 @@ export const generateToken = (payload: object): string => {
 
 /**
  * Verifica e decodifica un token JWT.
- * @param token Il token JWT da verificare.
- * @returns Il payload decodificato del token se valido, altrimenti null.
+ *
+ * @param {string} token - Il token JWT da verificare.
+ * @returns {JwtPayload | null} - Il payload decodificato del token se valido, altrimenti null.
+ * @throws {Error} - Se si verifica un errore durante la verifica del token.
  */
 export const verifyToken = (token: string): JwtPayload | null => {
   try {

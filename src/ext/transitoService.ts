@@ -5,11 +5,24 @@ import transitoDao from '../dao/transitoDao';
 import Veicolo from '../models/veicolo';
 
 class TransitoService {
+  /**
+   * Calcola la durata del transito in ore.
+   *
+   * @param {Date} ingresso - Data e ora di ingresso del veicolo.
+   * @param {Date} uscita - Data e ora di uscita del veicolo.
+   * @returns {number} - Durata del transito in ore.
+   */
   public calcolaDurataInOre(ingresso: Date, uscita: Date): number {
     const durataInMs = uscita.getTime() - ingresso.getTime();
     return durataInMs / (1000 * 60 * 60);
   }
 
+  /**
+   * Determina se la data è feriale o festivo.
+   *
+   * @param {Date} data - Data da verificare.
+   * @returns {'FERIALE' | 'FESTIVO'} - Restituisce 'FERIALE' se è un giorno feriale, 'FESTIVO' se è un giorno festivo.
+   */
   public determinaFerialeFestivo(data: Date): 'FERIALE' | 'FESTIVO' {
     const giornoSettimana = data.getDay();
     return giornoSettimana === 0 || giornoSettimana === 6 // Domenica o Sabato
@@ -17,11 +30,25 @@ class TransitoService {
       : 'FERIALE';
   }
 
+  /**
+   * Determina se l'orario è diurno o notturno.
+   *
+   * @param {Date} data - Data da verificare.
+   * @returns {'DIURNA' | 'NOTTURNA'} - Restituisce 'DIURNA' se l'orario è tra le 8:00 e le 20:00, 'NOTTURNA' altrimenti.
+   */
   public determinaFasciaOraria(data: Date): 'DIURNA' | 'NOTTURNA' {
     const ora = data.getHours();
     return ora >= 8 && ora < 20 ? 'DIURNA' : 'NOTTURNA';
   }
 
+  /**
+   * Calcola l'importo del transito basato su vari fattori come la durata e la tariffa.
+   *
+   * @param {number} transitoId - ID del transito per il quale calcolare l'importo.
+   * @param {Date} dataOraUscita - Data e ora di uscita del veicolo.
+   * @returns {Promise<number>} - Promise che restituisce l'importo totale calcolato.
+   * @throws {Error} - Errore se si verifica un problema durante il calcolo dell'importo.
+   */
   async calcolaImporto(
     transitoId: number,
     dataOraUscita: Date
