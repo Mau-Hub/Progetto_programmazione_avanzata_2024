@@ -11,12 +11,11 @@ const errorHandler_1 = require("../middleware/errorHandler");
 const router = (0, express_1.Router)();
 // Middleware di autenticazione applicato a tutte le rotte
 router.use(authenticationMiddleware_1.authenticationMiddleware);
-// Solo gli utenti con ruolo "operatore" possono gestire i varchi
-router.post('/varco', (0, authenticationMiddleware_1.authorizeRoles)(['operatore']), validationMiddleware_1.default.validateVarco, varcoController_1.default.createVarco); // Creazione di un varco
-router.get('/varchi', (0, authenticationMiddleware_1.authorizeRoles)(['operatore']), varcoController_1.default.getAllVarchi); // Ottenere tutti i varchi
-router.get('/varco/:id', (0, authenticationMiddleware_1.authorizeRoles)(['operatore']), varcoController_1.default.getVarcoById); // Ottenere un varco per ID
-router.put('/varco/:id', (0, authenticationMiddleware_1.authorizeRoles)(['operatore']), validationMiddleware_1.default.validateVarco, varcoController_1.default.updateVarco); // Aggiornamento di un varco
-router.delete('/varco/:id', (0, authenticationMiddleware_1.authorizeRoles)(['operatore']), varcoController_1.default.deleteVarco); // Eliminazione di un varco
+router.post('/varco', (0, authenticationMiddleware_1.authorizeRoles)(['operatore']), validationMiddleware_1.default.validateVarco, varcoController_1.default.createVarco);
+router.get('/varchi', (0, authenticationMiddleware_1.authorizeRoles)(['operatore']), varcoController_1.default.getAllVarchi);
+router.get('/varco/:id', (0, authenticationMiddleware_1.authorizeRoles)(['operatore']), validationMiddleware_1.default.validateIdParam, varcoController_1.default.getVarcoById);
+router.put('/varco/:id', (0, authenticationMiddleware_1.authorizeRoles)(['operatore']), validationMiddleware_1.default.validateIdParam, validationMiddleware_1.default.validateVarco, varcoController_1.default.updateVarco);
+router.delete('/varco/:id', (0, authenticationMiddleware_1.authorizeRoles)(['operatore']), validationMiddleware_1.default.validateIdParam, varcoController_1.default.deleteVarco);
 // Gestione degli errori
 router.use(errorHandler_1.errorHandler);
 exports.default = router;

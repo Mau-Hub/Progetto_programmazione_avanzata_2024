@@ -169,7 +169,13 @@ class TransitoRepository {
                 catch (rollbackError) {
                     console.error('Errore durante il rollback della transazione:', rollbackError);
                 }
-                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore durante l'aggiornamento del transito con uscita per id ${transitoId}`);
+                if (error instanceof errorFactory_1.CustomHttpError) {
+                    // Se l'errore è già un CustomHttpError, rilancialo così com'è
+                    throw error;
+                }
+                else {
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, `Errore durante l'aggiornamento del transito con uscita per id ${transitoId}`);
+                }
             }
         });
     }

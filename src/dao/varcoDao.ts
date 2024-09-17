@@ -1,8 +1,10 @@
 import Varco from '../models/varco';
+import parcheggioDao from './parcheggioDao';
 import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
 import { VarcoAttributes, VarcoCreationAttributes } from '../models/varco';
 import { DaoI } from './DaoI';
 import { Transaction } from 'sequelize';
+import { CustomHttpError } from '../ext/errorFactory';
 
 class VarcoDao implements DaoI<VarcoAttributes, number> {
   /**
@@ -16,13 +18,26 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
     transaction?: Transaction
   ): Promise<Varco> {
     try {
+      // Verifica che il parcheggio esista
+      const parcheggio = await parcheggioDao.findById(varcoData.id_parcheggio);
+      if (!parcheggio) {
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.RESOURCE_NOT_FOUND,
+          `Parcheggio con ID ${varcoData.id_parcheggio} non trovato`
+        );
+      }
       const nuovoVarco = await Varco.create(varcoData, { transaction });
       return nuovoVarco;
     } catch (error) {
-      throw ErrorGenerator.generateError(
-        ApplicationErrorTypes.SERVER_ERROR,
-        'Errore nella creazione del varco'
-      );
+      if (error instanceof CustomHttpError) {
+        // Rilancia l'errore se è un errore gestito
+        throw error;
+      } else {
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.SERVER_ERROR,
+          'Errore nella creazione del varco'
+        );
+      }
     }
   }
 
@@ -170,6 +185,25 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
         'Errore nel recupero dei varchi per il tipo specificato'
+      );
+    }
+  }
+  /**
+   * Eliminare tutti i varchi associati a un parcheggio specifico.
+   *
+   * @param {number} idParcheggio ID del parcheggio.
+   * @returns {Promise<boolean>} Promise che restituisce true se almeno un varco è stato eliminato.
+   */
+  async deleteByParcheggioId(idParcheggio: number): Promise<boolean> {
+    try {
+      const numDeleted = await Varco.destroy({
+        where: { id_parcheggio: idParcheggio },
+      });
+      return numDeleted > 0;
+    } catch (error) {
+      throw ErrorGenerator.generateError(
+        ApplicationErrorTypes.SERVER_ERROR,
+        "Errore nell'eliminazione dei varchi associati al parcheggio"
       );
     }
   }

@@ -24,6 +24,7 @@ router.post(
 router.get(
   '/transito/:id',
   authorizeRoles(['operatore']),
+  validationMiddleware.validateIdParam,
   TransitoController.getTransitoById
 );
 
@@ -39,6 +40,7 @@ router.put(
 router.delete(
   '/transito/:id',
   authorizeRoles(['operatore']),
+  validationMiddleware.validateIdParam,
   TransitoController.deleteTransito
 );
 

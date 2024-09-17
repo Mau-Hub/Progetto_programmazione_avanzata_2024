@@ -269,10 +269,15 @@ class TransitoRepository {
           rollbackError
         );
       }
-      throw ErrorGenerator.generateError(
-        ApplicationErrorTypes.SERVER_ERROR,
-        `Errore durante l'aggiornamento del transito con uscita per id ${transitoId}`
-      );
+      if (error instanceof CustomHttpError) {
+        // Se l'errore è già un CustomHttpError, rilancialo così com'è
+        throw error;
+      } else {
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.SERVER_ERROR,
+          `Errore durante l'aggiornamento del transito con uscita per id ${transitoId}`
+        );
+      }
     }
   }
 

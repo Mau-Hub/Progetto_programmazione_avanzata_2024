@@ -13,7 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const varco_1 = __importDefault(require("../models/varco"));
+const parcheggioDao_1 = __importDefault(require("./parcheggioDao"));
 const errorFactory_1 = require("../ext/errorFactory");
+const errorFactory_2 = require("../ext/errorFactory");
 class VarcoDao {
     /**
      * Creazione di un nuovo varco.
@@ -24,11 +26,22 @@ class VarcoDao {
     create(varcoData, transaction) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                // Verifica che il parcheggio esista
+                const parcheggio = yield parcheggioDao_1.default.findById(varcoData.id_parcheggio);
+                if (!parcheggio) {
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.RESOURCE_NOT_FOUND, `Parcheggio con ID ${varcoData.id_parcheggio} non trovato`);
+                }
                 const nuovoVarco = yield varco_1.default.create(varcoData, { transaction });
                 return nuovoVarco;
             }
             catch (error) {
-                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore nella creazione del varco');
+                if (error instanceof errorFactory_2.CustomHttpError) {
+                    // Rilancia l'errore se è un errore gestito
+                    throw error;
+                }
+                else {
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore nella creazione del varco');
+                }
             }
         });
     }
@@ -158,6 +171,25 @@ class VarcoDao {
             }
             catch (error) {
                 throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, 'Errore nel recupero dei varchi per il tipo specificato');
+            }
+        });
+    }
+    /**
+     * Eliminare tutti i varchi associati a un parcheggio specifico.
+     *
+     * @param {number} idParcheggio ID del parcheggio.
+     * @returns {Promise<boolean>} Promise che restituisce true se almeno un varco è stato eliminato.
+     */
+    deleteByParcheggioId(idParcheggio) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const numDeleted = yield varco_1.default.destroy({
+                    where: { id_parcheggio: idParcheggio },
+                });
+                return numDeleted > 0;
+            }
+            catch (error) {
+                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, "Errore nell'eliminazione dei varchi associati al parcheggio");
             }
         });
     }

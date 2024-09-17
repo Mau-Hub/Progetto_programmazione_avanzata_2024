@@ -12,8 +12,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const csvService_1 = __importDefault(require("../ext/csvService"));
-const pdfService_1 = __importDefault(require("../ext/pdfService"));
+const csvExportService_1 = __importDefault(require("../ext/csvExportService"));
+const pdfExportService_1 = __importDefault(require("../ext/pdfExportService"));
 const pdfStatisticheService_1 = __importDefault(require("../ext/pdfStatisticheService"));
 const csvStaticticheService_1 = __importDefault(require("../ext/csvStaticticheService"));
 const transitoExportRepository_1 = __importDefault(require("../repositories/transitoExportRepository"));
@@ -37,13 +37,13 @@ class TransitiExportController {
                 }
                 // Generazione del file in base al formato specificato
                 if (formato === 'csv') {
-                    const csv = yield csvService_1.default.generaCsv(transiti);
+                    const csv = yield csvExportService_1.default.generaCsv(transiti);
                     res.header('Content-Type', 'text/csv');
                     res.attachment('transiti.csv');
                     return res.send(csv);
                 }
                 else if (formato === 'pdf') {
-                    const pdf = yield pdfService_1.default.generaPdf(transiti);
+                    const pdf = yield pdfExportService_1.default.generaPdf(transiti);
                     res.header('Content-Type', 'application/pdf');
                     res.attachment('transiti.pdf');
                     return res.send(pdf);

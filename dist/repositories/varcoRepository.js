@@ -16,6 +16,7 @@ const varcoDao_1 = __importDefault(require("../dao/varcoDao"));
 const utenteDao_1 = __importDefault(require("../dao/utenteDao"));
 const database_1 = __importDefault(require("../db/database"));
 const errorFactory_1 = require("../ext/errorFactory");
+const errorFactory_2 = require("../ext/errorFactory");
 class VarcoRepository {
     constructor() {
         this.sequelize = database_1.default.getInstance();
@@ -43,7 +44,14 @@ class VarcoRepository {
             }
             catch (error) {
                 yield transaction.rollback();
-                throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, "Errore nella creazione del varco e dell'utente varco");
+                if (error instanceof errorFactory_2.CustomHttpError) {
+                    // Rilancia l'errore originale se è un errore gestito
+                    throw error;
+                }
+                else {
+                    // Genera un nuovo errore per gli errori non gestiti
+                    throw errorFactory_1.ErrorGenerator.generateError(errorFactory_1.ApplicationErrorTypes.SERVER_ERROR, "Errore nella creazione del varco e dell'utente varco");
+                }
             }
         });
     }

@@ -15,7 +15,7 @@ router.post(
   authorizeRoles(['operatore']),
   validationMiddleware.validateParcheggio,
   ParcheggioController.createParcheggio
-); // POST http://localhost:3000/parcheggio {"id" : 1 , "nome" : "ciao"....}
+);
 router.get(
   '/parcheggi',
   authorizeRoles(['operatore']),

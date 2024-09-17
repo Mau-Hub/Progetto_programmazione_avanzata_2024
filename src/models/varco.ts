@@ -1,6 +1,6 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import Database from '../db/database';
-import Parcheggio from './parcheggio'; 
+import Parcheggio from './parcheggio';
 
 const sequelize = Database.getInstance();
 
@@ -13,7 +13,8 @@ export interface VarcoAttributes {
 }
 
 // Definizione dei campi opzionali per la creazione
-export interface VarcoCreationAttributes extends Optional<VarcoAttributes, 'id'> {}
+export interface VarcoCreationAttributes
+  extends Optional<VarcoAttributes, 'id'> {}
 
 // Definizione del modello Varco
 class Varco

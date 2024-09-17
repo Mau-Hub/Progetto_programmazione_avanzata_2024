@@ -26,17 +26,20 @@ router.get(
 router.get(
   '/varco/:id',
   authorizeRoles(['operatore']),
+  validationMiddleware.validateIdParam,
   VarcoController.getVarcoById
 );
 router.put(
   '/varco/:id',
   authorizeRoles(['operatore']),
+  validationMiddleware.validateIdParam,
   validationMiddleware.validateVarco,
   VarcoController.updateVarco
 );
 router.delete(
   '/varco/:id',
   authorizeRoles(['operatore']),
+  validationMiddleware.validateIdParam,
   VarcoController.deleteVarco
 );
 

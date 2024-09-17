@@ -5,6 +5,7 @@ import Varco from '../models/varco';
 import { Sequelize } from 'sequelize';
 import Database from '../db/database';
 import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
+import { CustomHttpError } from '../ext/errorFactory';
 
 class VarcoRepository {
   private sequelize: Sequelize;
@@ -38,10 +39,16 @@ class VarcoRepository {
       return nuovoVarco;
     } catch (error) {
       await transaction.rollback();
-      throw ErrorGenerator.generateError(
-        ApplicationErrorTypes.SERVER_ERROR,
-        "Errore nella creazione del varco e dell'utente varco"
-      );
+      if (error instanceof CustomHttpError) {
+        // Rilancia l'errore originale se è un errore gestito
+        throw error;
+      } else {
+        // Genera un nuovo errore per gli errori non gestiti
+        throw ErrorGenerator.generateError(
+          ApplicationErrorTypes.SERVER_ERROR,
+          "Errore nella creazione del varco e dell'utente varco"
+        );
+      }
     }
   }
 
