@@ -212,6 +212,31 @@ La gestione degli errori è prevista per i casi di accesso negato, transito non 
 
 La tabella sottostante elenca alcune delle rotte disponibili, specificando i livelli di accesso autorizzati e fornendo una descrizione del loro scopo. Di seguito ne verranno rappresentate alcune per fornire una panoramica del funzionamento.
 
+| Tipo     | Rotta                               | Autenticazione | Autorizzazione              |
+|----------|-------------------------------------|----------------|-----------------------------|
+| `POST`   | `/api/parcheggio`                   | Sì             | Operatore                   |
+| `GET`    | `/parcheggio/id`                    | Sì             | Operatore                   |
+| `GET`    | `/api/parcheggi`                    | Sì             | Operatore                   |
+| `PUT`    | `/api/parcheggio/id`                | Sì             | Operatore                   |
+| `DELETE` | `/api/parcheggio/id`                | Sì             | Operatore                   |
+| `POST`   | `/api/varco`                        | Sì             | Operatore                   |
+| `GET`    | `/api/varco/id`                     | Sì             | Operatore                   |
+| `GET`    | `/api/varchi`                       | Sì             | Operatore                   |
+| `PUT`    | `/api/varco/id`                     | Sì             | Operatore                   |
+| `POST`   | `/api/tariffa`                      | Sì             | Operatore                   |
+| `GET`    | `/api/tariffa/id`                   | Sì             | Operatore                   |
+| `GET`    | `/api/tariffe`                      | Sì             | Operatore                   |
+| `PUT`    | `/api/tariffa/id`                   | Sì             | Operatore                   |
+| `DELETE` | `/api/tariffa/id`                   | Sì             | Operatore                   |
+| `POST`   | `/api/transito`                     | Sì             | Operatore, Varco            |
+| `GET`    | `/api/transito/id`                  | Sì             | Operatore                   |
+| `PUT`    | `/api/transito/id/uscita`           | Sì             | Operatore                   |
+| `DELETE` | `/api/transito/id`                  | Sì             | Operatore                   |
+| `GET`    | `/api/transiti/export`              | Sì             | Operatore, Automobilista    |
+| `GET`    | `/api/statistiche`                  | Sì             | Operatore                   |
+| `GET`    | `/api/statistiche/parcheggio`       | Sì             | Operatore                   |
+| `POST`   | `/api/login`                        | No             | Operatore, Varco, Automobilista |
+
 ### Parcheggio
 
 _Rotta:_
