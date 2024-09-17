@@ -413,7 +413,7 @@ _Risposta:_
 Se il formato richiesto è in csv, la risposta sarà la seguente:
 ![alt text](immagini/csvExport.jpg)
 
-### Statistiche
+### GetStatistiche
 
 _Rotta:_
 
@@ -435,7 +435,7 @@ _Risposta:_
 Se il formato richiesto è in pdf, la risposta sarà la seguente:
 ![alt text](immagini/reportStatistiche.jpg)
 
-### StatisticheParcheggio
+### GetStatisticheParcheggio
 
 _Rotta:_
 
