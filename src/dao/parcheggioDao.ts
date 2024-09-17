@@ -6,8 +6,17 @@ import {
 import { Parcheggio } from '../models/parcheggio';
 import { DaoI } from './DaoI';
 
+/**
+ * Classe ParcheggioDao che implementa l'interfaccia DaoI per Parcheggio.
+ *
+ * Questa classe fornisce metodi per interagire con il modello Parcheggio nel database.
+ */
 class ParcheggioDao implements DaoI<ParcheggioAttributes, number> {
-  // Metodo per ottenere tutti i parcheggi
+  /**
+   * Recupera tutti i parcheggi.
+   *
+   * @returns {Promise<Parcheggio[]>} Promise che restituisce un array di parcheggi.
+   */
   public async findAll(): Promise<Parcheggio[]> {
     try {
       return await Parcheggio.findAll();
@@ -19,7 +28,12 @@ class ParcheggioDao implements DaoI<ParcheggioAttributes, number> {
     }
   }
 
-  // Metodo per trovare un parcheggio per ID
+  /**
+   * Recupera un parcheggio per ID.
+   *
+   * @param {number} id ID del parcheggio.
+   * @returns {Promise<Parcheggio | null>} Promise che restituisce un parcheggio o null se non esiste.
+   */
   public async findById(id: number): Promise<Parcheggio | null> {
     try {
       const parcheggio = await Parcheggio.findByPk(id);
@@ -40,7 +54,12 @@ class ParcheggioDao implements DaoI<ParcheggioAttributes, number> {
     }
   }
 
-  // Metodo per creare un nuovo parcheggio
+  /**
+   * Crea un nuovo parcheggio.
+   *
+   * @param {ParcheggioCreationAttributes} item Dati per creare il nuovo parcheggio.
+   * @returns {Promise<Parcheggio>} Promise che restituisce il parcheggio appena creato.
+   */
   public async create(item: ParcheggioCreationAttributes): Promise<Parcheggio> {
     try {
       return await Parcheggio.create(item);
@@ -56,7 +75,13 @@ class ParcheggioDao implements DaoI<ParcheggioAttributes, number> {
     }
   }
 
-  // Metodo per aggiornare un parcheggio
+  /**
+   * Aggiorna un parcheggio esistente.
+   *
+   * @param {number} id ID del parcheggio da aggiornare.
+   * @param {ParcheggioCreationAttributes} item Dati aggiornati del parcheggio.
+   * @returns {Promise<boolean>} Promise che restituisce true se l'aggiornamento è avvenuto con successo, false in caso contrario.
+   */
   public async update(
     id: number,
     item: ParcheggioCreationAttributes
@@ -83,7 +108,12 @@ class ParcheggioDao implements DaoI<ParcheggioAttributes, number> {
     }
   }
 
-  // Metodo per eliminare un parcheggio
+  /**
+   * Elimina un parcheggio per ID.
+   *
+   * @param {number} id ID del parcheggio da eliminare.
+   * @returns {Promise<boolean>} Promise che restituisce true se l'eliminazione è avvenuta, false in caso contrario.
+   */
   public async delete(id: number): Promise<boolean> {
     try {
       const result = await Parcheggio.destroy({ where: { id } });

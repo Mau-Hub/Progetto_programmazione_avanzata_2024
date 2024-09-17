@@ -2,6 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import { ApplicationErrorTypes, ErrorGenerator } from '../ext/errorFactory';
 import { isValidISODate } from '../ext/dateUtils';
 
+/**
+ * Middleware di validazione per la creazione o l'aggiornamento di un parcheggio.
+ *
+ * Verifica che i campi 'nome', 'capacita', e 'varchi' siano validi e che 'posti_disponibili' non sia impostato manualmente.
+ */
 const validateParcheggio = (
   req: Request,
   res: Response,
@@ -9,7 +14,7 @@ const validateParcheggio = (
 ) => {
   const { nome, capacita, varchi, posti_disponibili } = req.body;
 
-  // Verifica che 'nome' sia presente e sia una stringa
+  // Verifica che 'nome' sia presente e sia una stringa non vuota
   if (!nome || typeof nome !== 'string' || nome.trim() === '') {
     return next(
       ErrorGenerator.generateError(
@@ -33,7 +38,7 @@ const validateParcheggio = (
     );
   }
 
-  // Verifica che 'varchi' sia un array (se fornito)
+  // Verifica che 'varchi' sia un array se è fornito
   if (varchi && !Array.isArray(varchi)) {
     return next(
       ErrorGenerator.generateError(
@@ -43,7 +48,7 @@ const validateParcheggio = (
     );
   }
 
-  // Verifica la validità di ciascun 'varco'
+  // Verifica la validità di ciascun elemento in 'varchi' se fornito
   if (varchi) {
     for (const varco of varchi) {
       if (
@@ -70,9 +75,16 @@ const validateParcheggio = (
     );
   }
 
+  // Passa al middleware successivo se tutti i controlli sono superati
   next();
 };
 
+/**
+ * Middleware di validazione per la creazione o l'aggiornamento di un varco.
+ *
+ * Verifica che i campi 'tipo', 'bidirezionale', e 'id_parcheggio' siano validi.
+ *
+ */
 const validateVarco = (req: Request, res: Response, next: NextFunction) => {
   const { tipo, bidirezionale, id_parcheggio } = req.body;
 
@@ -86,7 +98,7 @@ const validateVarco = (req: Request, res: Response, next: NextFunction) => {
     );
   }
 
-  // Verifica che 'bidirezionale' sia booleano
+  // Verifica che 'bidirezionale' sia un valore booleano
   if (typeof bidirezionale !== 'boolean') {
     return next(
       ErrorGenerator.generateError(
@@ -111,9 +123,15 @@ const validateVarco = (req: Request, res: Response, next: NextFunction) => {
     );
   }
 
+  // Passa al middleware successivo se tutti i controlli sono superati
   next();
 };
 
+/**
+ * Middleware di validazione per la creazione o l'aggiornamento di una tariffa.
+ *
+ * Verifica che i campi 'id_tipo_veicolo', 'importo', 'fascia_oraria', 'id_parcheggio', e 'feriale_festivo' siano validi.
+ */
 const validateTariffa = (req: Request, res: Response, next: NextFunction) => {
   const {
     id_tipo_veicolo,
@@ -123,7 +141,7 @@ const validateTariffa = (req: Request, res: Response, next: NextFunction) => {
     feriale_festivo,
   } = req.body;
 
-  // Verifica che l'id del tipi di veicolo sia un numero intero positivo
+  // Verifica che 'id_tipo_veicolo' sia un numero intero positivo
   if (
     !id_tipo_veicolo ||
     typeof id_tipo_veicolo !== 'number' ||
@@ -148,7 +166,7 @@ const validateTariffa = (req: Request, res: Response, next: NextFunction) => {
     );
   }
 
-  // Verifica che 'fascia_oraria' sia valida (DIURNA o NOTTURNA)
+  // Verifica che 'fascia_oraria' sia valida ('DIURNA' o 'NOTTURNA')
   if (!['DIURNA', 'NOTTURNA'].includes(fascia_oraria)) {
     return next(
       ErrorGenerator.generateError(
@@ -173,7 +191,7 @@ const validateTariffa = (req: Request, res: Response, next: NextFunction) => {
     );
   }
 
-  // Verifica che 'feriale_festivo' sia valido
+  // Verifica che 'feriale_festivo' sia valido ('FERIALE' o 'FESTIVO')
   if (!['FERIALE', 'FESTIVO'].includes(feriale_festivo)) {
     return next(
       ErrorGenerator.generateError(
@@ -183,13 +201,19 @@ const validateTariffa = (req: Request, res: Response, next: NextFunction) => {
     );
   }
 
+  // Passa al middleware successivo se tutti i controlli sono superati
   next();
 };
 
+/**
+ * Middleware di validazione per la creazione o l'aggiornamento di un transito.
+ *
+ * Verifica che i campi 'targa', 'id_tipo_veicolo' e 'id_varco_ingresso' siano validi.
+ */
 const validateTransito = (req: Request, res: Response, next: NextFunction) => {
   const { targa, id_tipo_veicolo, id_varco_ingresso } = req.body;
 
-  // Verifica che 'targa' sia presente e sia una stringa valida
+  // Verifica che 'targa' sia presente e sia una stringa non vuota
   if (!targa || typeof targa !== 'string' || targa.trim() === '') {
     return next(
       ErrorGenerator.generateError(
@@ -228,9 +252,16 @@ const validateTransito = (req: Request, res: Response, next: NextFunction) => {
       )
     );
   }
+
+  // Passa al middleware successivo se tutti i controlli sono superati
   next();
 };
 
+/**
+ * Middleware di validazione per l'aggiornamento dell'uscita di un transito.
+ *
+ * Verifica che i campi 'id' nei parametri della richiesta e 'id_varco_uscita' nel corpo della richiesta siano validi.
+ */
 const validateUpdateUscita = (
   req: Request,
   res: Response,
@@ -269,9 +300,15 @@ const validateUpdateUscita = (
     );
   }
 
+  // Passa al middleware successivo se tutti i controlli sono superati
   next();
 };
 
+/**
+ * Middleware di validazione per l'esportazione dei transiti.
+ *
+ * Verifica che i campi 'targhe', 'from', 'to' e 'formato' siano validi.
+ */
 const validateExportTransiti = (
   req: Request,
   res: Response,
@@ -279,7 +316,7 @@ const validateExportTransiti = (
 ) => {
   const { targhe, from, to, formato } = req.body;
 
-  // Verifica che 'targhe' sia un array di stringhe
+  // Verifica che 'targhe' sia un array di stringhe non vuote
   if (
     !Array.isArray(targhe) ||
     targhe.length === 0 ||
@@ -293,7 +330,7 @@ const validateExportTransiti = (
     );
   }
 
-  // Verifica che 'from' e 'to' siano date ISO valide
+  // Verifica che 'from' sia una data ISO valida
   if (!from || !isValidISODate(from)) {
     return next(
       ErrorGenerator.generateError(
@@ -303,6 +340,7 @@ const validateExportTransiti = (
     );
   }
 
+  // Verifica che 'to' sia una data ISO valida
   if (!to || !isValidISODate(to)) {
     return next(
       ErrorGenerator.generateError(
@@ -322,9 +360,15 @@ const validateExportTransiti = (
     );
   }
 
+  // Passa al middleware successivo se tutti i controlli sono superati
   next();
 };
 
+/**
+ * Middleware di validazione per la richiesta delle statistiche.
+ *
+ * Verifica che i campi 'from' e 'to' siano stringhe rappresentanti date ISO valide.
+ */
 const validateStatistiche = (
   req: Request,
   res: Response,
@@ -332,7 +376,7 @@ const validateStatistiche = (
 ) => {
   const { from, to } = req.body;
 
-  // Verifica che 'from' e 'to' siano stringhe e rappresentino date ISO valide
+  // Verifica che 'from' sia una stringa rappresentante una data ISO valida
   if (!from || typeof from !== 'string' || !isValidISODate(from)) {
     return next(
       ErrorGenerator.generateError(
@@ -342,6 +386,7 @@ const validateStatistiche = (
     );
   }
 
+  // Verifica che 'to' sia una stringa rappresentante una data ISO valida
   if (!to || typeof to !== 'string' || !isValidISODate(to)) {
     return next(
       ErrorGenerator.generateError(
@@ -351,9 +396,17 @@ const validateStatistiche = (
     );
   }
 
+  // Passa al middleware successivo se tutti i controlli sono superati
   next();
 };
 
+/**
+ * Middleware di validazione per la richiesta delle statistiche del parcheggio.
+ *
+ * Verifica che i campi 'idParcheggio', 'from' e 'to' siano validi.
+ * 'idParcheggio' deve essere un numero intero positivo.
+ * 'from' e 'to' devono essere stringhe rappresentanti date ISO valide.
+ */
 const validateStatisticheParcheggio = (
   req: Request,
   res: Response,
@@ -376,7 +429,7 @@ const validateStatisticheParcheggio = (
     );
   }
 
-  // Verifica che 'from' e 'to' siano stringhe e rappresentino date ISO valide
+  // Verifica che 'from' sia una stringa rappresentante una data ISO valida
   if (!from || typeof from !== 'string' || !isValidISODate(from)) {
     return next(
       ErrorGenerator.generateError(
@@ -386,6 +439,7 @@ const validateStatisticheParcheggio = (
     );
   }
 
+  // Verifica che 'to' sia una stringa rappresentante una data ISO valida
   if (!to || typeof to !== 'string' || !isValidISODate(to)) {
     return next(
       ErrorGenerator.generateError(
@@ -395,6 +449,7 @@ const validateStatisticheParcheggio = (
     );
   }
 
+  // Passa al middleware successivo se tutti i controlli sono superati
   next();
 };
 

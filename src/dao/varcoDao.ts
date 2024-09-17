@@ -6,11 +6,17 @@ import { DaoI } from './DaoI';
 import { Transaction } from 'sequelize';
 import { CustomHttpError } from '../ext/errorFactory';
 
+/**
+ * Classe VarcoDao che implementa l'interfaccia DaoI per Varco.
+ *
+ * Fornisce metodi per gestire le operazioni CRUD relative ai varchi nel database.
+ */
 class VarcoDao implements DaoI<VarcoAttributes, number> {
   /**
-   * Creazione di un nuovo varco.
+   * Crea un nuovo varco.
    *
    * @param {VarcoCreationAttributes} varcoData Dati per la creazione del nuovo varco.
+   * @param {Transaction} [transaction] Transazione Sequelize opzionale per garantire l'atomicità.
    * @returns {Promise<Varco>} Promise che restituisce il varco appena creato.
    */
   async create(
@@ -42,7 +48,7 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
   }
 
   /**
-   * Ottenere tutti i varchi.
+   * Recupera tutti i varchi.
    *
    * @returns {Promise<Varco[]>} Promise che restituisce un array di varchi.
    */
@@ -59,7 +65,7 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
   }
 
   /**
-   * Ottenere un varco specifico per ID.
+   * Recupera un varco specifico per ID.
    *
    * @param {number} id ID del varco.
    * @returns {Promise<Varco | null>} Promise che restituisce un varco o null se non esistente.
@@ -83,11 +89,11 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
   }
 
   /**
-   * Aggiornare un varco.
+   * Aggiorna un varco.
    *
    * @param {number} id ID del varco da aggiornare.
    * @param {Partial<VarcoAttributes>} varcoData Dati parziali per aggiornare il varco.
-   * @returns {Promise<boolean>} Promise che restituisce true se l'aggiornamento è avvenuto con successo, false altrimenti.
+   * @returns {Promise<boolean>} Promise che restituisce true se l'aggiornamento è avvenuto con successo, false in caso contrario.
    */
   async update(
     id: number,
@@ -111,10 +117,10 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
   }
 
   /**
-   * Eliminare un varco.
+   * Elimina un varco.
    *
    * @param {number} id ID del varco da eliminare.
-   * @returns {Promise<boolean>} Promise che restituisce true se la cancellazione è avvenuta con successo, false altrimenti.
+   * @returns {Promise<boolean>} Promise che restituisce true se la cancellazione è avvenuta con successo, false in caso contrario.
    */
   async delete(id: number): Promise<boolean> {
     try {
@@ -135,7 +141,7 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
   }
 
   /**
-   * Ottenere tutti i varchi di un parcheggio specifico.
+   * Recupera tutti i varchi di un parcheggio specifico.
    *
    * @param {number} idParcheggio ID del parcheggio.
    * @returns {Promise<Varco[]>} Promise che restituisce un array di varchi per il parcheggio specificato.
@@ -155,7 +161,7 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
   }
 
   /**
-   * Ottenere tutti i varchi bidirezionali.
+   * Recupera tutti i varchi bidirezionali.
    *
    * @returns {Promise<Varco[]>} Promise che restituisce un array di varchi bidirezionali.
    */
@@ -172,7 +178,7 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
   }
 
   /**
-   * Ottenere tutti i varchi di un tipo specifico.
+   * Recupera tutti i varchi di un tipo specifico.
    *
    * @param {('INGRESSO' | 'USCITA')} tipo Tipo del varco da cercare.
    * @returns {Promise<Varco[]>} Promise che restituisce un array di varchi del tipo specificato.
@@ -188,8 +194,9 @@ class VarcoDao implements DaoI<VarcoAttributes, number> {
       );
     }
   }
+
   /**
-   * Eliminare tutti i varchi associati a un parcheggio specifico.
+   * Elimina tutti i varchi associati a un parcheggio specifico.
    *
    * @param {number} idParcheggio ID del parcheggio.
    * @returns {Promise<boolean>} Promise che restituisce true se almeno un varco è stato eliminato.

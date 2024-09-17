@@ -8,9 +8,18 @@ import Parcheggio from '../models/parcheggio';
 import { DaoI } from './DaoI';
 import { FindOptions } from 'sequelize';
 
-// Creazione tariffa
+/**
+ * Classe TariffaDao che implementa l'interfaccia DaoI per Tariffa.
+ *
+ * Fornisce metodi per gestire le operazioni CRUD relative alle tariffe nel database.
+ */
 class TariffaDao implements DaoI<TariffaAttributes, number> {
-  // Creare una nuova tariffa
+  /**
+   * Crea una nuova tariffa.
+   *
+   * @param {TariffaCreationAttributes} item Dati per creare la nuova tariffa.
+   * @returns {Promise<Tariffa>} Promise che restituisce la tariffa appena creata.
+   */
   public async create(item: TariffaCreationAttributes): Promise<Tariffa> {
     try {
       const tariffa = await Tariffa.create(item);
@@ -25,7 +34,12 @@ class TariffaDao implements DaoI<TariffaAttributes, number> {
     }
   }
 
-  // Trovare una tariffa per ID
+  /**
+   * Recupera una tariffa per ID.
+   *
+   * @param {number} id ID della tariffa da recuperare.
+   * @returns {Promise<Tariffa | null>} Promise che restituisce la tariffa trovata o null se non esiste.
+   */
   public async findById(id: number): Promise<Tariffa | null> {
     try {
       const tariffa = await Tariffa.findByPk(id, {
@@ -53,12 +67,16 @@ class TariffaDao implements DaoI<TariffaAttributes, number> {
     }
   }
 
-  // Trovare una tariffa con criteri personalizzati
+  /**
+   * Trova una tariffa con criteri personalizzati.
+   *
+   * @param {FindOptions} options Opzioni di ricerca per personalizzare i criteri di ricerca.
+   * @returns {Promise<Tariffa | null>} Promise che restituisce la tariffa trovata o null se non esiste.
+   */
   public async findOne(options: FindOptions): Promise<Tariffa | null> {
     try {
       const tariffa = await Tariffa.findOne(options);
 
-      // Se non trovi la tariffa, puoi decidere se lanciare un errore o restituire null.
       if (!tariffa) {
         throw ErrorGenerator.generateError(
           ApplicationErrorTypes.RESOURCE_NOT_FOUND,
@@ -68,7 +86,6 @@ class TariffaDao implements DaoI<TariffaAttributes, number> {
 
       return tariffa;
     } catch (error) {
-      // Questo cattura errori inaspettati come problemi di connessione al DB.
       throw ErrorGenerator.generateError(
         ApplicationErrorTypes.SERVER_ERROR,
         `Errore durante la ricerca della tariffa: ${
@@ -78,7 +95,11 @@ class TariffaDao implements DaoI<TariffaAttributes, number> {
     }
   }
 
-  // Ottenere tutte le tariffe
+  /**
+   * Recupera tutte le tariffe.
+   *
+   * @returns {Promise<Tariffa[]>} Promise che restituisce un array di tutte le tariffe.
+   */
   public async findAll(): Promise<Tariffa[]> {
     try {
       const tariffe = await Tariffa.findAll({
@@ -98,7 +119,13 @@ class TariffaDao implements DaoI<TariffaAttributes, number> {
     }
   }
 
-  // Aggiornare una tariffa
+  /**
+   * Aggiorna una tariffa esistente.
+   *
+   * @param {number} id ID della tariffa da aggiornare.
+   * @param {Partial<TariffaAttributes>} item Dati aggiornati della tariffa.
+   * @returns {Promise<boolean>} Promise che restituisce true se l'aggiornamento è avvenuto con successo, false in caso contrario.
+   */
   public async update(
     id: number,
     item: Partial<TariffaAttributes>
@@ -126,7 +153,12 @@ class TariffaDao implements DaoI<TariffaAttributes, number> {
     }
   }
 
-  // Eliminare una tariffa
+  /**
+   * Elimina una tariffa per ID.
+   *
+   * @param {number} id ID della tariffa da eliminare.
+   * @returns {Promise<boolean>} Promise che restituisce true se l'eliminazione è avvenuta, false in caso contrario.
+   */
   public async delete(id: number): Promise<boolean> {
     try {
       const result = await Tariffa.destroy({

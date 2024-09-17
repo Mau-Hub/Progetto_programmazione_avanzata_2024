@@ -6,14 +6,18 @@ import {
   VeicoloCreationAttributes,
 } from '../models/veicolo';
 import TipoVeicolo from '../models/tipoVeicolo';
-import { Op } from 'sequelize';
-import { Transaction } from 'sequelize';
+import { Op, Transaction } from 'sequelize';
 
-// Classe VeicoloDao che implementa l'interfaccia DaoI per Veicolo
+/**
+ * Classe VeicoloDao che implementa l'interfaccia DaoI per Veicolo.
+ *
+ * Fornisce metodi per gestire le operazioni CRUD relative ai veicoli nel database.
+ */
 class VeicoloDao implements DaoI<VeicoloAttributes, number> {
   /**
    * Recupera tutti i veicoli.
    *
+   * @param {any} [options] Opzioni aggiuntive per personalizzare la query.
    * @returns {Promise<Veicolo[]>} Promise che restituisce un array di veicoli.
    */
   public async findAll(options?: any): Promise<Veicolo[]> {
@@ -30,7 +34,7 @@ class VeicoloDao implements DaoI<VeicoloAttributes, number> {
   /**
    * Recupera un veicolo per ID.
    *
-   * @param {number} id del veicolo.
+   * @param {number} id ID del veicolo.
    * @returns {Promise<Veicolo | null>} Promise che restituisce un veicolo o null se non esistente.
    */
   public async findById(id: number): Promise<Veicolo | null> {
@@ -54,7 +58,8 @@ class VeicoloDao implements DaoI<VeicoloAttributes, number> {
   /**
    * Crea un nuovo veicolo.
    *
-   * @param {VeicoloAttributes} item dati per generare il veicolo.
+   * @param {VeicoloCreationAttributes} item Dati per creare il nuovo veicolo.
+   * @param {Transaction} [transaction] Transazione Sequelize opzionale per garantire l'atomicità.
    * @returns {Promise<Veicolo>} Promise che restituisce il veicolo appena creato.
    */
   public async create(
@@ -74,9 +79,9 @@ class VeicoloDao implements DaoI<VeicoloAttributes, number> {
   /**
    * Aggiorna un veicolo esistente.
    *
-   * @param {number} id id attribuito al veicolo.
-   * @param {VeicoloAttributes} item dati necessari per l'aggiornamento del veicolo
-   * @returns {Promise<boolean>} Promise che restituisce true se l'aggiornamento è avvenuto, false in caso contrario.
+   * @param {number} id ID del veicolo da aggiornare.
+   * @param {VeicoloCreationAttributes} item Dati aggiornati del veicolo.
+   * @returns {Promise<boolean>} Promise che restituisce true se l'aggiornamento è avvenuto con successo, false in caso contrario.
    */
   public async update(
     id: number,
@@ -99,8 +104,8 @@ class VeicoloDao implements DaoI<VeicoloAttributes, number> {
   /**
    * Cancella un veicolo per ID.
    *
-   * @param {number} id id del veicolo.
-   * @returns {Promise<boolean>} Promise che restituisce true se la cancellazione è avvenuta, false in caso contrario.
+   * @param {number} id ID del veicolo da cancellare.
+   * @returns {Promise<boolean>} Promise che restituisce true se la cancellazione è avvenuta con successo, false in caso contrario.
    */
   public async delete(id: number): Promise<boolean> {
     try {
@@ -153,6 +158,7 @@ class VeicoloDao implements DaoI<VeicoloAttributes, number> {
       );
     }
   }
+
   /**
    * Recupera un veicolo per ID con il TipoVeicolo associato.
    *

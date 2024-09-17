@@ -3,7 +3,9 @@ import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
 import { DaoI } from './DaoI';
 import { Transaction } from 'sequelize';
 
-// Definizione dell'interfaccia UtenteAttributes
+/**
+ * Interfaccia UtenteAttributes che definisce gli attributi di un utente.
+ */
 interface UtenteAttributes {
   id?: number;
   nome: string;
@@ -11,6 +13,11 @@ interface UtenteAttributes {
   username: string;
 }
 
+/**
+ * Classe UtenteDao che implementa l'interfaccia DaoI per Utente.
+ *
+ * Fornisce metodi per gestire le operazioni CRUD relative agli utenti nel database.
+ */
 class UtenteDao implements DaoI<UtenteAttributes, number> {
   /**
    * Recupera tutti gli utenti.
@@ -29,10 +36,10 @@ class UtenteDao implements DaoI<UtenteAttributes, number> {
   }
 
   /**
-   * Recupero dell'utente per ID.
+   * Recupera un utente per ID.
    *
-   * @param {number} id dell'utente.
-   * @returns {Promise<Utente | null>} Promise che restituisce un utente o restituisce null se non esistente.
+   * @param {number} id ID dell'utente.
+   * @returns {Promise<Utente | null>} Promise che restituisce un utente o null se non esistente.
    */
   public async findById(id: number): Promise<Utente | null> {
     try {
@@ -40,7 +47,7 @@ class UtenteDao implements DaoI<UtenteAttributes, number> {
       if (!utente) {
         throw ErrorGenerator.generateError(
           ApplicationErrorTypes.RESOURCE_NOT_FOUND,
-          `L'Utente con id ${id} inesistente`
+          `L'utente con id ${id} è inesistente`
         );
       }
       return utente;
@@ -55,7 +62,8 @@ class UtenteDao implements DaoI<UtenteAttributes, number> {
   /**
    * Crea un nuovo utente.
    *
-   * @param {UtenteAttributes} item dati per generare l'utente.
+   * @param {UtenteAttributes} item Dati per creare il nuovo utente.
+   * @param {Transaction} [transaction] Transazione Sequelize opzionale per garantire l'atomicità.
    * @returns {Promise<Utente>} Promise che restituisce l'utente appena creato.
    */
   public async create(
@@ -75,9 +83,9 @@ class UtenteDao implements DaoI<UtenteAttributes, number> {
   /**
    * Aggiorna un utente esistente.
    *
-   * @param {number} id id attribuito all'utente.
-   * @param {UtenteAttributes} item dati necessari per l'aggiornamento dell'utente
-   * @returns {Promise<boolean>} Promise che restituisce true se l'aggiornamento è avvenuto, false in caso contrario.
+   * @param {number} id ID dell'utente da aggiornare.
+   * @param {UtenteAttributes} item Dati aggiornati dell'utente.
+   * @returns {Promise<boolean>} Promise che restituisce true se l'aggiornamento è avvenuto con successo, false in caso contrario.
    */
   public async update(id: number, item: UtenteAttributes): Promise<boolean> {
     try {
@@ -97,8 +105,8 @@ class UtenteDao implements DaoI<UtenteAttributes, number> {
   /**
    * Cancella un utente per ID.
    *
-   * @param {number} id id dell'utente.
-   * @returns {Promise<boolean>} Promise che restituisce true se la cancellazione è avvenuta, false in caso contrario.
+   * @param {number} id ID dell'utente da cancellare.
+   * @returns {Promise<boolean>} Promise che restituisce true se la cancellazione è avvenuta con successo, false in caso contrario.
    */
   public async delete(id: number): Promise<boolean> {
     try {
@@ -151,7 +159,7 @@ class UtenteDao implements DaoI<UtenteAttributes, number> {
   /**
    * Recupera un utente per username.
    *
-   * @param {string} username username dell'utente.
+   * @param {string} username Username dell'utente.
    * @returns {Promise<Utente | null>} Promise che restituisce un utente o null se non trovato.
    */
   public async findByUsername(username: string): Promise<Utente | null> {

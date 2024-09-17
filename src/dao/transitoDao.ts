@@ -8,10 +8,20 @@ import {
   TransitoAttributes,
   TransitoCreationAttributes,
 } from '../models/transito';
-import { Transaction } from 'sequelize';
-import { IncludeOptions } from 'sequelize';
+import { Transaction, IncludeOptions } from 'sequelize';
 
+/**
+ * Classe TransitoDao che implementa l'interfaccia DaoI per Transito.
+ *
+ * Questa classe fornisce metodi per interagire con il modello Transito nel database.
+ */
 class TransitoDao implements DaoI<Transito, number> {
+  /**
+   * Recupera tutti i transiti.
+   *
+   * @param {any} [options] Opzioni aggiuntive per personalizzare la query.
+   * @returns {Promise<Transito[]>} Promise che restituisce un array di transiti.
+   */
   public async findAll(options?: any): Promise<Transito[]> {
     try {
       return await Transito.findAll({
@@ -31,6 +41,13 @@ class TransitoDao implements DaoI<Transito, number> {
     }
   }
 
+  /**
+   * Recupera un transito per ID.
+   *
+   * @param {number} id ID del transito da recuperare.
+   * @param {object} [options] Opzioni aggiuntive come le associazioni da includere.
+   * @returns {Promise<Transito | null>} Promise che restituisce il transito trovato o null se non esiste.
+   */
   public async findById(
     id: number,
     options?: { include?: IncludeOptions[] }
@@ -60,6 +77,13 @@ class TransitoDao implements DaoI<Transito, number> {
     }
   }
 
+  /**
+   * Crea un nuovo transito.
+   *
+   * @param {TransitoCreationAttributes} item Dati per creare il nuovo transito.
+   * @param {Transaction} [transaction] Transazione Sequelize opzionale per garantire l'atomicità.
+   * @returns {Promise<Transito>} Promise che restituisce il transito appena creato.
+   */
   public async create(
     item: TransitoCreationAttributes,
     transaction?: Transaction
@@ -74,6 +98,14 @@ class TransitoDao implements DaoI<Transito, number> {
     }
   }
 
+  /**
+   * Aggiorna un transito esistente.
+   *
+   * @param {number} id ID del transito da aggiornare.
+   * @param {Partial<TransitoAttributes>} item Dati aggiornati del transito.
+   * @param {Transaction} [transaction] Transazione Sequelize opzionale per garantire l'atomicità.
+   * @returns {Promise<boolean>} Promise che restituisce true se l'aggiornamento è avvenuto con successo, false in caso contrario.
+   */
   public async update(
     id: number,
     item: Partial<TransitoAttributes>,
@@ -102,6 +134,12 @@ class TransitoDao implements DaoI<Transito, number> {
     }
   }
 
+  /**
+   * Elimina un transito per ID.
+   *
+   * @param {number} id ID del transito da eliminare.
+   * @returns {Promise<boolean>} Promise che restituisce true se l'eliminazione è avvenuta, false in caso contrario.
+   */
   public async delete(id: number): Promise<boolean> {
     try {
       const result = await Transito.destroy({ where: { id } });
@@ -121,6 +159,13 @@ class TransitoDao implements DaoI<Transito, number> {
       );
     }
   }
+
+  /**
+   * Trova un transito con criteri personalizzati.
+   *
+   * @param {object} [options] Opzioni di ricerca per personalizzare i criteri di ricerca.
+   * @returns {Promise<Transito | null>} Promise che restituisce il transito trovato o null se non esiste.
+   */
   public async findOne(options?: {
     where?: any;
     include?: IncludeOptions[];

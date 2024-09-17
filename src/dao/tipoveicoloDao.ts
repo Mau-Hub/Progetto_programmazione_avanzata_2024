@@ -2,7 +2,11 @@ import TipoVeicolo, { TipoVeicoloAttributes } from '../models/tipoVeicolo';
 import { ErrorGenerator, ApplicationErrorTypes } from '../ext/errorFactory';
 import { DaoI } from './DaoI';
 
-// Classe TipoVeicoloDao che implementa l'interfaccia DaoI per TipoVeicolo
+/**
+ * Classe TipoVeicoloDao che implementa l'interfaccia DaoI per TipoVeicolo.
+ *
+ * Fornisce metodi per gestire le operazioni CRUD relative ai tipi di veicolo nel database.
+ */
 class TipoVeicoloDao implements DaoI<TipoVeicoloAttributes, number> {
   /**
    * Recupera tutti i tipi di veicoli.
@@ -21,9 +25,9 @@ class TipoVeicoloDao implements DaoI<TipoVeicoloAttributes, number> {
   }
 
   /**
-   * Recupero del tipo di veicolo per ID.
+   * Recupera un tipo di veicolo per ID.
    *
-   * @param {number} id del tipo di veicolo.
+   * @param {number} id ID del tipo di veicolo.
    * @returns {Promise<TipoVeicolo | null>} Promise che restituisce un tipo di veicolo o null se non esistente.
    */
   public async findById(id: number): Promise<TipoVeicolo | null> {
